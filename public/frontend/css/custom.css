@@ -1,0 +1,20 @@
+.mobile-logo{
+    width: 90%;
+    height: auto;
+    margin: 0 auto;
+}
+.ml-0{
+    margin-left: 0 !important;
+}
+.main-logo{
+    width: 350px !important;
+}
+@media (max-width: 768px) {
+    .main-logo{
+        width: 100% !important;
+    }
+}
+.about-image{
+    background: url(../../frontend/images/assets/about.webp) !important;
+    background-size: cover !important;
+}

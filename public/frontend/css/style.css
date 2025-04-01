@@ -4389,7 +4389,7 @@ iframe {
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 .text-feature-three .media-wrapper {
-  background: url(../images/media/img_13.jpg) no-repeat center;
+  background: url(../frontend/images/assets/about.webp) no-repeat center;
   background-size: cover;
   border-radius: 30px;
   z-index: 1;
