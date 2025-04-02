@@ -1,20 +1,50 @@
-.mobile-logo{
+.mobile-logo {
     width: 90%;
     height: auto;
     margin: 0 auto;
 }
-.ml-0{
+.ml-0 {
     margin-left: 0 !important;
 }
-.main-logo{
+.main-logo {
     width: 350px !important;
 }
 @media (max-width: 768px) {
-    .main-logo{
+    .main-logo {
         width: 100% !important;
     }
 }
-.about-image{
+.about-image {
     background: url(../../frontend/images/assets/about.webp) !important;
     background-size: cover !important;
 }
+.service-icon {
+    width: 150px;
+    height: 150px;
+}
+.card-style-twentyTwo h4 {
+    margin-top: 50px !important;
+}
+
+.card-style-twentyTwo img.icon {
+    filter: grayscale(100%) brightness(80%) contrast(90%);
+}
+.partner-title {
+    font-size: 38px !important;
+}
+.partner-logo {
+    filter: grayscale(100%) brightness(80%) contrast(90%);
+    transition: filter 0.3s ease-in-out; /* Smooth transition effect */
+}
+
+.partner-logo:hover {
+    cursor: pointer;
+    filter: grayscale(0%);
+}
+.partner-logo img{
+    margin: auto;
+    height: 100% !important;
+    justify-content: center !important;
+}
+
+

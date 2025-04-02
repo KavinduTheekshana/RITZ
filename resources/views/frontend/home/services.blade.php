@@ -16,66 +16,21 @@
                 </div>
             </div>
             <div class="row justify-content-center mt-100 md-mt-10">
+
+                @foreach($services as $service)
                 <div class="col-lg-4 col-sm-6 d-flex wow fadeInUp">
                     <div class="card-style-twentyTwo w-100 tran3s mt-30">
-                        <img src="images/lazy.svg" data-src="images/icon/icon_104.svg" alt="" class="lazy-img icon m-auto">
+                        {{-- <div class="service-icon lazy-img icon m-auto">{!! $service->icon !!}</div> --}}
+                        <img src="{{ asset('storage/' . $service->icon) }}" alt="{{ $service->short_title }}" class="lazy-img icon m-auto">
                         <div class="text">
-                            <h4 class="fw-bold color-deep">Estate tax strategy</h4>
-                            <a href="service-details.html" class="learn-btn tran3s stretched-link">Learn More</a>
+                            <h4 class="fw-bold color-deep">{{ $service->short_title }}</h4>
+                            {{-- <p>{{ $service->meta_description }}</p> --}}
+                            <a href="service-details.html" class="learn-btn tran3s stretched-link">Read More</a>
                         </div>
                     </div>
-                    <!-- /.card-style-twentyTwo -->
                 </div>
-                <div class="col-lg-4 col-sm-6 d-flex wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="card-style-twentyTwo w-100 tran3s mt-30">
-                        <img src="images/lazy.svg" data-src="images/icon/icon_105.svg" alt="" class="lazy-img icon m-auto">
-                        <div class="text">
-                            <h4 class="fw-bold color-deep">Property tax obligations</h4>
-                            <a href="service-details.html" class="learn-btn tran3s stretched-link">Learn More</a>
-                        </div>
-                    </div>
-                    <!-- /.card-style-twentyTwo -->
-                </div>
-                <div class="col-lg-4 col-sm-6 d-flex wow fadeInUp" data-wow-delay="0.2s">
-                    <div class="card-style-twentyTwo w-100 tran3s mt-30">
-                        <img src="images/lazy.svg" data-src="images/icon/icon_106.svg" alt="" class="lazy-img icon m-auto">
-                        <div class="text">
-                            <h4 class="fw-bold color-deep">Tax fraud law</h4>
-                            <a href="service-details.html" class="learn-btn tran3s stretched-link">Learn More</a>
-                        </div>
-                    </div>
-                    <!-- /.card-style-twentyTwo -->
-                </div>
-                <div class="col-lg-4 col-sm-6 d-flex wow fadeInUp">
-                    <div class="card-style-twentyTwo w-100 tran3s mt-30">
-                        <img src="images/lazy.svg" data-src="images/icon/icon_107.svg" alt="" class="lazy-img icon m-auto">
-                        <div class="text">
-                            <h4 class="fw-bold color-deep">Tax liability management</h4>
-                            <a href="service-details.html" class="learn-btn tran3s stretched-link">Learn More</a>
-                        </div>
-                    </div>
-                    <!-- /.card-style-twentyTwo -->
-                </div>
-                <div class="col-lg-4 col-sm-6 d-flex wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="card-style-twentyTwo w-100 tran3s mt-30">
-                        <img src="images/lazy.svg" data-src="images/icon/icon_108.svg" alt="" class="lazy-img icon m-auto">
-                        <div class="text">
-                            <h4 class="fw-bold color-deep">IRS tax challenge</h4>
-                            <a href="service-details.html" class="learn-btn tran3s stretched-link">Learn More</a>
-                        </div>
-                    </div>
-                    <!-- /.card-style-twentyTwo -->
-                </div>
-                <div class="col-lg-4 col-sm-6 d-flex wow fadeInUp" data-wow-delay="0.2s">
-                    <div class="card-style-twentyTwo w-100 tran3s mt-30">
-                        <img src="images/lazy.svg" data-src="images/icon/icon_109.svg" alt="" class="lazy-img icon m-auto">
-                        <div class="text">
-                            <h4 class="fw-bold color-deep">International tax</h4>
-                            <a href="service-details.html" class="learn-btn tran3s stretched-link">Learn More</a>
-                        </div>
-                    </div>
-                    <!-- /.card-style-twentyTwo -->
-                </div>
+                @endforeach
+
             </div>
 
             {{-- <div class="section-subheading md-mt-40">
