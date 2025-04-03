@@ -54,7 +54,8 @@
 								</ul>
 							</div>
 						</div>
-						<div class="copyright text-center">Copyright @2023 babun inc.</div>
+						<div class="copyright text-center">Copyright {{ date('Y') }} RITZ Accountants <br> <small>Developed by <a href="https://creatxsoftware.com" target="_blank" class="creatx">Creatx Software Ltd</a>
+						</small></div>
 					</div>
 				</div>
 				<!-- /.bg-wrapper -->

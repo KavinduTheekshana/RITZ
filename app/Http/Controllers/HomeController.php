@@ -23,4 +23,9 @@ class HomeController extends Controller
 
         return view('frontend.home.index', compact('services', 'partners', 'testimonials', 'faqs'));
     }
+
+    public function contact()
+    {
+        return view('frontend.contact.index');
+    }
 }

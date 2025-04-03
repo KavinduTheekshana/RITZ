@@ -55,4 +55,13 @@
 .fw-700 {
     font-weight: 700 !important;
 }
+.active{
+    color: #cfff45 !important;
+}
+.creatx {
+    transition: color 0.1s ease-in-out; /* Smooth transition effect for color */
+}
+.creatx:hover {
+    color: #729017 !important;
+}
 

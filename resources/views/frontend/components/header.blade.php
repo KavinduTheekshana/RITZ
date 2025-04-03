@@ -28,7 +28,7 @@
 									<li class="d-block d-lg-none"><div class="logo"><a href="index.html" class="d-block mobile-logo ml-0"><img src="{{ asset('frontend/images/logo/ritz.svg')}}" alt=""></a></div></li>
 
 									<li class="nav-item">
-										<a class="nav-link" href="contact.html" role="button">Home</a>
+										<a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ route('/') }}" role="button">Home</a>
 									</li>
 
 									<li class="nav-item dropdown">
@@ -42,7 +42,7 @@
 										</ul>
 									</li>
 									<li class="nav-item">
-										<a class="nav-link" href="contact.html" role="button">Contact Us</a>
+										<a class="nav-link {{ request()->is('contact') ? 'active' : '' }}" href="{{ route('contact') }}" role="button">Contact Us</a>
 									</li>
 									<li class="d-md-none ps-2 pe-2 mt-15"><a href="contact.html" class="btn-one text-center w-100 fw-500 tran3s">Login / Register</a></li>
 								</ul>
