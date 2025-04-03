@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Faq;
 use App\Models\Partner;
 use App\Models\Service;
 use App\Models\Testimonial;
@@ -18,7 +19,8 @@ class HomeController extends Controller
         $partners = Partner::where('status', 1)
             ->get();
         $testimonials = Testimonial::where('status', 1)->get();
+        $faqs = Faq::where('status', 1)->get();
 
-        return view('frontend.home.index', compact('services', 'partners', 'testimonials'));
+        return view('frontend.home.index', compact('services', 'partners', 'testimonials', 'faqs'));
     }
 }
