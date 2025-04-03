@@ -11,7 +11,7 @@
 							<div class="col-xl-3 col-lg-4 footer-intro mb-30">
 								<div class="logo mb-35 md-mb-20">
 									<a href="index.html">
-										<img src="images/logo/logo_07.svg" alt="">
+										<img src="{{ asset('frontend/images/logo/ritz_dark.svg')}}" class="main-logo" alt="">
 									</a>
 								</div>
 								<!-- logo -->
@@ -56,8 +56,6 @@
 						</div>
 						<div class="copyright text-center">Copyright @2023 babun inc.</div>
 					</div>
-					<img src="images/lazy.svg" data-src="images/shape/shape_06.svg" alt="" class="lazy-img shapes shape_01">
-					<img src="images/lazy.svg" data-src="images/shape/shape_06.svg" alt="" class="lazy-img shapes shape_02">
 				</div>
 				<!-- /.bg-wrapper -->
 			</div>
