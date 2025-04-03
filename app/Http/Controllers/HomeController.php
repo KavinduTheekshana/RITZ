@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Partner;
 use App\Models\Service;
+use App\Models\Testimonial;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -12,10 +13,12 @@ class HomeController extends Controller
     {
         $services = Service::where('status', 1)
             ->orderBy('order', 'asc')
-            ->limit(6)
+            ->limit(4)
             ->get();
-            $partners = Partner::where('status', 1)
+        $partners = Partner::where('status', 1)
             ->get();
-        return view('frontend.home.index', compact('services', 'partners'));
+        $testimonials = Testimonial::where('status', 1)->get();
+
+        return view('frontend.home.index', compact('services', 'partners', 'testimonials'));
     }
 }

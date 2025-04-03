@@ -46,5 +46,13 @@
     height: 100% !important;
     justify-content: center !important;
 }
-
+.t-25{
+    top: 15px !important;
+}
+.partner-logo-style-2 {
+    filter: grayscale(100%) brightness(80%) contrast(90%);
+}
+.fw-700 {
+    font-weight: 700 !important;
+}
 
