@@ -3,13 +3,26 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="keywords" content="Digital marketing agency, Digital marketing company, Digital marketing services">
-    <meta name="description" content="Babun is a beautiful website template designed for Business & Consulting websites.">
-    <meta property="og:site_name" content="Babun">
-    <meta property="og:url" content="https://creativegigstf.com">
+    <title>@yield('title', 'Ritz Accounting & Advisory | Your partner in Business Sustainability.')</title>
+    <meta name="description" content="@yield('meta_description', 'RITZ Accounting offers simple, stress-free accounting services tailored to your business needs. Trusted by businesses across the UK.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'accounting services UK, affordable accountants, HMRC compliance, bookkeeping services, VAT return filing, payroll management, tax return help UK, online accountants, small business accounting, self-assessment tax return, company formation services, business advisory UK')">
+
+    <meta name="title" content="@yield('title', 'Ritz Accounting & Advisory | Your partner in Business Sustainability.')">
+    <link rel="canonical" href="https://ritzaccounting.co.uk" />
+    <meta name="author" content="www.ritzaccounting.co.uk">
+
+    <meta property="og:title" content="@yield('title', 'Ritz Accounting & Advisory | Your partner in Business Sustainability.')" />
+    <meta property="og:description" content="@yield('meta_description', 'RITZ Accounting offers simple, stress-free accounting services tailored to your business needs. Trusted by businesses across the UK.')">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Babun - Business & Consulting HTML5 Template">
-    <meta name='og:image' content='images/assets/ogg.png'>
+    <meta property="og:url" content="https://ritzaccounting.co.uk">
+    <meta property="og:image" content="@yield('ogimage', asset('frontend/assets/images/logo/og.jpg'))">
+    <meta property="og:site_name" content="Ritz Accounting & Advisory">
+
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('title', 'Ritz Accounting & Advisory | Your partner in Business Sustainability.')">
+    <meta name="twitter:description" content="@yield('meta_description', 'RITZ Accounting offers simple, stress-free accounting services tailored to your business needs. Trusted by businesses across the UK.')">
+    <meta name="twitter:image" content="@yield('ogimage', asset('frontend/images/logo/og.webp'))">
     <!-- For IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <!-- For Resposive Device -->
@@ -21,9 +34,8 @@
     <meta name="msapplication-navbutton-color" content="#1A4137">
     <!-- iOS Safari -->
     <meta name="apple-mobile-web-app-status-bar-style" content="#1A4137">
-    <title>Babun - Business & Finance HTML5 Template</title>
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="56x56" href="images/fav-icon/icon.png">
+    <link rel="icon" type="image/png" sizes="56x56" href="{{asset('frontend/images/logo/icon.svg')}}">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" type="text/css" href="{{ asset('frontend/css/bootstrap.min.css') }}" media="all">
     <!-- Main style sheet -->
@@ -33,7 +45,7 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('frontend/css/responsive.css') }}" media="all">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @stack('styles')
-     @vite(['', 'resources/js/app.js'])
+    @vite(['', 'resources/js/app.js'])
 
     <!-- Fix Internet Explorer ______________________________________-->
     <!--[if lt IE 9]>
@@ -50,7 +62,8 @@
    ==================================================== -->
         <div id="preloader">
             <div id="ctn-preloader" class="ctn-preloader">
-                <div class="icon"><img src="{{ asset('frontend/images/logo/icon.svg')}}" alt="" class="m-auto d-block" width="160">
+                <div class="icon"><img src="{{ asset('frontend/images/logo/icon.svg') }}" alt=""
+                        class="m-auto d-block" width="160">
                 </div>
                 <div class="txt-loading">
                     <span data-text-preloader="R" class="letters-loading">

@@ -21,8 +21,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class TestimonialResource extends Resource
 {
     protected static ?string $model = Testimonial::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Content Management';
+    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-bottom-center-text';
 
     public static function form(Form $form): Form
     {

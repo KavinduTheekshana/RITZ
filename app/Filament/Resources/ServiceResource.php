@@ -24,8 +24,8 @@ class ServiceResource extends Resource
     protected static ?string $pluralLabel = 'Services';
     protected static ?string $slug = 'services';
     protected static ?string $recordTitleAttribute = 'title';
-
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Content Management';
+    protected static ?string $navigationIcon = 'heroicon-o-briefcase';
 
     public static function form(Form $form): Form
     {

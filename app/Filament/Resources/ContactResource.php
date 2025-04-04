@@ -16,7 +16,7 @@ use Filament\Tables\Filters\TernaryFilter;
 class ContactResource extends Resource
 {
     protected static ?string $model = Contact::class;
-
+    protected static ?string $navigationGroup = 'Content Management';
     protected static ?string $navigationIcon = 'heroicon-o-envelope';
 
     protected static ?string $navigationLabel = 'Contact Messages';
