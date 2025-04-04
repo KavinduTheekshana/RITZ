@@ -64,4 +64,31 @@
 .creatx:hover {
     color: #729017 !important;
 }
+.ml-25 {
+    margin-left: 25px !important;
+}
+.pt-40{
+    padding-top: 40px !important;
+}
+.text-white {
+    color: #fff !important;
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.9);
+}
+.webaddress-contact {
+    color: #29594b;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.1s ease-in-out, border-bottom 0.1s ease-in-out;
+  }
 
+  .webaddress-contact:hover {
+    color: #3a7a65; /* Slightly lighter shade for hover */
+    border-bottom: 1px solid #3a7a65; /* Underline effect using border */
+  }
+
+  .media-img {
+    max-height: 700px; /* Adjust this value to match your form's height */
+    width: 100%;
+    border-radius: 10px;
+    object-fit: cover;
+  }
