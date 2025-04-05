@@ -7,7 +7,7 @@
                     <li>/</li>
                     <li>@yield('single_page_name')</li>
                 </ul>
-                <h1 class="hero-heading d-inline-block position-relative pt-40 text-white ">@yield('single_page_title')</h1>
+                <h1 class="hero-heading position-relative pt-40 text-white ">@yield('single_page_title')</h1>
             </div>
         </div>
     </div>

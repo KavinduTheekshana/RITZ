@@ -39,16 +39,11 @@
 										<a class="nav-link {{ request()->is('services') ? 'active' : '' }}" href="{{ route('services') }}" role="button">Services</a>
 									</li>
 
-									<li class="nav-item dropdown">
-										<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-											data-bs-auto-close="outside" aria-expanded="false">Blog
-										</a>
-										<ul class="dropdown-menu">
-											<li><a href="blog-v1.html" class="dropdown-item"><span>Blog List</span></a></li>
-											<li><a href="blog-v2.html" class="dropdown-item"><span>Blog Grid</span></a></li>
-											<li><a href="blog-details.html" class="dropdown-item"><span>Blog Details</span></a></li>
-										</ul>
+									<li class="nav-item">
+										<a class="nav-link {{ request()->is('blog') ? 'active' : '' }}" href="{{ route('blog') }}" role="button">Blog</a>
 									</li>
+
+
 									<li class="nav-item">
 										<a class="nav-link {{ request()->is('contact') ? 'active' : '' }}" href="{{ route('contact') }}" role="button">Contact Us</a>
 									</li>
