@@ -108,3 +108,6 @@
 .text-center-price{
     text-align: center !important;
 }
+.position-initial{
+    position: initial !important;
+}
