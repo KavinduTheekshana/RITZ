@@ -15,8 +15,8 @@
                         </div>
 						<div class="d-lg-inline-flex align-items-center wow fadeInUp" data-wow-delay="0.2s">
 							<ul class="style-none d-flex flex-wrap align-items-center">
-                                <li class="me-3 mt-10"><a href="contact.html" class="btn-twentyOne">Explore Our Services</a></li>
-                                <li class="mt-10"><a data-fancybox="" href="https://www.youtube.com/embed/aXFSJTjVjw0" class="btn-twentytwo">Contact Us</a></li>
+                                <li class="me-3 mt-10"><a href="{{ route('services') }}" class="btn-twentyOne">Explore Our Services</a></li>
+                                <li class="mt-10"><a href="{{ route('contact') }}" class="btn-twentytwo">Contact Us</a></li>
                             </ul>
 						</div>
 					</div>

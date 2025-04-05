@@ -170,7 +170,7 @@ foreach ($blogs as $blogItem) {
                     <!-- /.blog-keyword -->
                     <div class="contact-banner text-center mt-50 lg-mt-30">
                         <h3 class="mb-20">Any Questions? <br>Let’s talk</h3>
-                        <a href="contact.html" class="tran3s fw-500">Let’s Talk</a>
+                        <a href="{{ route('contact') }}" class="tran3s fw-500">Let’s Talk</a>
                     </div>
                     <!-- /.contact-banner -->
                 </div>

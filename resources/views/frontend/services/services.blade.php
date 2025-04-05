@@ -12,22 +12,21 @@
             <div class="row justify-content-center mt-50 md-mt-10">
 
                 @foreach ($services as $service)
+                    <div class="col-lg-4 col-sm-6 d-flex wow fadeInUp">
 
-                <div class="col-lg-4 col-sm-6 d-flex wow fadeInUp">
-
-                    <div class="card-style-twentyTwo w-100 tran3s mt-30">
-                        <a href="">
-                        <img src="{{ asset('storage/' . $service->icon) }}" alt="{{ $service->short_title }}" class="lazy-img icon m-auto">
-                        <div class="text">
-                            <h4 class="fw-bold color-deep">{{ $service->short_title }}</h4>
-<p class="learn-btn tran3s stretched-link">{{ $service->title }}</p>
-                            {{-- <a href="service-details.html" class="learn-btn tran3s stretched-link">Read More</a> --}}
+                        <div class="card-style-twentyTwo w-100 tran3s mt-30">
+                            <a href="">
+                                <img src="{{ asset('storage/' . $service->icon) }}" alt="{{ $service->short_title }}"
+                                    class="lazy-img icon m-auto">
+                                <div class="text">
+                                    <h4 class="fw-bold color-deep">{{ $service->short_title }}</h4>
+                                    <p class="learn-btn tran3s stretched-link">{{ $service->title }}</p>
+                                    {{-- <a href="service-details.html" class="learn-btn tran3s stretched-link">Read More</a> --}}
+                                </div>
+                            </a>
                         </div>
-                    </a>
+
                     </div>
-
-                </div>
-
                 @endforeach
             </div>
         </div>
@@ -36,7 +35,7 @@
 
 
 
- {{-- <div class="block-feature-five light-bg position-relative mt-80 md-mt-50 pt-120 lg-pt-80 pb-150 lg-pb-80 mt-150 lg-mt-80">
+{{-- <div class="block-feature-five light-bg position-relative mt-80 md-mt-50 pt-120 lg-pt-80 pb-150 lg-pb-80 mt-150 lg-mt-80">
     <div class="container">
         <div class="position-relative">
             <div class="row">

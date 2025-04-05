@@ -10,7 +10,7 @@
                   <div class="row justify-content-between">
                       <div class="col-xl-3 col-lg-4 footer-intro mb-30">
                           <div class="logo mb-35 md-mb-20">
-                              <a href="index.html">
+                              <a href="{{ route('/') }}">
                                   <img src="{{ asset('frontend/images/logo/ritz_dark.svg') }}" class="main-logo"
                                       alt="">
                               </a>
@@ -49,8 +49,8 @@
                               @endphp
 
                               @forelse($services as $service)
-                                  {{-- <li><a href="{{ route('service.show', $service->slug) }}">{{ $service->title }}</a></li> --}}
-                                  <li><a href="#">{{ $service->short_title }}</a></li>
+                                  <li><a href="{{ route('service.show', $service->slug) }}">{{ $service->title }}</a></li>
+                                  {{-- <li><a href="#">{{ $service->short_title }}</a></li> --}}
                               @empty
                                   <li><a href="#">Financial Services</a></li>
                                   <li><a href="#">Loan Services</a></li>

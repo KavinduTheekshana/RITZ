@@ -49,7 +49,7 @@
                 </div>
 
                 <div class="col-lg-4 t-25 section-btn md-mt-40">
-                    <a href="service-v2.html" class="btn-seven d-inline-flex align-items-center">
+                    <a href="{{ route('services') }}" class="btn-seven d-inline-flex align-items-center">
                         <span class="text">All Services</span>
                         <div class="icon tran3s rounded-circle d-flex align-items-center"><img
                                 src="{{ asset('frontend/images/lazy.svg') }}"
@@ -69,7 +69,7 @@
                             </div>
                             <h4 class="fw-bold mt-40 md-mt-20 mb-20">{{ $service->short_title }}</h4>
                             <p class="mb-60 md-mb-40">{{ $service->meta_description }}</p>
-                            <a href="service-details.html" class="arrow-btn tran3s m-auto stretched-link"><img
+                            <a href="" class="arrow-btn tran3s m-auto stretched-link"><img
                                     src="{{ asset('frontend/images/lazy.svg') }}"
                                     data-src="{{ asset('frontend/images/icon/icon_09.svg') }}" alt=""
                                     class="lazy-img"></a>

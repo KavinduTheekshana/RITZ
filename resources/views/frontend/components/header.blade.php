@@ -47,7 +47,7 @@
 									<li class="nav-item">
 										<a class="nav-link {{ request()->is('contact') ? 'active' : '' }}" href="{{ route('contact') }}" role="button">Contact Us</a>
 									</li>
-									<li class="d-md-none ps-2 pe-2 mt-15"><a href="contact.html" class="btn-one text-center w-100 fw-500 tran3s">Login / Register</a></li>
+									{{-- <li class="d-md-none ps-2 pe-2 mt-15"><a href="contact.html" class="btn-one text-center w-100 fw-500 tran3s">Login / Register</a></li> --}}
 								</ul>
 							</div>
 						</nav>

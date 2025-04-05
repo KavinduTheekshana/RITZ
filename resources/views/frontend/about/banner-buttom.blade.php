@@ -9,7 +9,7 @@
                 <p class="text-lg m0 text-white opacity-75">If you have anything in mind just contact us with our expert.</p>
             </div>
             <div class="col-lg-4 col-md-3">
-                <a href="contact.html" class="quote-btn color-two tran5s rounded-circle d-flex align-items-center justify-content-center ms-auto">
+                <a href="{{ route('contact') }}" class="quote-btn color-two tran5s rounded-circle d-flex align-items-center justify-content-center ms-auto">
                     <img src="{{ asset('frontend/images/lazy.svg')}}" data-src="{{ asset('frontend/images/icon/icon_30.svg')}}" alt="" class="lazy-img">
                 </a>
             </div>

@@ -29,16 +29,6 @@
 
 					</div>
 
-                    {{-- <div class="pagination-one mt-20">
-                        <ul class="style-none d-flex align-items-center justify-content-center">
-                            <li><a href="#" class="active">1</a></li>
-                            <li><a href="#">2</a></li>
-                            <li><a href="#">3</a></li>
-                            <li><a href="#">4</a></li>
-                            <li>...</li>
-                            <li><a href="#">Last <i class="bi bi-arrow-right"></i></a></li>
-                        </ul>
-                    </div> --}}
 
 					{{ $blogs->links('vendor.pagination.custom') }}
 

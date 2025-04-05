@@ -18,7 +18,7 @@
 								<li>Financial Insights & Advisory</li>
 							</ul>
 
-							<a href="#" class="more-btn mt-60 w-100 d-flex align-items-center justify-content-between tran3s">
+							<a href="{{ route('contact') }}" class="more-btn mt-60 w-100 d-flex align-items-center justify-content-between tran3s">
 								<span>Let’s Get Started!</span>
 								<div class="icon d-flex align-items-center justify-content-center rounded-circle"><img src="{{ asset('frontend/images/icon/icon_112.svg')}}" alt=""></div>
 							</a>
