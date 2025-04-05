@@ -69,7 +69,7 @@
                             </div>
                             <h4 class="fw-bold mt-40 md-mt-20 mb-20">{{ $service->short_title }}</h4>
                             <p class="mb-60 md-mb-40">{{ $service->meta_description }}</p>
-                            <a href="{{ route('service.show', $service->slug) }}" class="arrow-btn tran3s m-auto stretched-link"><img
+                            <a href="" class="arrow-btn tran3s m-auto stretched-link"><img
                                     src="{{ asset('frontend/images/lazy.svg') }}"
                                     data-src="{{ asset('frontend/images/icon/icon_09.svg') }}" alt=""
                                     class="lazy-img"></a>
