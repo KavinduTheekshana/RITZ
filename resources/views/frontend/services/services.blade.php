@@ -15,7 +15,7 @@
                     <div class="col-lg-4 col-sm-6 d-flex wow fadeInUp">
 
                         <div class="card-style-twentyTwo w-100 tran3s mt-30">
-                            <a href="">
+                            <a href="{{ route('service.show', $service->slug) }}">
                                 <img src="{{ asset('storage/' . $service->icon) }}" alt="{{ $service->short_title }}"
                                     class="lazy-img icon m-auto">
                                 <div class="text">

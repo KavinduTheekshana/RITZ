@@ -21,8 +21,35 @@ class BlogController extends Controller
      */
     public function show($slug)
     {
+        $categories = Blog::where('status', true)
+            ->select('category')
+            ->selectRaw('COUNT(*) as post_count')
+            ->groupBy('category')
+            ->orderBy('category')
+            ->get();
         $blog = Blog::where('slug', $slug)->published()->firstOrFail();
-        return view('frontend.blog.post', compact('blog'));
+        $recentPosts = Blog::where('status', true)->latest()->take(2)->get();
+
+        $allKeywords = [];
+        $blogs = Blog::where('status', true)->get();
+
+        foreach ($blogs as $blogItem) {
+            // Get keywords from tags field ONLY
+            if (!empty($blogItem->tags)) {
+                $tagsList = explode(',', $blogItem->tags);
+                foreach ($tagsList as $tag) {
+                    $tag = trim($tag);
+                    if (!empty($tag)) {
+                        $allKeywords[$tag] = true;
+                    }
+                }
+            }
+        }
+
+        // Convert to array and sort alphabetically
+        $uniqueKeywords = array_keys($allKeywords);
+        sort($uniqueKeywords);
+        return view('frontend.blog.post', compact('blog', 'categories', 'recentPosts', 'uniqueKeywords'));
     }
 
     /**

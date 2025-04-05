@@ -49,7 +49,7 @@
                               @endphp
 
                               @forelse($services as $service)
-                                  <li><a href="{{ route('service.show', $service->slug) }}">{{ $service->title }}</a></li>
+                                  <li><a href="{{ route('service.show', $service->slug) }}">{{ $service->short_title }}</a></li>
                                   {{-- <li><a href="#">{{ $service->short_title }}</a></li> --}}
                               @empty
                                   <li><a href="#">Financial Services</a></li>

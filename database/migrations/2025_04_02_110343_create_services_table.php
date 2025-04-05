@@ -17,10 +17,9 @@ return new class extends Migration
             $table->string('title');
             $table->string('sub_title')->nullable();
             $table->string('slug')->unique();
-            $table->string('image');
             $table->text('icon')->nullable();
             $table->boolean('status')->default(1);
-            $table->text('keywords')->nullable();
+            $table->text('meta_keywords')->nullable();
             $table->text('meta_description')->nullable();
             $table->longText('description')->nullable();
             $table->integer('order')->default(0);

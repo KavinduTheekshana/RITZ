@@ -28,11 +28,7 @@
                             <h4>{{ $blog->title }}</h4>
                         </div>
                         <div class="post-details-meta">
-                            <p>Tomfoolery crikey bits and bobs brilliant bamboozled down the pub amongst brolly hanky
-                                panky, cack bonnet arse over tit burke bugger all mate bodge. cillum dolore fugiat
-                                pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui official
-                                deserunt mollit anim id est laborum.Suspendisse interdum consectetur libero id faucib
-                                nisl. Lacus vel facilisis volutpat est velit egestas.</p>
+                            <p> {!! $blog->content !!}</p>
 
 
                         </div>
@@ -88,15 +84,7 @@
                     <div class="blog-category mt-60 lg-mt-40">
                         <h3 class="sidebar-title">Category</h3>
                         <ul class="style-none">
-                            @php
-                                // Get all distinct categories with count
-                                $categories = App\Models\Blog::where('status', true)
-                                    ->select('category')
-                                    ->selectRaw('COUNT(*) as post_count')
-                                    ->groupBy('category')
-                                    ->orderBy('category')
-                                    ->get();
-                            @endphp
+
 
                             @foreach ($categories as $categoryItem)
                                 <li>
@@ -111,10 +99,7 @@
                     <div class="blog-recent-news mt-60 lg-mt-40">
                         <h3 class="sidebar-title">Recent News</h3>
 
-                        @php
-                            // Get 2 most recent published blog posts
-                            $recentPosts = App\Models\Blog::where('status', true)->latest()->take(2)->get();
-                        @endphp
+
 
                         @foreach ($recentPosts as $post)
                             <article class="recent-news">
@@ -139,28 +124,7 @@
                     <div class="blog-keyword mt-60 lg-mt-40">
                         <h3 class="sidebar-title">Keywords</h3>
                         <ul class="style-none d-flex flex-wrap">
-                            @php
-                                // Collect all unique keywords from all blog posts' tags column
-$allKeywords = [];
-$blogs = App\Models\Blog::where('status', true)->get();
 
-foreach ($blogs as $blogItem) {
-    // Get keywords from tags field ONLY
-    if (!empty($blogItem->tags)) {
-        $tagsList = explode(',', $blogItem->tags);
-                                        foreach ($tagsList as $tag) {
-                                            $tag = trim($tag);
-                                            if (!empty($tag)) {
-                                                $allKeywords[$tag] = true;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // Convert to array and sort alphabetically
-                                $uniqueKeywords = array_keys($allKeywords);
-                                sort($uniqueKeywords);
-                            @endphp
 
                             @foreach ($uniqueKeywords as $keyword)
                                 <li><a href="{{ route('blog.tag', $keyword) }}">{{ $keyword }}</a></li>

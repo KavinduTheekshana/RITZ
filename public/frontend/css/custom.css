@@ -111,3 +111,18 @@
 .position-initial{
     position: initial !important;
 }
+.active-service{
+    color: #29594b !important;
+}
+.active-service-icon{
+    filter: brightness(0) saturate(100%) invert(28%) sepia(18%) saturate(1008%) hue-rotate(112deg) brightness(99%) contrast(94%) !important;
+}
+.icon-service{
+    filter: brightness(0) saturate(100%) invert(61%) sepia(4%) saturate(245%) hue-rotate(104deg) brightness(94%) contrast(90%);
+}
+.service-details .service-nav-item a.active, .service-details .service-nav-item a:hover{
+    filter: brightness(0) saturate(100%) invert(28%) sepia(18%) saturate(1008%) hue-rotate(112deg) brightness(99%) contrast(94%) !important;
+}
+.mt-42{
+    margin-top: 42px !important;
+}
