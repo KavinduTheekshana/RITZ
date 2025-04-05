@@ -35,37 +35,39 @@
                         <!-- /.post-details-meta -->
                         <!-- Add this before the blog-navigation div in your show.blade.php -->
 
-                        @if ($blog->tags || true)
-                            <div class="bottom-widget d-sm-flex align-items-center justify-content-between">
-                                <ul class="d-flex align-items-center tags style-none pt-20">
-                                    <li>Tag:</li>
-                                    @foreach (explode(',', $blog->tags) as $tag)
-                                        <li><a href="{{ route('blog.tag', trim($tag)) }}">{{ trim($tag) }}</a></li>
-                                    @endforeach
-                                </ul>
-                                <ul class="d-flex share-icon align-items-center style-none pt-20">
-                                    <li>Share:</li>
-                                    <li>
-                                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('blog.show', $blog->slug)) }}"
-                                            target="_blank">
-                                            <i class="bi bi-facebook"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('blog.show', $blog->slug)) }}&text={{ urlencode($blog->title) }}"
-                                            target="_blank">
-                                            <i class="bi bi-twitter"></i>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(route('blog.show', $blog->slug)) }}"
-                                            target="_blank">
-                                            <i class="bi bi-linkedin"></i>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        @endif
+
+                        <div class="bottom-widget d-sm-flex align-items-start justify-content-between flex-wrap">
+                            @if ($blog->tags || true)
+                            <ul class="d-flex align-items-center tags style-none pt-20 flex-wrap">
+                                <li>Tag:</li>
+                                @foreach (explode(',', $blog->tags) as $tag)
+                                <li><a href="{{ route('blog.tag', trim($tag)) }}">{{ trim($tag) }}</a></li>
+                                @endforeach
+                            </ul>
+                            @endif
+                            <ul class="d-flex share-icon align-items-center style-none pt-20">
+                                <li>Share:</li>
+                                <li>
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('blog.show', $blog->slug)) }}"
+                                        target="_blank">
+                                        <i class="bi bi-facebook"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('blog.show', $blog->slug)) }}&text={{ urlencode($blog->title) }}"
+                                        target="_blank">
+                                        <i class="bi bi-twitter"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(route('blog.show', $blog->slug)) }}"
+                                        target="_blank">
+                                        <i class="bi bi-linkedin"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
                     </div>
                     <!-- /.post-data -->
                 </article>
