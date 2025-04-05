@@ -115,7 +115,7 @@ class ServiceResource extends Resource
                     ->sortable()
                     ->label('ID'),
 
-                ImageColumn::make('icon')->disk('public')->circular(),
+                ImageColumn::make('icon')->disk('public'),
 
                 TextColumn::make('short_title')
                     ->sortable()
