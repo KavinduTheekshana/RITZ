@@ -8,7 +8,7 @@
 				<div class="top-header">
 					<div class="d-flex align-items-center justify-content-between">
 						<div class="logo order-lg-0">
-							<a href="index.html" class="d-flex align-items-center">
+							<a href="{{ route('/') }}" class="d-flex align-items-center">
 								<img src="{{ asset('frontend/images/logo/ritz.svg')}}" class="main-logo" alt="">
 							</a>
 						</div>
