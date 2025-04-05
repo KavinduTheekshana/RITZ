@@ -41,15 +41,21 @@ class FaqResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        ->columns([
-            TextColumn::make('question')->searchable(),
-            TextColumn::make('answer')->limit(50),
-            IconColumn::make('status')->boolean(),
-        ])
-        ->filters([
-            Filter::make('Active')->query(fn($query) => $query->where('status', true)),
-        ])
-        ->defaultSort('id', 'desc');
+            ->columns([
+                TextColumn::make('question')->searchable(),
+                TextColumn::make('answer')->limit(50),
+                IconColumn::make('status')->boolean(),
+            ])
+            ->filters([
+                Filter::make('Active')->query(fn($query) => $query->where('status', true)),
+            ])->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\DeleteBulkAction::make(),
+            ])
+            ->defaultSort('id', 'desc');
     }
 
     public static function getRelations(): array
