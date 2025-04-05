@@ -3040,7 +3040,7 @@ iframe {
     height: 100%;
     z-index: -1;
     background: #174034;
-    mix-blend-mode: darken;
+    mix-blend-mode: multiply;
 }
 .fancy-banner-three .title-one h2 {
     font-size: 58px;

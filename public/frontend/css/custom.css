@@ -92,3 +92,16 @@
     border-radius: 10px;
     object-fit: cover;
   }
+  .border-left-none {
+    border-left: none !important;
+}
+.cursor-pointer{
+    cursor: pointer !important;
+}
+.h-312{
+    height: 312px !important;
+    object-fit: cover;
+}
+.justify-center{
+    justify-content: center !important;
+}

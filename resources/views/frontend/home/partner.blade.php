@@ -1,4 +1,4 @@
-<div class="feedback-section-three position-relative lg-pt-100 mt-150 lg-mt-80">
+<div class="feedback-section-three position-relative lg-pt-100 mt-150 lg-mt-80 lg-pb-100 mb-150 lg-mb-80">
     <div class="container">
         <div class="position-relative">
 

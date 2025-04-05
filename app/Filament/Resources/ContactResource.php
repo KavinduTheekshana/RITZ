@@ -19,9 +19,26 @@ class ContactResource extends Resource
     protected static ?string $navigationGroup = 'Content Management';
     protected static ?string $navigationIcon = 'heroicon-o-envelope';
 
+    // This will be overridden by getNavigationLabel()
     protected static ?string $navigationLabel = 'Contact Messages';
 
     protected static ?int $navigationSort = 3;
+
+
+
+    // Optional: Add this method to show the badge in the navigation
+    public static function getNavigationBadge(): ?string
+    {
+        $unreadCount = Contact::where('is_read', false)->count();
+
+        return $unreadCount > 0 ? (string) $unreadCount : null;
+    }
+
+    // Optional: Add this method to style the badge (red for unread messages)
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'danger';
+    }
 
     public static function table(Table $table): Table
     {
