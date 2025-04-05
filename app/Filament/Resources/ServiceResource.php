@@ -58,10 +58,14 @@ class ServiceResource extends Resource
                                 ->maxLength(255)
                                 ->columnSpan(['default' => 6]),
 
+
+
                             TextInput::make('slug')
                                 ->required()
                                 ->maxLength(255)
-                                ->unique(Service::class, 'slug', fn ($record) => $record)
+                                ->unique(Service::class, 'slug', fn($record) => $record)
+                                ->disabled() // Makes the field non-editable
+                                ->dehydrated() // Ensures the value still saves to database despite being disabled
                                 ->columnSpan(['default' => 6]),
 
                             FileUpload::make('icon')
@@ -111,7 +115,7 @@ class ServiceResource extends Resource
                     ->sortable()
                     ->label('ID'),
 
-                    ImageColumn::make('icon')->disk('public')->circular(),
+                ImageColumn::make('icon')->disk('public')->circular(),
 
                 TextColumn::make('short_title')
                     ->sortable()
