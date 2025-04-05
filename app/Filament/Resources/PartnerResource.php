@@ -50,7 +50,7 @@ class PartnerResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('logo')->circular(),
+                ImageColumn::make('logo'),
                 TextColumn::make('name')->searchable(),
                 ToggleColumn::make('status'),
             ])
