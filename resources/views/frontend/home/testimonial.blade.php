@@ -3,7 +3,8 @@
         <div class="container">
             <div class="wrapper">
                 <div class="title-two text-center mb-45 sm-mb-30">
-                    <div class="upper-title-two">TESTIMONIALS</div>
+                    <div class="upper-title-two">Words from
+                        clients.</div>
                 </div>
                 <!-- /.title-two -->
                 <div class="feedback-slider-six">

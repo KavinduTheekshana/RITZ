@@ -35,6 +35,10 @@
 										<a class="nav-link {{ request()->is('about') ? 'active' : '' }}" href="{{ route('about') }}" role="button">About Us</a>
 									</li>
 
+									<li class="nav-item">
+										<a class="nav-link {{ request()->is('services') ? 'active' : '' }}" href="{{ route('services') }}" role="button">Services</a>
+									</li>
+
 									<li class="nav-item dropdown">
 										<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
 											data-bs-auto-close="outside" aria-expanded="false">Blog

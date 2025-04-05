@@ -30,12 +30,21 @@ class HomeController extends Controller
         return view('frontend.contact.index');
     }
 
+    public function services()
+    {
+        $testimonials = Testimonial::where('status', 1)->get();
+        $services = Service::where('status', 1)
+            ->orderBy('order', 'asc')
+            ->get();
+        return view('frontend.services.index', compact('services', 'testimonials'));
+    }
+
     public function about()
     {
         $partners = Partner::where('status', 1)
-        ->get();
+            ->get();
         $team = Team::where('status', 1)
-        ->get();
+            ->get();
         return view('frontend.about.index', compact('partners', 'team'));
     }
 }
