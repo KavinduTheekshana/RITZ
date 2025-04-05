@@ -28,4 +28,11 @@ class HomeController extends Controller
     {
         return view('frontend.contact.index');
     }
+
+    public function about()
+    {
+        $partners = Partner::where('status', 1)
+        ->get();
+        return view('frontend.about.index', compact('partners'));
+    }
 }

@@ -3377,7 +3377,7 @@ iframe {
     left: 0;
     z-index: -1;
     background: linear-gradient(
-        121.31deg,
+        -121.31deg,
         rgba(0, 0, 0, 0) 0.55%,
         rgba(0, 0, 0, 0.88) 98.35%
     );

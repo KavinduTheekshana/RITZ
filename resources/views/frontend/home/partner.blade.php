@@ -1,9 +1,9 @@
-<div class="feedback-section-three position-relative lg-pt-100">
+<div class="feedback-section-three position-relative lg-pt-100 mt-150 lg-mt-80">
     <div class="container">
         <div class="position-relative">
 
-            <div class="partner-logo-one pt-80 md-pt-80">
-
+            <div class="partner-logo-one">
+{{--
                 <div class="row mb-40">
                     <div class="col-lg-5">
                         <div class="title-one text-center text-lg-start mb-30 md-mb-10">
@@ -17,7 +17,7 @@
                             ahead in the industry.</p>
 
                     </div>
-                </div>
+                </div> --}}
 
                 <div class="partner-slider-one">
                     @foreach($partners as $partner)
