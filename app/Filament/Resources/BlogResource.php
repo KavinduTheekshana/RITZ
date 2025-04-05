@@ -147,10 +147,10 @@ class BlogResource extends Resource
 
                 Tables\Filters\SelectFilter::make('category')
                     ->options([
-                        'Technology' => 'Technology',
+                        'Financial' => 'Financial',
                         'Marketing' => 'Marketing',
-                        'Design' => 'Design',
-                        'Development' => 'Development',
+                        'Payroll & HR' => 'Payroll & HR',
+                        'VAT & CIS ' => 'VAT & CIS ',
                         'Business' => 'Business',
                         'Other' => 'Other',
                     ]),
