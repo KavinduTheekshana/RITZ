@@ -35,76 +35,78 @@ class BlogResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-        ->schema([
-            Grid::make(['default' => 12])->schema([
-                Card::make()->schema([
-                    Grid::make(['default' => 12])->schema([
-                        TextInput::make('title')
-                            ->required()
-                            ->maxLength(255)
-                            ->reactive()
-                            ->afterStateUpdated(function ($state, callable $set) {
-                                $set('slug', Str::slug($state));
-                            })
-                            ->columnSpan(['default' => 12]),
+            ->schema([
+                Grid::make(['default' => 12])->schema([
+                    Card::make()->schema([
+                        Grid::make(['default' => 12])->schema([
+                            TextInput::make('title')
+                                ->required()
+                                ->maxLength(255)
+                                ->reactive()
+                                ->afterStateUpdated(function ($state, callable $set) {
+                                    $set('slug', Str::slug($state));
+                                })
+                                ->columnSpan(['default' => 12]),
 
-                        TextInput::make('slug')
-                            ->required()
-                            ->maxLength(255)
-                            ->unique(Blog::class, 'slug', fn ($record) => $record)
-                            ->columnSpan(['default' => 12]),
+                            TextInput::make('slug')
+                                ->required()
+                                ->maxLength(255)
+                                ->unique(Blog::class, 'slug', fn($record) => $record)
+                                ->disabled() // This makes the field non-editable
+                                ->dehydrated() // Ensures the value is still saved to the database
+                                ->columnSpan(['default' => 12]),
 
-                        FileUpload::make('image')
-                            ->directory('blog')
-                            ->image()
-                            ->required()
-                            ->columnSpan(['default' => 12]),
+                            FileUpload::make('image')
+                                ->directory('blog')
+                                ->image()
+                                ->required()
+                                ->columnSpan(['default' => 12]),
 
-                        RichEditor::make('content')
-                            ->required()
-                            ->columnSpan(['default' => 12]),
+                            RichEditor::make('content')
+                                ->required()
+                                ->columnSpan(['default' => 12]),
 
-                        TextInput::make('author')
-                            ->required()
-                            ->maxLength(255)
-                            ->columnSpan(['default' => 6]),
+                            TextInput::make('author')
+                                ->required()
+                                ->maxLength(255)
+                                ->columnSpan(['default' => 6]),
 
-                        Select::make('category')
-                            ->options([
-                                'Financial' => 'Financial',
-                                'Marketing' => 'Marketing',
-                                'Payroll & HR' => 'Payroll & HR',
-                                'VAT & CIS ' => 'VAT & CIS ',
-                                'Business' => 'Business',
-                                'Other' => 'Other',
-                            ])
-                            ->required()
-                            ->columnSpan(['default' => 6]),
+                            Select::make('category')
+                                ->options([
+                                    'Financial' => 'Financial',
+                                    'Marketing' => 'Marketing',
+                                    'Payroll & HR' => 'Payroll & HR',
+                                    'VAT & CIS ' => 'VAT & CIS ',
+                                    'Business' => 'Business',
+                                    'Other' => 'Other',
+                                ])
+                                ->required()
+                                ->columnSpan(['default' => 6]),
 
-                        TagsInput::make('tags')
-                            ->separator(',')
-                            ->columnSpan(['default' => 12]),
-                    ]),
-                ])->columnSpan(['default' => 8]),
+                            TagsInput::make('tags')
+                                ->separator(',')
+                                ->columnSpan(['default' => 12]),
+                        ]),
+                    ])->columnSpan(['default' => 8]),
 
-                Card::make()->schema([
-                    Toggle::make('status')
-                        ->label('Published')
-                        ->default(true),
+                    Card::make()->schema([
+                        Toggle::make('status')
+                            ->label('Published')
+                            ->default(true),
 
-                    Section::make('SEO Information')->schema([
-                        Textarea::make('meta_description')
-                            ->rows(3)
-                            ->maxLength(160)
-                            ->helperText('Maximum 160 characters recommended for SEO'),
+                        Section::make('SEO Information')->schema([
+                            Textarea::make('meta_description')
+                                ->rows(3)
+                                ->maxLength(160)
+                                ->helperText('Maximum 160 characters recommended for SEO'),
 
-                        Textarea::make('meta_keywords')
-                            ->rows(3)
-                            ->helperText('Comma separated keywords')
-                    ]),
-                ])->columnSpan(['default' => 4]),
-            ]),
-        ]);
+                            Textarea::make('meta_keywords')
+                                ->rows(3)
+                                ->helperText('Comma separated keywords')
+                        ]),
+                    ])->columnSpan(['default' => 4]),
+                ]),
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -125,7 +127,7 @@ class BlogResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                    Tables\Columns\IconColumn::make('status')
+                Tables\Columns\IconColumn::make('status')
                     ->label('Status')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
