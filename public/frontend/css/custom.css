@@ -51,6 +51,7 @@
 }
 .partner-logo-style-2 {
     filter: grayscale(100%) brightness(80%) contrast(90%);
+    width: 50px !important;
 }
 .fw-700 {
     font-weight: 700 !important;
