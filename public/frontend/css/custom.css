@@ -127,3 +127,13 @@
 .mt-42{
     margin-top: 42px !important;
 }
+.line-height-1{
+    line-height: 1 !important;
+}
+.text-gray-link{
+    color: #6c6f6e !important;
+}
+.text-gray-link:hover{
+    text-decoration: underline !important;
+    color: #29594b !important;
+}

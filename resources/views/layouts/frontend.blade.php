@@ -35,7 +35,7 @@
     <!-- iOS Safari -->
     <meta name="apple-mobile-web-app-status-bar-style" content="#1A4137">
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="56x56" href="{{asset('frontend/images/logo/icon.svg')}}">
+    <link rel="icon" type="image/png" sizes="56x56" href="{{ asset('frontend/images/logo/icon.svg') }}">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" type="text/css" href="{{ asset('frontend/css/bootstrap.min.css') }}" media="all">
     <!-- Main style sheet -->
@@ -45,7 +45,7 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('frontend/css/responsive.css') }}" media="all">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @stack('styles')
-    {{-- @vite(['', 'resources/js/app.js']) --}}
+    @vite(['', 'resources/js/app.js'])
 
     <!-- Fix Internet Explorer ______________________________________-->
     <!--[if lt IE 9]>
@@ -88,6 +88,7 @@
 
         @include('frontend.components.footer')
         @include('frontend.components.auth-modal')
+        @include('frontend.components.password-reset')
 
 
         <button class="scroll-top">
@@ -121,6 +122,40 @@
 
         <!-- Theme js -->
         <script src="{{ asset('frontend/js/theme.js') }}"></script>
+
+        <script>
+            // Script to handle modal interactions
+            document.addEventListener('DOMContentLoaded', function() {
+                // Get the forget password link
+                const forgetPasswordLink = document.querySelector('.agreement-checkbox a[href="#"]');
+
+                if (forgetPasswordLink) {
+                    forgetPasswordLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+
+                        // Hide the login modal
+                        const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                        if (loginModal) {
+                            loginModal.hide();
+                        }
+
+                        // Show the forgot password modal
+                        const forgotPasswordModal = new bootstrap.Modal(document.getElementById(
+                            'forgotPasswordModal'));
+                        forgotPasswordModal.show();
+                    });
+                }
+
+                // Handle "Back to Login" link in the forgot password modal
+                const backToLoginLink = document.querySelector('.back-to-login');
+                if (backToLoginLink) {
+                    backToLoginLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        // The data-bs attributes will handle the modal switching
+                    });
+                }
+            });
+        </script>
 
         @stack('scripts')
     </div> <!-- /.main-page-wrapper -->

@@ -13,9 +13,9 @@
 							</a>
 						</div>
 						<!-- logo -->
-						{{-- <div class="right-widget d-none d-md-block ms-auto ms-lg-0 me-3 me-lg-0 order-lg-3">
-							<a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="quote-one fw-500 tran3s">Login / Register</a>
-						</div> --}}
+						<div class="right-widget d-none d-md-block ms-auto ms-lg-0 me-3 me-lg-0 order-lg-3">
+							<a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="quote-one fw-500 tran3s">Login</a>
+						</div>
 
 						<nav class="navbar navbar-expand-lg p0 order-lg-2">
 							<button class="navbar-toggler d-block d-lg-none" type="button" data-bs-toggle="collapse"
