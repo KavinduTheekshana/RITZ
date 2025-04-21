@@ -45,7 +45,7 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('frontend/css/responsive.css') }}" media="all">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @stack('styles')
-    @vite(['', 'resources/js/app.js'])
+    {{-- @vite(['', 'resources/js/app.js']) --}}
 
     <!-- Fix Internet Explorer ______________________________________-->
     <!--[if lt IE 9]>
