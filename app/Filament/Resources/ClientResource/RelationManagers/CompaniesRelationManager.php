@@ -86,7 +86,6 @@ class CompaniesRelationManager extends RelationManager
                     ]),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
                 Tables\Actions\AttachAction::make(),
             ])
             ->actions([
