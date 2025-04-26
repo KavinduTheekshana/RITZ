@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('preferred_name')->nullable();
             $table->date('date_of_birth')->nullable();
             $table->date('deceased')->nullable();
-            $table->string('email')->unique()->nullable();
+            $table->string('email')->unique();
             $table->string('password')->nullable();
             $table->rememberToken();
             $table->timestamp('email_verified_at')->nullable();
@@ -39,33 +39,16 @@ return new class extends Migration
             $table->string('preferred_language')->nullable();
             $table->boolean('create_self_assessment_client')->default(false);
             $table->boolean('client_does_their_own_sa')->default(false);
-            $table->decimal('fee', 15, 2)->nullable();
-            $table->timestamps();
-        });
-
-        // Internal details
-        Schema::create('client_internal_details', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
-            $table->string('internal_reference')->nullable();
-            $table->string('allocated_office')->nullable();
-            $table->string('client_grade')->nullable();
-            $table->string('client_risk_level')->nullable();
-            $table->text('notes')->nullable();
-            $table->text('urgent')->nullable();
             $table->timestamps();
         });
 
         // Company details
-        Schema::create('company_details', function (Blueprint $table) {
+        Schema::create('companies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
             $table->string('company_number')->nullable();
             $table->string('company_name')->nullable();
-            $table->enum('company_type', ['Private Limited Company', 'Sole Trader', 'Partnership', 'LLP', 'Other']);
-            $table->string('manager')->nullable();
-            $table->string('partner_id')->nullable();
             $table->string('company_status')->nullable();
+            $table->enum('company_type', ['Private Limited Company', 'Sole Trader', 'Partnership', 'LLP', 'Other']);
             $table->date('incorporation_date')->nullable();
             $table->string('company_trading_as')->nullable();
             $table->text('registered_address')->nullable();
@@ -84,12 +67,118 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        // Create a pivot table
+        Schema::create('client_company', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+        });
 
+        // Internal details
+        Schema::create('company_internal_details', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->string('internal_reference')->nullable();
+            $table->string('allocated_office')->nullable();
+            $table->string('client_grade')->nullable();
+            $table->string('client_risk_level')->nullable();
+            $table->text('notes')->nullable();
+            $table->text('urgent')->nullable();
+            $table->timestamps();
+        });
+
+        // Income details
+        Schema::create('income_details', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->text('previous')->nullable();
+            $table->text('current')->nullable();
+            $table->text('ir_35_notes')->nullable();
+            $table->timestamps();
+        });
+
+
+        // Previous accountant
+        Schema::create('previous_accountant_details', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->boolean('clearance_required')->default(false);
+            $table->string('accountant_email_address')->nullable();
+            $table->text('accountant_details')->nullable();
+            $table->date('send_first_clearance_email')->nullable();
+            $table->string('automatically_request_every')->nullable();
+            $table->date('last_requested')->nullable();
+            $table->boolean('information_received')->default(false);
+            $table->timestamps();
+        });
+
+          // Services
+          Schema::create('services_required', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->decimal('accounts', 15, 2)->nullable();
+            $table->decimal('bookkeeping', 15, 2)->nullable();
+            $table->decimal('ct600_return', 15, 2)->nullable();
+            $table->decimal('payroll', 15, 2)->nullable();
+            $table->decimal('auto_enrolment', 15, 2)->nullable();
+            $table->decimal('vat_returns', 15, 2)->nullable();
+            $table->decimal('management_accounts', 15, 2)->nullable();
+            $table->decimal('confirmation_statement', 15, 2)->nullable();
+            $table->decimal('cis', 15, 2)->nullable();
+            $table->decimal('p11d', 15, 2)->nullable();
+            $table->decimal('fee_protection_service', 15, 2)->nullable();
+            $table->decimal('registered_address', 15, 2)->nullable();
+            $table->decimal('bill_payment', 15, 2)->nullable();
+            $table->decimal('consultation_advice', 15, 2)->nullable();
+            $table->decimal('software', 15, 2)->nullable();
+            $table->decimal('annual_charge', 15, 2)->nullable();
+            $table->decimal('monthly_charge', 15, 2)->nullable();
+            $table->timestamps();
+        });
+
+           // Accounts and returns details
+           Schema::create('accounts_and_returns_details', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->date('accounts_period_end')->nullable();
+            $table->date('ch_year_end')->nullable();
+            $table->date('hmrc_year_end')->nullable();
+            $table->date('ch_accounts_next_due')->nullable();
+            $table->date('ct600_due')->nullable();
+            $table->decimal('corporation_tax_amount_due', 15, 2)->nullable();
+            $table->date('tax_due_hmrc_year_end')->nullable();
+            $table->string('ct_payment_reference')->nullable();
+            $table->string('tax_office')->nullable();
+            $table->boolean('companies_house_email_reminder')->default(false);
+            $table->string('accounts_latest_action')->nullable();
+            $table->date('accounts_latest_action_date')->nullable();
+            $table->date('accounts_records_received')->nullable();
+            $table->text('accounts_progress_note')->nullable();
+            $table->timestamps();
+        });
+
+           // Confirmation statement
+           Schema::create('confirmation_statement_details', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->date('confirmation_statement_date')->nullable();
+            $table->date('confirmation_statement_due')->nullable();
+            $table->string('latest_action')->nullable();
+            $table->date('latest_action_date')->nullable();
+            $table->date('records_received')->nullable();
+            $table->text('progress_note')->nullable();
+            $table->text('officers')->nullable();
+            $table->text('share_capital')->nullable();
+            $table->text('shareholders')->nullable();
+            $table->text('people_with_significant_control')->nullable();
+            $table->timestamps();
+        });
 
         // VAT details
         Schema::create('vat_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->string('vat_frequency')->nullable();
             $table->date('vat_period_end')->nullable();
             $table->date('next_return_due')->nullable();
@@ -125,7 +214,7 @@ return new class extends Migration
         // PAYE details
         Schema::create('paye_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->string('employers_reference')->nullable();
             $table->string('accounts_office_reference')->nullable();
             $table->string('years_required')->nullable();
@@ -148,7 +237,7 @@ return new class extends Migration
         // Auto-Enrolment details
         Schema::create('auto_enrolment_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->string('latest_action')->nullable();
             $table->date('latest_action_date')->nullable();
             $table->date('records_received')->nullable();
@@ -167,7 +256,7 @@ return new class extends Migration
         // P11D details
         Schema::create('p11d_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->date('next_p11d_return_due')->nullable();
             $table->date('latest_p11d_submitted')->nullable();
             $table->string('latest_action')->nullable();
@@ -177,34 +266,11 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Income details
-        Schema::create('income_details', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
-            $table->text('previous')->nullable();
-            $table->text('current')->nullable();
-            $table->text('ir_35_notes')->nullable();
-            $table->timestamps();
-        });
-
-        // Previous accountant
-        Schema::create('previous_accountant_details', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
-            $table->boolean('clearance_required')->default(false);
-            $table->string('accountant_email_address')->nullable();
-            $table->text('accountant_details')->nullable();
-            $table->date('send_first_clearance_email')->nullable();
-            $table->string('automatically_request_every')->nullable();
-            $table->date('last_requested')->nullable();
-            $table->boolean('information_received')->default(false);
-            $table->timestamps();
-        });
 
         // Registration
         Schema::create('registration_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->boolean('terms_signed_registration_fee_paid')->default(false);
             $table->decimal('fee', 15, 2)->nullable();
             $table->date('letter_of_engagement_signed')->nullable();
@@ -213,48 +279,11 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Accounts and returns details
-        Schema::create('accounts_and_returns_details', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
-            $table->date('accounts_period_end')->nullable();
-            $table->date('ch_year_end')->nullable();
-            $table->date('hmrc_year_end')->nullable();
-            $table->date('ch_accounts_next_due')->nullable();
-            $table->date('ct600_due')->nullable();
-            $table->decimal('corporation_tax_amount_due', 15, 2)->nullable();
-            $table->date('tax_due_hmrc_year_end')->nullable();
-            $table->string('ct_payment_reference')->nullable();
-            $table->string('tax_office')->nullable();
-            $table->boolean('companies_house_email_reminder')->default(false);
-            $table->string('accounts_latest_action')->nullable();
-            $table->date('accounts_latest_action_date')->nullable();
-            $table->date('accounts_records_received')->nullable();
-            $table->text('accounts_progress_note')->nullable();
-            $table->timestamps();
-        });
-
-        // Confirmation statement
-        Schema::create('confirmation_statement_details', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
-            $table->date('confirmation_statement_date')->nullable();
-            $table->date('confirmation_statement_due')->nullable();
-            $table->string('latest_action')->nullable();
-            $table->date('latest_action_date')->nullable();
-            $table->date('records_received')->nullable();
-            $table->text('progress_note')->nullable();
-            $table->text('officers')->nullable();
-            $table->text('share_capital')->nullable();
-            $table->text('shareholders')->nullable();
-            $table->text('people_with_significant_control')->nullable();
-            $table->timestamps();
-        });
 
         // Other details
         Schema::create('other_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->string('referred_by')->nullable();
             $table->date('initial_contact')->nullable();
             $table->date('proposal_email_sent')->nullable();
@@ -269,30 +298,10 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Services
-        Schema::create('services', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->timestamps();
-        });
 
-        // Client services (pivot table)
-        Schema::create('client_service', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('service_id')->constrained()->cascadeOnDelete();
-            $table->decimal('fee', 15, 2)->nullable();
-            $table->timestamps();
-        });
 
-        // Pricing
-        Schema::create('client_pricing', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('client_id')->constrained()->cascadeOnDelete();
-            $table->enum('type', ['Annual', 'Monthly']);
-            $table->decimal('amount', 15, 2)->nullable();
-            $table->timestamps();
-        });
+
+
     }
 
     /**
@@ -300,23 +309,20 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Drop tables in reverse order (due to foreign key constraints)
-        Schema::dropIfExists('client_pricing');
-        Schema::dropIfExists('client_service');
-        Schema::dropIfExists('services');
-        Schema::dropIfExists('other_details');
-        Schema::dropIfExists('confirmation_statement_details');
-        Schema::dropIfExists('accounts_and_returns_details');
-        Schema::dropIfExists('registration_details');
-        Schema::dropIfExists('previous_accountant_details');
-        Schema::dropIfExists('income_details');
-        Schema::dropIfExists('p11d_details');
-        Schema::dropIfExists('auto_enrolment_details');
-        Schema::dropIfExists('paye_details');
-        Schema::dropIfExists('vat_details');
-        Schema::dropIfExists('contacts');
-        Schema::dropIfExists('company_details');
-        Schema::dropIfExists('client_internal_details');
         Schema::dropIfExists('clients');
+        Schema::dropIfExists('companies');
+        Schema::dropIfExists('client_company');
+        Schema::dropIfExists('company_internal_details');
+        Schema::dropIfExists('income_details');
+        Schema::dropIfExists('previous_accountant_details');
+        Schema::dropIfExists('services_required');
+        Schema::dropIfExists('accounts_and_returns_details');
+        Schema::dropIfExists('confirmation_statement_details');
+        Schema::dropIfExists('vat_details');
+        Schema::dropIfExists('paye_details');
+        Schema::dropIfExists('auto_enrolment_details');
+        Schema::dropIfExists('p11d_details');
+        Schema::dropIfExists('registration_details');
+        Schema::dropIfExists('other_details');
     }
 };
