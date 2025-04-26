@@ -37,4 +37,36 @@ class Client extends Model
     {
         return $this->belongsToMany(Company::class);
     }
+
+    /**
+     * Get the client's full name.
+     *
+     * @return string
+     */
+    public function getFullNameAttribute(): string
+    {
+        $name = collect([
+            $this->title,
+            $this->first_name,
+            $this->middle_name,
+            $this->last_name
+        ])->filter()->join(' ');
+
+        return $name ?: 'Unnamed Client';
+    }
+
+    /**
+     * Get the client's formal name (Title LastName).
+     *
+     * @return string
+     */
+    public function getFormalNameAttribute(): string
+    {
+        $name = collect([
+            $this->title,
+            $this->last_name
+        ])->filter()->join(' ');
+
+        return $name ?: 'Unnamed Client';
+    }
 }

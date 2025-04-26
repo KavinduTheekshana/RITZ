@@ -114,7 +114,7 @@ return new class extends Migration
         });
 
           // Services
-          Schema::create('services_required', function (Blueprint $table) {
+          Schema::create('services_requireds', function (Blueprint $table) {
             $table->id();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->decimal('accounts', 15, 2)->nullable();

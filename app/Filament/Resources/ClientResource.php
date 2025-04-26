@@ -144,26 +144,66 @@ class ClientResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                //
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+        ->columns([
+            Tables\Columns\TextColumn::make('id')
+                ->sortable()
+                ->searchable(),
+            Tables\Columns\TextColumn::make('full_name')
+                ->sortable()
+                ->searchable(['first_name', 'last_name'])
+                ->getStateUsing(function($record) {
+                    return "{$record->title} {$record->first_name} {$record->last_name}";
+                }),
+            Tables\Columns\TextColumn::make('email')
+                ->sortable()
+                ->searchable(),
+            Tables\Columns\TextColumn::make('mobile_number')
+                ->searchable(),
+            Tables\Columns\BooleanColumn::make('photo_id_verified')
+                ->label('ID Verified'),
+            Tables\Columns\BooleanColumn::make('address_verified')
+                ->label('Address Verified'),
+            Tables\Columns\TextColumn::make('created_at')
+                ->dateTime()
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
+            Tables\Columns\TextColumn::make('updated_at')
+                ->dateTime()
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
+        ])
+        ->filters([
+            Tables\Filters\SelectFilter::make('marital_status')
+                ->options([
+                    'Single' => 'Single',
+                    'Married' => 'Married',
+                    'Divorced' => 'Divorced',
+                    'Widowed' => 'Widowed',
+                    'Separated' => 'Separated',
+                    'Civil Partnership' => 'Civil Partnership',
                 ]),
-            ]);
+            Tables\Filters\TernaryFilter::make('photo_id_verified')
+                ->label('ID Verified'),
+            Tables\Filters\TernaryFilter::make('address_verified')
+                ->label('Address Verified'),
+            Tables\Filters\TernaryFilter::make('create_self_assessment_client')
+                ->label('Self Assessment Client'),
+        ])
+        ->actions([
+            Tables\Actions\EditAction::make(),
+            Tables\Actions\ViewAction::make(),
+        ])
+        ->bulkActions([
+            Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\DeleteBulkAction::make(),
+            ]),
+        ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\CompaniesRelationManager::class,
         ];
     }
 
@@ -173,6 +213,7 @@ class ClientResource extends Resource
             'index' => Pages\ListClients::route('/'),
             'create' => Pages\CreateClient::route('/create'),
             'edit' => Pages\EditClient::route('/{record}/edit'),
+            'view' => Pages\ViewClient::route('/{record}'),
         ];
     }
 }
