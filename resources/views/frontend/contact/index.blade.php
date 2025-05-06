@@ -24,7 +24,7 @@
                                         class="lazy-img">
                                 </div>
                                 <h5 class="title">Our Address</h5>
-                                <p>46 Misbourne Road, Uxbridge, Middlesex,<br> England, UB10 0HW</p>
+                                <p>41 Hubbards Close<br> Uxbridge, UB8 3HB</p>
                             </div> <!-- /.address-block-one -->
                         </div>
                         <div class="col-md-4">
