@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SelfAssessmentResource\Pages;
 use App\Filament\Resources\SelfAssessmentResource\RelationManagers;
+use App\Models\Client;
 use App\Models\SelfAssessment;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -31,10 +32,21 @@ class SelfAssessmentResource extends Resource
                             ->schema([
                                 Forms\Components\Section::make('Self Assessment Details')
                                     ->schema([
+                                        // Forms\Components\Select::make('client_id')
+                                        //     ->label('Client')
+                                        //     ->relationship('client', 'name')
+                                        //     ->searchable()
+                                        //     ->preload()
+                                        //     ->required(),
+
                                         Forms\Components\Select::make('client_id')
                                             ->label('Client')
-                                            ->relationship('client', 'email')
-                                            ->searchable()
+                                            ->relationship(
+                                                'client',
+                                                'full_name'  // Using your accessor here
+                                            )
+                                            ->searchable(['first_name', 'middle_name', 'last_name']) // Search across these fields
+                                            ->getOptionLabelFromRecordUsing(fn(Client $record) => $record->full_name) // Format display
                                             ->preload()
                                             ->required(),
 
