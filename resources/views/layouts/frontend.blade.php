@@ -82,12 +82,12 @@
                 </div>
             </div>
         </div>
-        @if (!Request::is('login'))
+        @if (!Request::is('client/login'))
         @include('frontend.components.header')
         @endif
 
         @yield('content')
-        @if (!Request::is('login'))
+        @if (!Request::is('client/login'))
         @include('frontend.components.footer')
         @include('frontend.components.auth-modal')
         @include('frontend.components.password-reset')

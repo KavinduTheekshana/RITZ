@@ -44,3 +44,8 @@ Route::middleware(['auth.client'])->group(function () {
     Route::get('client/dashboard', [ClientDashboardController::class, 'index'])->name('client.dashboard');
     Route::post('/logout', [ClientLoginController::class, 'logout'])->name('client.logout');
 });
+
+
+Route::fallback(function () {
+    abort(404);
+});
