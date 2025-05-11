@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Client extends Model
+class Client extends Authenticatable
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'title', 'first_name', 'middle_name', 'last_name', 'preferred_name',
@@ -31,6 +32,7 @@ class Client extends Model
         'address_verified' => 'boolean',
         'create_self_assessment_client' => 'boolean',
         'client_does_their_own_sa' => 'boolean',
+        'password' => 'hashed', // Add this for automatic password hashing
     ];
 
     public function companies()

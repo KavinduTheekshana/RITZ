@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\ClientDashboardController;
+use App\Http\Controllers\ClientLoginController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ServiceController;
@@ -19,12 +21,26 @@ Route::get('/blog/category/{category}', [BlogController::class, 'category'])->na
 Route::get('/blog/tag/{tag}', [BlogController::class, 'tag'])->name('blog.tag');
 Route::get('/blog/search', [BlogController::class, 'search'])->name('blog.search');
 
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+
+// Route::group(['prefix' => 'client'], function () {
+//     Route::post('/login', [ClientLoginController::class, 'login'])->name('client.login.submit');
+//     Route::post('/logout', [ClientLoginController::class, 'logout'])->name('client.logout');
+  
+
+//     // Protected routes for clients
+//     Route::group(['middleware' => 'auth:client'], function () {
+//         Route::get('/dashboard', [ClientDashboardController::class, 'index'])->name('client.dashboard');
+//     });
+// });
+
+// Guest routes (only accessible if NOT logged in)
+Route::middleware(['guest.client'])->group(function () {
+    Route::get('client/login', [ClientLoginController::class, 'showLoginForm'])->name('client.login');
+    Route::post('/login', [ClientLoginController::class, 'login'])->name('client.login.submit');
+});
+
+// Protected routes (only accessible if logged in)
+Route::middleware(['auth.client'])->group(function () {
+    Route::get('client/dashboard', [ClientDashboardController::class, 'index'])->name('client.dashboard');
+    Route::post('/logout', [ClientLoginController::class, 'logout'])->name('client.logout');
 });

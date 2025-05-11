@@ -82,14 +82,16 @@
                 </div>
             </div>
         </div>
+        @if (!Request::is('login'))
         @include('frontend.components.header')
+        @endif
 
         @yield('content')
-
+        @if (!Request::is('login'))
         @include('frontend.components.footer')
         @include('frontend.components.auth-modal')
         @include('frontend.components.password-reset')
-
+        @endif
 
         <button class="scroll-top">
             <i class="bi bi-arrow-up-short"></i>
@@ -97,8 +99,6 @@
 
 
 
-
-        <!-- Optional JavaScript _____________________________  -->
 
         <!-- jQuery first, then Bootstrap JS -->
         <!-- jQuery -->
@@ -123,41 +123,11 @@
         <!-- Theme js -->
         <script src="{{ asset('frontend/js/theme.js') }}"></script>
 
-        <script>
-            // Script to handle modal interactions
-            document.addEventListener('DOMContentLoaded', function() {
-                // Get the forget password link
-                const forgetPasswordLink = document.querySelector('.agreement-checkbox a[href="#"]');
-
-                if (forgetPasswordLink) {
-                    forgetPasswordLink.addEventListener('click', function(e) {
-                        e.preventDefault();
-
-                        // Hide the login modal
-                        const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-                        if (loginModal) {
-                            loginModal.hide();
-                        }
-
-                        // Show the forgot password modal
-                        const forgotPasswordModal = new bootstrap.Modal(document.getElementById(
-                            'forgotPasswordModal'));
-                        forgotPasswordModal.show();
-                    });
-                }
-
-                // Handle "Back to Login" link in the forgot password modal
-                const backToLoginLink = document.querySelector('.back-to-login');
-                if (backToLoginLink) {
-                    backToLoginLink.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        // The data-bs attributes will handle the modal switching
-                    });
-                }
-            });
-        </script>
+      
 
         @stack('scripts')
+
+   
     </div> <!-- /.main-page-wrapper -->
 
 </body>
