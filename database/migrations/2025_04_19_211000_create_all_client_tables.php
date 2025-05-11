@@ -64,6 +64,7 @@ return new class extends Migration
             $table->string('corporation_tax_office')->nullable();
             $table->string('company_utr')->nullable();
             $table->string('companies_house_authentication_code')->nullable();
+            $table->boolean('engagement')->default(false);
             $table->timestamps();
         });
 
@@ -113,8 +114,8 @@ return new class extends Migration
             $table->timestamps();
         });
 
-          // Services
-          Schema::create('services_requireds', function (Blueprint $table) {
+        // Services
+        Schema::create('services_requireds', function (Blueprint $table) {
             $table->id();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->decimal('accounts', 15, 2)->nullable();
@@ -137,8 +138,8 @@ return new class extends Migration
             $table->timestamps();
         });
 
-           // Accounts and returns details
-           Schema::create('accounts_and_returns_details', function (Blueprint $table) {
+        // Accounts and returns details
+        Schema::create('accounts_and_returns_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->date('accounts_period_end')->nullable();
@@ -158,8 +159,8 @@ return new class extends Migration
             $table->timestamps();
         });
 
-           // Confirmation statement
-           Schema::create('confirmation_statement_details', function (Blueprint $table) {
+        // Confirmation statement
+        Schema::create('confirmation_statement_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->date('confirmation_statement_date')->nullable();
@@ -297,11 +298,6 @@ return new class extends Migration
             $table->string('instagram_handle')->nullable();
             $table->timestamps();
         });
-
-
-
-
-
     }
 
     /**

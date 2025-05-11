@@ -15,7 +15,7 @@ class Company extends Model
         'company_postal_address', 'invoice_address_type', 'company_email',
         'company_email_domain', 'company_telephone', 'turnover',
         'date_of_trading', 'sic_code', 'nature_of_business',
-        'corporation_tax_office', 'company_utr', 'companies_house_authentication_code'
+        'corporation_tax_office', 'company_utr', 'companies_house_authentication_code','engagement'
     ];
 
     protected $casts = [

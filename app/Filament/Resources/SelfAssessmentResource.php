@@ -777,7 +777,7 @@ class SelfAssessmentResource extends Resource
         return [
             'index' => Pages\ListSelfAssessments::route('/'),
             'create' => Pages\CreateSelfAssessment::route('/create'),
-            'view' => Pages\ViewSelfAssessment::route('/{record}'),
+            // 'view' => Pages\ViewSelfAssessment::route('/{record}'),
             'edit' => Pages\EditSelfAssessment::route('/{record}/edit'),
         ];
     }
