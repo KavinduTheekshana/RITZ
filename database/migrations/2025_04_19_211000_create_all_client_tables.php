@@ -23,6 +23,7 @@ return new class extends Migration
             $table->date('deceased')->nullable();
             $table->string('email')->unique();
             $table->string('password')->nullable();
+            $table->boolean('password_mail')->default(false);
             $table->rememberToken();
             $table->timestamp('email_verified_at')->nullable();
             $table->text('postal_address')->nullable();

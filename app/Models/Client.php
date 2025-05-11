@@ -16,7 +16,7 @@ class Client extends Authenticatable
         'postal_address', 'previous_address', 'telephone_number', 'mobile_number',
         'ni_number', 'personal_utr_number', 'terms_signed', 'photo_id_verified',
         'address_verified', 'marital_status', 'nationality', 'preferred_language',
-        'create_self_assessment_client', 'client_does_their_own_sa'
+        'create_self_assessment_client', 'client_does_their_own_sa','password_mail'
     ];
 
     protected $hidden = [
