@@ -37,6 +37,7 @@ return new class extends Migration
             $table->boolean('address_verified')->default(false);
             $table->string('marital_status')->nullable();
             $table->string('nationality')->nullable();
+            $table->string('profile_photo_path', 2048)->nullable();
             $table->string('preferred_language')->nullable();
             $table->boolean('create_self_assessment_client')->default(false);
             $table->boolean('client_does_their_own_sa')->default(false);

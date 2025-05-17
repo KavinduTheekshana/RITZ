@@ -386,29 +386,29 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
-function layout_sidebar_change(value) {
-  if (value == 'dark') {
-    document.getElementsByTagName('body')[0].setAttribute('data-pc-sidebar-theme', 'dark');
-    if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
-      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', '../assets/images/logo-white.svg');
-    }
-    var control = document.querySelector('.theme-sidebar-color .btn.active');
-    if (control) {
-      document.querySelector('.theme-sidebar-color .btn.active').classList.remove('active');
-      document.querySelector(".theme-sidebar-color .btn[data-value='true']").classList.add('active');
-    }
-  } else {
-    document.getElementsByTagName('body')[0].setAttribute('data-pc-sidebar-theme', 'light');
-    if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
-      document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', '../assets/images/logo-dark.svg');
-    }
-    var control = document.querySelector('.theme-sidebar-color .btn.active');
-    if (control) {
-      document.querySelector('.theme-sidebar-color .btn.active').classList.remove('active');
-      document.querySelector(".theme-sidebar-color .btn[data-value='false']").classList.add('active');
-    }
-  }
-}
+// function layout_sidebar_change(value) {
+//   if (value == 'dark') {
+//     document.getElementsByTagName('body')[0].setAttribute('data-pc-sidebar-theme', 'dark');
+//     if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
+//       document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', '../assets/images/logo-white.svg');
+//     }
+//     var control = document.querySelector('.theme-sidebar-color .btn.active');
+//     if (control) {
+//       document.querySelector('.theme-sidebar-color .btn.active').classList.remove('active');
+//       document.querySelector(".theme-sidebar-color .btn[data-value='true']").classList.add('active');
+//     }
+//   } else {
+//     document.getElementsByTagName('body')[0].setAttribute('data-pc-sidebar-theme', 'light');
+//     if (document.querySelector('.pc-sidebar .m-header .logo-lg')) {
+//       document.querySelector('.pc-sidebar .m-header .logo-lg').setAttribute('src', '../assets/images/logo-dark.svg');
+//     }
+//     var control = document.querySelector('.theme-sidebar-color .btn.active');
+//     if (control) {
+//       document.querySelector('.theme-sidebar-color .btn.active').classList.remove('active');
+//       document.querySelector(".theme-sidebar-color .btn[data-value='false']").classList.add('active');
+//     }
+//   }
+// }
 
 function layout_caption_change(value) {
   if (value == 'true') {

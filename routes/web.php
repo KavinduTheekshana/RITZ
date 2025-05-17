@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientDashboardController;
 use App\Http\Controllers\ClientLoginController;
 use App\Http\Controllers\ContactController;
@@ -21,18 +22,7 @@ Route::get('/blog/category/{category}', [BlogController::class, 'category'])->na
 Route::get('/blog/tag/{tag}', [BlogController::class, 'tag'])->name('blog.tag');
 Route::get('/blog/search', [BlogController::class, 'search'])->name('blog.search');
 
-
-// Route::group(['prefix' => 'client'], function () {
-//     Route::post('/login', [ClientLoginController::class, 'login'])->name('client.login.submit');
-//     Route::post('/logout', [ClientLoginController::class, 'logout'])->name('client.logout');
-  
-
-//     // Protected routes for clients
-//     Route::group(['middleware' => 'auth:client'], function () {
-//         Route::get('/dashboard', [ClientDashboardController::class, 'index'])->name('client.dashboard');
-//     });
-// });
-
+// ------------------------------------------------------------------------------------------------------------
 // Guest routes (only accessible if NOT logged in)
 Route::middleware(['guest.client'])->group(function () {
     Route::get('client/login', [ClientLoginController::class, 'showLoginForm'])->name('client.login');
@@ -42,8 +32,10 @@ Route::middleware(['guest.client'])->group(function () {
 // Protected routes (only accessible if logged in)
 Route::middleware(['auth.client'])->group(function () {
     Route::get('client/dashboard', [ClientDashboardController::class, 'index'])->name('client.dashboard');
+    Route::get('client/profile', [ClientController::class, 'profile'])->name('client.profile');
     Route::post('/logout', [ClientLoginController::class, 'logout'])->name('client.logout');
 });
+
 
 
 Route::fallback(function () {

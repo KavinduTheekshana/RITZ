@@ -29,6 +29,7 @@
     <!-- [Template CSS Files] -->
     <link rel="stylesheet" href="{{ asset('backend/css/style.css') }}" id="main-style-link">
     <link rel="stylesheet" href="{{ asset('backend/css/style-preset.css') }}">
+        @vite(['', 'resources/js/app.js'])
 
 </head>
 <!-- [Head] end -->

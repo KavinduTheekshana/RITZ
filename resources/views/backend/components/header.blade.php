@@ -2,13 +2,13 @@
 <header class="pc-header">
     <div class="header-wrapper"> <!-- [Mobile Media Block] start -->
         <div class="me-auto pc-mob-drp">
-        
+
         </div>
         <!-- [Mobile Media Block end] -->
         <div class="ms-auto">
             <ul class="list-unstyled">
-            
-                <li class="dropdown pc-h-item">
+
+                {{-- <li class="dropdown pc-h-item">
                     <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" aria-expanded="false">
                         <i class="ph-duotone ph-sun-dim"></i>
@@ -27,9 +27,9 @@
                             <span>Default</span>
                         </a>
                     </div>
-                </li>
-             
-        
+                </li> --}}
+
+
                 <li class="dropdown pc-h-item">
                     <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" aria-expanded="false">
@@ -54,8 +54,8 @@
                                     <p class="text-span">Today</p>
                                     <div class="d-flex">
                                         <div class="flex-shrink-0">
-                                            <img src="../assets/images/user/avatar-2.jpg" alt="user-image"
-                                                class="user-avtar avtar avtar-s" />
+                                            <img src="" alt="user-image" class="user-avtar avtar avtar-s" />
+
                                         </div>
                                         <div class="flex-grow-1 ms-3">
                                             <div class="d-flex">
@@ -217,7 +217,8 @@
                 <li class="dropdown pc-h-item header-user-profile">
                     <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" data-bs-auto-close="outside" aria-expanded="false">
-                        <img src="../assets/images/user/avatar-2.jpg" alt="user-image" class="user-avtar" />
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::guard('client')->user()->first_name . ' ' . Auth::guard('client')->user()->last_name) }}&background=random&color=fff&size=100"
+                            alt="user-image" class="user-avtar" />
                     </a>
                     <div class="dropdown-menu dropdown-user-profile dropdown-menu-end pc-h-dropdown">
                         <div class="dropdown-header d-flex align-items-center justify-content-between">
@@ -230,15 +231,17 @@
                                     <li class="list-group-item">
                                         <div class="d-flex align-items-center">
                                             <div class="flex-shrink-0">
-                                                <img src="../assets/images/user/avatar-2.jpg" alt="user-image"
+                                                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::guard('client')->user()->first_name . ' ' . Auth::guard('client')->user()->last_name) }}&background=random&color=fff&size=100"
+                                                    alt="user-image" alt="user-image"
                                                     class="wid-50 rounded-circle" />
                                             </div>
                                             <div class="flex-grow-1 mx-3">
-                                                <h5 class="mb-0">Carson Darrin</h5>
+                                                <h5 class="mb-0">
+                                                    {{ Auth::guard('client')->user()->title . ' ' . Auth::guard('client')->user()->first_name . ' ' . Auth::guard('client')->user()->last_name }}
+                                                </h5>
                                                 <a class="link-primary"
-                                                    href="mailto:carson.darrin@company.io">carson.darrin@company.io</a>
+                                                    href="mailto:carson.darrin@company.io">{{ Auth::guard('client')->user()->email }}</a>
                                             </div>
-                                            <span class="badge bg-primary">PRO</span>
                                         </div>
                                     </li>
                                     <li class="list-group-item">
@@ -317,7 +320,7 @@
                                         </div>
                                     </li>
                                     <li class="list-group-item">
-                                        <a href="#" class="dropdown-item">
+                                        <a href="{{ route('client.profile') }}" class="dropdown-item">
                                             <span class="d-flex align-items-center">
                                                 <i class="ph-duotone ph-user-circle"></i>
                                                 <span>Edit profile</span>
@@ -351,12 +354,15 @@
                                                 <span>Add account</span>
                                             </span>
                                         </a>
-                                        <a href="#" class="dropdown-item">
-                                            <span class="d-flex align-items-center">
-                                                <i class="ph-duotone ph-power"></i>
-                                                <span>Logout</span>
-                                            </span>
-                                        </a>
+                                        <form action="{{ route('client.logout') }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item">
+                                                <span class="d-flex align-items-center">
+                                                    <i class="ph-duotone ph-power"></i>
+                                                    <span>Logout</span>
+                                                </span>
+                                            </button>
+                                        </form>
                                     </li>
                                 </ul>
                             </div>
@@ -370,7 +376,7 @@
 <!-- [ Header ] end -->
 
 
-{{-- <form action="{{ route('client.logout') }}" method="POST" class="d-inline">
+<form action="{{ route('client.logout') }}" method="POST" class="d-inline">
     @csrf
     <button type="submit" class="btn btn-danger">Logout</button>
-</form> --}}
+</form>
