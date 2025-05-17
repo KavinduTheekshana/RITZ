@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -11,16 +12,37 @@ class Client extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'title', 'first_name', 'middle_name', 'last_name', 'preferred_name',
-        'date_of_birth', 'deceased', 'email', 'password', 'email_verified_at',
-        'postal_address', 'previous_address', 'telephone_number', 'mobile_number',
-        'ni_number', 'personal_utr_number', 'terms_signed', 'photo_id_verified',
-        'address_verified', 'marital_status', 'nationality', 'profile_photo_path' ,'preferred_language',
-        'create_self_assessment_client', 'client_does_their_own_sa','password_mail'
+        'title',
+        'first_name',
+        'middle_name',
+        'last_name',
+        'preferred_name',
+        'date_of_birth',
+        'deceased',
+        'email',
+        'password',
+        'email_verified_at',
+        'postal_address',
+        'previous_address',
+        'telephone_number',
+        'mobile_number',
+        'ni_number',
+        'personal_utr_number',
+        'terms_signed',
+        'photo_id_verified',
+        'address_verified',
+        'marital_status',
+        'nationality',
+        'profile_photo_path',
+        'preferred_language',
+        'create_self_assessment_client',
+        'client_does_their_own_sa',
+        'password_mail'
     ];
 
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
+        'remember_token',
     ];
 
     protected $casts = [
@@ -70,5 +92,18 @@ class Client extends Authenticatable
         ])->filter()->join(' ');
 
         return $name ?: 'Unnamed Client';
+    }
+
+    public function selfAssessment(): HasOne
+    {
+        return $this->hasOne(SelfAssessment::class);
+    }
+
+    /**
+     * Check if client has a self assessment
+     */
+    public function hasSelfAssessment(): bool
+    {
+        return $this->selfAssessment()->exists();
     }
 }

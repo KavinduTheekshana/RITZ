@@ -32,10 +32,16 @@ class SelfAssessmentResource extends Resource
                             ->schema([
                                 Forms\Components\Section::make('Self Assessment Details')
                                     ->schema([
+
+
                                         // Forms\Components\Select::make('client_id')
                                         //     ->label('Client')
-                                        //     ->relationship('client', 'name')
-                                        //     ->searchable()
+                                        //     ->relationship(
+                                        //         'client',
+                                        //         'full_name'  // Using your accessor here
+                                        //     )
+                                        //     ->searchable(['first_name', 'middle_name', 'last_name']) // Search across these fields
+                                        //     ->getOptionLabelFromRecordUsing(fn(Client $record) => $record->full_name) // Format display
                                         //     ->preload()
                                         //     ->required(),
 
@@ -43,12 +49,32 @@ class SelfAssessmentResource extends Resource
                                             ->label('Client')
                                             ->relationship(
                                                 'client',
-                                                'full_name'  // Using your accessor here
+                                                'full_name'
                                             )
-                                            ->searchable(['first_name', 'middle_name', 'last_name']) // Search across these fields
-                                            ->getOptionLabelFromRecordUsing(fn(Client $record) => $record->full_name) // Format display
+                                            ->searchable(['first_name', 'middle_name', 'last_name'])
+                                            ->getOptionLabelFromRecordUsing(fn(Client $record) => $record->full_name)
                                             ->preload()
-                                            ->required(),
+                                            ->required()
+                                            ->rules([
+                                                function () {
+                                                    return function (string $attribute, $value, \Closure $fail) {
+                                                        // Get the current record ID if editing
+                                                        $currentId = request()->route('record');
+
+                                                        // Check if another self assessment exists for this client
+                                                        $exists = \App\Models\SelfAssessment::where('client_id', $value)
+                                                            ->when($currentId, function ($query, $currentId) {
+                                                                return $query->where('id', '!=', $currentId);
+                                                            })
+                                                            ->exists();
+
+                                                        if ($exists) {
+                                                            $fail('This client already has a self assessment.');
+                                                        }
+                                                    };
+                                                },
+                                            ])
+                                            ->helperText('Each client can only have one self assessment.'),
 
                                         Forms\Components\TextInput::make('assessment_name')
                                             ->label('Assessment Name')
@@ -706,6 +732,16 @@ class SelfAssessmentResource extends Resource
     {
         return $table
             ->columns([
+
+                Tables\Columns\TextColumn::make('client.full_name')
+                    ->label('Client Name')
+                    ->searchable(['first_name', 'middle_name', 'last_name'])
+                    ->sortable()
+                    ->formatStateUsing(function ($record) {
+                        return $record->client ? $record->client->full_name : 'No Client';
+                    }),
+
+
                 Tables\Columns\TextColumn::make('assessment_name')
                     ->label('Assessment Name')
                     ->searchable()
@@ -718,17 +754,21 @@ class SelfAssessmentResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('internalDetails.internal_reference')
                     ->label('Internal Reference')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('internalDetails.client_grade')
                     ->label('Client Grade')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('internalDetails.client_risk_level')
                     ->label('Risk Level')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('businessDetails.turnover')
                     ->label('Turnover')
                     ->money('GBP')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

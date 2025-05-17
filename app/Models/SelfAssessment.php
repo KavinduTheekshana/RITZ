@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Validation\Rule;
 
 class SelfAssessment extends Model
 {
@@ -22,6 +23,42 @@ class SelfAssessment extends Model
         'self_assessment_telephone',
         'self_assessment_email',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Ensure only one self assessment per client before creating
+        static::creating(function ($selfAssessment) {
+            if (static::where('client_id', $selfAssessment->client_id)->exists()) {
+                throw new \Exception('This client already has a self assessment.');
+            }
+        });
+
+        // Ensure only one self assessment per client before updating
+        static::updating(function ($selfAssessment) {
+            if (static::where('client_id', $selfAssessment->client_id)
+                ->where('id', '!=', $selfAssessment->id)
+                ->exists()
+            ) {
+                throw new \Exception('This client already has a self assessment.');
+            }
+        });
+    }
+
+       public static function rules($id = null): array
+    {
+        return [
+            'client_id' => [
+                'required',
+                'exists:clients,id',
+                Rule::unique('self_assessments', 'client_id')->ignore($id),
+            ],
+            'assessment_name' => 'nullable|string|max:255',
+            'self_assessment_telephone' => 'nullable|string|max:255',
+            'self_assessment_email' => 'nullable|email|max:255',
+        ];
+    }
 
     /**
      * Get the client that owns the self assessment.
