@@ -6,6 +6,7 @@ use App\Filament\Resources\CompanyResource\Pages;
 use App\Filament\Resources\CompanyResource\RelationManagers;
 use App\Mail\EngagementLetter;
 use App\Models\Company;
+use App\Models\EngagementLetterDetails;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -22,6 +23,8 @@ use Filament\Forms\Components\Actions\Action as FormAction;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Get;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 
 class CompanyResource extends Resource
@@ -905,18 +908,58 @@ class CompanyResource extends Resource
                                 }),
                         ]),
                     ])
+                    // ->action(function (Company $record, array $data) {
+                    //     // Send email with PDF attachment
+                    //     if ($record->company_email) {
+                    //         Mail::to($record->company_email)->send(
+                    //             new EngagementLetter(
+                    //                 $data['engagement_letter'],
+                    //                 $record->company_name
+                    //             )
+                    //         );
+                    //     }
+
+
+
+                    //     Notification::make()
+                    //         ->title('Engagement letter sent successfully')
+                    //         ->success()
+                    //         ->send();
+                    // })
                     ->action(function (Company $record, array $data) {
-                        // Send email with PDF attachment
+                        // Generate PDF
+                        $letterContent = $data['engagement_letter'];
+                        $pdf = Pdf::loadView('pdfs.engagement-letter', [
+                            'letterContent' => $letterContent
+                        ]);
+
+                        // Save PDF to storage
+                        $fileName = 'engagement-letter-' . str_replace(' ', '-', strtolower($record->company_name)) . '-' . now()->format('Y-m-d') . '.pdf';
+                        $filePath = 'engagement-letters/' . $fileName;
+                        Storage::disk('public')->put($filePath, $pdf->output());
+
+                        // Save to database
+                        EngagementLetterDetails::create([
+                            'company_id' => $record->id,
+                            'content' => $letterContent,
+                            'file_path' => $filePath,
+                            'sent_at' => now(),
+                            'sent_by' => Auth::id() ?? 'system',
+                        ]);
+
+                        // Update company to mark engagement letter as sent
+                        $record->engagement = true;
+                        $record->save();
+
+                        // Send email with PDF attachment if email is available
                         if ($record->company_email) {
                             Mail::to($record->company_email)->send(
                                 new EngagementLetter(
-                                    $data['engagement_letter'],
+                                    $letterContent,
                                     $record->company_name
                                 )
                             );
                         }
-
-                    
 
                         Notification::make()
                             ->title('Engagement letter sent successfully')
@@ -1175,117 +1218,139 @@ IG6 2TJ
 
                 <p><strong>The legal bases for our intended processing of personal data</strong></p>
         <p>We rely on the following legal bases in order to process your personal data:</p>
-        - occasionally we will rely on your consent to process your personal data but only if we have contacted you beforehand and asked you to agree;
-        - the processing is necessary for the performance of our contract with you so that we can deliver our services to you;
-        - the processing is necessary for compliance with legal obligations to which we are subject (e.g. MLR 2019);
-        - the processing is necessary for our legitimate interests, such as: investigating/defending legal claims, recovering debts owed to us, keeping our client records up to date and to develop our services and grow our business.
+        <ul>
+            <li>occasionally we will rely on your consent to process your personal data but only if we have contacted you beforehand and asked you to agree;</li>
+            <li>the processing is necessary for the performance of our contract with you so that we can deliver our services to you;</li>
+            <li>the processing is necessary for compliance with legal obligations to which we are subject (e.g. MLR 2019);</li>
+            <li>the processing is necessary for our legitimate interests, such as: investigating/defending legal claims, recovering debts owed to us, keeping our client records up to date and to develop our services and grow our business.</li>
+        </ul>
 
-        If you do not provide the information that we request, we may not be able to provide professional services to you. If this is the case, we will not be able to commence acting or will need to cease to act.
 
-        Persons/organisations to whom we may give personal data
-        We may share your personal data with:
-        - HMRC
-        - any third parties with whom you require or permit us to correspond subcontractors
-        - an alternate appointed by us in the event of incapacity or death tax insurance providers
-        - professional indemnity insurers
-        - our professional body (the Association of Chartered Certified Accountants) and/or the Office of Professional Body Anti-Money Laundering Supervisors (OPBAS) in relation to practice assurance and/or the requirements of MLR 2019 (or any similar legislation)
-        - other professional consultants and service providers
+       <p>If you do not provide the information that we request, we may not be able to provide professional services to you. If this is the case, we will not be able to commence acting or will need to cease to act.</p>
 
-        If the law allows or requires us to do so, we may share your personal data with:
-        - the police and law enforcement agencies
-        - courts and tribunals
-        - the Information Commissioner's Office ("ICO").
+           <p><strong>Persons/organisations to whom we may give personal data</strong></p>
+        <p>We may share your personal data with:</p>
+        <ul>
+            <li>HMRC</li>
+            <li>any third parties with whom you require or permit us to correspond subcontractors</li>
+            <li>an alternate appointed by us in the event of incapacity or death tax insurance providers</li>
+            <li>professional indemnity insurers</li>
+            <li>our professional body (the Association of Chartered Certified Accountants) and/or the Office of Professional Body Anti-Money Laundering Supervisors (OPBAS) in relation to practice assurance and/or the requirements of MLR 2019 (or any similar legislation)</li>
+            <li>other professional consultants and service providers</li>
+        </ul>
 
-        We may need to share your personal data with the third parties identified above in order to comply with our legal obligations, including our legal obligations to you. If you ask us not to share your personal data with such third parties we may need to cease to act.
 
-        Transfers of personal data outside the UK
-        Your personal data will be processed in the UK only.
+      <p>If the law allows or requires us to do so, we may share your personal data with:</p>
+      <ul>
+        <li>the police and law enforcement agencies</li>
+        <li>courts and tribunals</li>
+        <li>the Information Commissioner's Office ("ICO").</li>
+      </ul>
 
-        Retention of personal data
-        When acting as a data controller and in accordance with recognised good practice within the tax and accountancy sector we will retain all of our records relating to you as follows:
-        - where tax returns have been prepared it is our policy to retain information for six years from the end of the tax year to which the information relates
-        - where ad hoc advisory work has been undertaken it is our policy to retain information for six years from the date the business relationship ceased
-        - where we have an ongoing client relationship, data which is needed for more than one year's tax compliance (e.g. capital gains base costs and claims and elections submitted to HMRC) is retained throughout the period of the relationship, but will be deleted four years after the end of the business relationship unless you as our client ask us to retain it for a longer period.
+       <p>We may need to share your personal data with the third parties identified above in order to comply with our legal obligations, including our legal obligations to you. If you ask us not to share your personal data with such third parties we may need to cease to act.</p>
 
-        Our contractual terms provide for the destruction of documents after four years and therefore agreement to the contractual terms is taken as agreement to the retention of records for this period, and to their destruction thereafter.
+         <p><strong>Transfers of personal data outside the UK</strong></p>
+        <p>Your personal data will be processed in the UK only.</p>
 
-        You are responsible for retaining information that we send to you (including details of capital gains base costs and claims and elections submitted) and this will be supplied in the form agreed between us. Documents and records relevant to your tax affairs are required by law to be retained by you as follows:
+              <p><strong>Retention of personal data</strong></p>
 
-        Individuals, trustees and partnerships
-        - with trading or rental income: five years and 10 months after the end of the tax year
-        - otherwise: 22 months after the end of the tax year.
+        <p>When acting as a data controller and in accordance with recognised good practice within the tax and accountancy sector we will retain all of our records relating to you as follows:</p>
+        <ul>
+            <li>where tax returns have been prepared it is our policy to retain information for six years from the end of the tax year to which the information relates</li>
+            <li>where ad hoc advisory work has been undertaken it is our policy to retain information for six years from the date the business relationship ceased</li>
+            <li>where we have an ongoing client relationship, data which is needed for more than one year's tax compliance (e.g. capital gains base costs and claims and elections submitted to HMRC) is retained throughout the period of the relationship, but will be deleted four years after the end of the business relationship unless you as our client ask us to retain it for a longer period.</li>
+        </ul>
 
-        Companies, LLPs and other corporate entities
-        - six years from the end of the accounting period.
 
-        Where we act as a processor as defined in DPA 2018, we will delete or return all personal data to the controller as agreed with the controller at the termination of the contract.
+       <p>Our contractual terms provide for the destruction of documents after four years and therefore agreement to the contractual terms is taken as agreement to the retention of records for this period, and to their destruction thereafter.</p>
 
-        Requesting personal data we hold about you (subject access requests)
-        You have a right to request access to your personal data that we hold. Such requests are known as 'subject access requests' ("SARs").
+       <p>You are responsible for retaining information that we send to you (including details of capital gains base costs and claims and elections submitted) and this will be supplied in the form agreed between us. Documents and records relevant to your tax affairs are required by law to be retained by you as follows:</p>
 
-        Please provide all SARs in writing.
+         <p><strong>Individuals, trustees and partnerships</strong></p>
+         <ul>
+            <li>with trading or rental income: five years and 10 months after the end of the tax year</li>
+            <li>otherwise: 22 months after the end of the tax year.</li>
+         </ul>
 
-        To help us provide the information you want and deal with your request quickly, you should include enough details to enable us to verify your identity and locate the relevant information. For example, you should tell us:
-        - your date of birth
-        - previous or other name(s) you have used your previous addresses in the past five years
-        - personal reference number(s) that we may have given you, for example your national insurance number, your tax reference number or your VAT registration number
-        - what type of information you want to know
+         <p><strong>Companies, LLPs and other corporate entities</strong></p>
+         <ul>
+            <li>six years from the end of the accounting period.</li>
+         </ul>
 
-        If you do not have a national insurance number, you must send a copy of:
-        - the back page of your passport or a copy of your driving licence
-        - a recent utility bill.
+       <p>Where we act as a processor as defined in DPA 2018, we will delete or return all personal data to the controller as agreed with the controller at the termination of the contract.</p>
 
-        DPA 2018 requires that we comply with a SAR promptly and in any event within one month of receipt. There are, however, some circumstances in which the law allows us to refuse to provide access to personal data in response to a SAR (e.g. if you have previously made a similar request and there has been little or no change to the data since we complied with the original request).
+          <p><strong>Requesting personal data we hold about you (subject access requests)</strong></p>
+        <p>You have a right to request access to your personal data that we hold. Such requests are known as 'subject access requests' ("SARs").</p>
 
-        You can ask someone else to request information on your behalf – for example, a friend, relative or solicitor. We must have your authority to respond to a SAR made on your behalf. You can provide such authority by signing a letter which states that you authorise the person concerned to write to us for information about you, and/or receive our reply.
+       <p>Please provide all SARs in writing.</p>
 
-        Where you are a controller and we act for you as a processor (e.g. by processing payroll), we will assist you with SARs on the same basis as is set out above.
+        <p>To help us provide the information you want and deal with your request quickly, you should include enough details to enable us to verify your identity and locate the relevant information. For example, you should tell us:</p>
+        <ul>
+            <li>your date of birth</li>
+            <li>previous or other name(s) you have used your previous addresses in the past five years</li>
+            <li>personal reference number(s) that we may have given you, for example your national insurance number, your tax reference number or your VAT registration number</li>
+            <li>what type of information you want to know</li>
+        </ul>
 
-        Putting things right (the right to rectification)
-        You have a right to obtain the rectification of any inaccurate personal data concerning you that we hold. You also have a right to have any incomplete personal data that we hold about you completed. Should you become aware that any personal data that we hold about you is inaccurate and/or incomplete, please inform us immediately so we can correct and/or complete it.
+        <p>If you do not have a national insurance number, you must send a copy of:</p>
+        <ul>
+            <li>the back page of your passport or a copy of your driving licence</li>
+            <li>a recent utility bill.</li>
+        </ul>
 
-        Deleting your records (the right to erasure)
-        In certain circumstances you have a right to have the personal data that we hold about you erased. Further information is available on the ICO website (www.ico.org.uk). If you would like your personal data to be erased, please inform us immediately and we will consider your request. In certain circumstances we have the right to refuse to comply with a request for erasure. If applicable, we will supply you with the reasons for refusing your request.
+        <p>DPA 2018 requires that we comply with a SAR promptly and in any event within one month of receipt. There are, however, some circumstances in which the law allows us to refuse to provide access to personal data in response to a SAR (e.g. if you have previously made a similar request and there has been little or no change to the data since we complied with the original request).</p>
 
-        The right to restrict processing and the right to object
+        <p>You can ask someone else to request information on your behalf – for example, a friend, relative or solicitor. We must have your authority to respond to a SAR made on your behalf. You can provide such authority by signing a letter which states that you authorise the person concerned to write to us for information about you, and/or receive our reply.</p>
+
+        <p>Where you are a controller and we act for you as a processor (e.g. by processing payroll), we will assist you with SARs on the same basis as is set out above.</p>
+
+               <p><strong>Putting things right (the right to rectification)</strong></p>
+        <p>You have a right to obtain the rectification of any inaccurate personal data concerning you that we hold. You also have a right to have any incomplete personal data that we hold about you completed. Should you become aware that any personal data that we hold about you is inaccurate and/or incomplete, please inform us immediately so we can correct and/or complete it.</p>
+
+          <p><strong>Deleting your records (the right to erasure)</strong></p>
+        <p>In certain circumstances you have a right to have the personal data that we hold about you erased. Further information is available on the ICO website (www.ico.org.uk). If you would like your personal data to be erased, please inform us immediately and we will consider your request. In certain circumstances we have the right to refuse to comply with a request for erasure. If applicable, we will supply you with the reasons for refusing your request.</p>
+
+        <p><strong>The right to restrict processing and the right to object</strong></p>
         In certain circumstances you have the right to 'block' or suppress the processing of personal data or to object to the processing of that information. Further information is available on the ICO website (www.ico.org.uk). Please inform us immediately if you want us to cease to process your information or you object to processing so that we can consider what action, if any, is appropriate.
 
-        Obtaining and reusing personal data (the right to data portability)
-        In certain circumstances you have the right to be provided with the personal data that we hold about you in a machine-readable format, e.g. so that the data can easily be provided to a new professional adviser. Further information is available on the ICO website (www.ico.org.uk).
+        <p><strong>Obtaining and reusing personal data (the right to data portability)</strong></p>
+        <p>In certain circumstances you have the right to be provided with the personal data that we hold about you in a machine-readable format, e.g. so that the data can easily be provided to a new professional adviser. Further information is available on the ICO website (www.ico.org.uk).</p>
 
-        The right to data portability only applies:
+         <p>The right to data portability only applies:</p>
         - to personal data an individual has provided to a controller
         - where the processing is based on the individual's consent or for the performance of a contract
         - when processing is carried out by automated means
 
-        We will respond to any data portability requests made to us without undue delay and within one month. We may extend the period by a further two months where the request is complex or a number of requests are received but we will inform you within one month of the receipt of the request and explain why the extension is necessary.
+        <p> We will respond to any data portability requests made to us without undue delay and within one month. We may extend the period by a further two months where the request is complex or a number of requests are received but we will inform you within one month of the receipt of the request and explain why the extension is necessary.</p>
 
-        Withdrawal of consent
-        Where you have consented to our processing of your personal data, you have the right to withdraw that consent at any time. Please inform us immediately if you wish to withdraw your consent.
+        <p><strong>Withdrawal of consent</strong></p>
+         <p>Where you have consented to our processing of your personal data, you have the right to withdraw that consent at any time. Please inform us immediately if you wish to withdraw your consent.</p>
 
-        Please note:
-        - the withdrawal of consent does not affect the lawfulness of earlier processing
-        - if you withdraw your consent, we may not be able to continue to provide services to you where we have previously relied on your consent to do so
-        - even if you withdraw your consent, it may remain lawful for us to process your data on another legal basis (e.g. because we have a legal obligation to continue to process your data).
+         <p>Please note:</p>
+         <ul>
+            <li>the withdrawal of consent does not affect the lawfulness of earlier processing</li>
+            <li>if you withdraw your consent, we may not be able to continue to provide services to you where we have previously relied on your consent to do so</li>
+            <li>even if you withdraw your consent, it may remain lawful for us to process your data on another legal basis (e.g. because we have a legal obligation to continue to process your data).</li>
+         </ul>
 
-        Automated decision-making and profiling
-        We do not use automated decision-making and profiling in relation to your personal data.
+        <p><strong>Automated decision-making and profiling</strong></p>
+         <p>We do not use automated decision-making and profiling in relation to your personal data.</p>
 
-        Complaints
-        If you have requested details of the information we hold about you and you are not happy with our response, or you think we have not complied with the GDPR or DPA 2018 in some other way, you can complain to us using the contact details provided at the start of this notice.
+        <p><strong>Complaints</strong></p>
+         <p>If you have requested details of the information we hold about you and you are not happy with our response, or you think we have not complied with the GDPR or DPA 2018 in some other way, you can complain to us using the contact details provided at the start of this notice.</p>
 
-        If you are not happy with our response, you have a right to lodge a complaint with the ICO (www.ico.org.uk).
+         <p>If you are not happy with our response, you have a right to lodge a complaint with the ICO (www.ico.org.uk).</p>
 
     
-    <p>Signed By _______________________</p>
-    <p>Name ___________________________</p>
-    <p>Date ___________________________</p>
-    <p>Printed Name ____________________</p>
+    <p>Signed By: _______________________</p>
+    <p>Name: ___________________________</p>
+    <p>Date: ___________________________</p>
+    <p>Printed Name: ____________________</p>
 </div>
 HTML;
     }
 
-   
+
 
 
 
