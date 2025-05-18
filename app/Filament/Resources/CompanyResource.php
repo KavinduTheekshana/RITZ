@@ -6,7 +6,7 @@ use App\Filament\Resources\CompanyResource\Pages;
 use App\Filament\Resources\CompanyResource\RelationManagers;
 use App\Mail\EngagementLetter;
 use App\Models\Company;
-use App\Models\EngagementLetterDetails;
+use App\Models\EngagementLetterCompany;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -939,7 +939,7 @@ class CompanyResource extends Resource
                         Storage::disk('public')->put($filePath, $pdf->output());
 
                         // Save to database
-                        EngagementLetterDetails::create([
+                        EngagementLetterCompany::create([
                             'company_id' => $record->id,
                             'content' => $letterContent,
                             'file_path' => $filePath,

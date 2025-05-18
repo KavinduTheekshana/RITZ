@@ -5,8 +5,10 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientDashboardController;
 use App\Http\Controllers\ClientLoginController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\EngagementController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ServiceController;
+use App\Mail\EngagementLetter;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('/');
@@ -33,6 +35,11 @@ Route::middleware(['guest.client'])->group(function () {
 Route::middleware(['auth.client'])->group(function () {
     Route::get('client/dashboard', [ClientDashboardController::class, 'index'])->name('client.dashboard');
     Route::get('client/profile', [ClientController::class, 'profile'])->name('client.profile');
+
+    Route::get('client/engagement', [EngagementController::class, 'engagement'])->name('client.engagement');
+     Route::get('/engagement/view-pdf/{id}', [EngagementController::class, 'viewPdf'])->name('engagement.view-pdf');
+    Route::get('/engagement/download-pdf/{id}', [EngagementController::class, 'downloadPdf'])->name('engagement.download-pdf');
+    
     Route::post('/logout', [ClientLoginController::class, 'logout'])->name('client.logout');
 });
 

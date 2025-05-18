@@ -29,7 +29,9 @@
     <!-- [Template CSS Files] -->
     <link rel="stylesheet" href="{{ asset('backend/css/style.css') }}" id="main-style-link">
     <link rel="stylesheet" href="{{ asset('backend/css/style-preset.css') }}">
-        @vite(['', 'resources/js/app.js'])
+    <link rel="stylesheet" type="text/css" href="{{ asset('backend/css/custom.css') }}" media="all">
+      @stack('styles')
+    @vite(['', 'resources/js/app.js'])
 
 </head>
 <!-- [Head] end -->
@@ -55,6 +57,9 @@
     <script src="{{ asset('backend/js/pcoded.js') }}"></script>
     <script src="{{ asset('backend/js/plugins/feather.min.js') }}"></script>
     <script src="{{ asset('backend/js/layout-horizontal.js') }}"></script>
+
+    @stack('scripts')
+
 </body>
 
 </html>

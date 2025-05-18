@@ -11,13 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('engagement_letter_details', function (Blueprint $table) {
+        Schema::create('engagement_letter_companies', function (Blueprint $table) {
             $table->id();
             $table->foreignId('company_id')->constrained()->onDelete('cascade');
             $table->longText('content');
             $table->string('file_path')->nullable();
             $table->timestamp('sent_at')->useCurrent();
             $table->string('sent_by')->nullable();
+            $table->string('signer_full_name')->nullable();
+            $table->string('signer_print_name')->nullable();
+            $table->string('signer_email')->nullable();
+            $table->string('ip')->nullable();
+            $table->string('browser_data')->nullable();
+            $table->date('signed_date')->nullable();
+            $table->timestamp('signed_at')->nullable();
+            $table->boolean('is_signed')->default(false);
             $table->timestamps();
         });
     }
@@ -27,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('engagement_letter_details');
+        Schema::dropIfExists('engagement_letter_companies');
     }
 };

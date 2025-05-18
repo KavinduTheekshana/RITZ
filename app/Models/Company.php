@@ -91,7 +91,7 @@ class Company extends Model
     }
       public function engagementLetters(): HasMany
     {
-        return $this->hasMany(EngagementLetterDetails::class);
+        return $this->hasMany(EngagementLetterCompany::class);
     }
 
 }

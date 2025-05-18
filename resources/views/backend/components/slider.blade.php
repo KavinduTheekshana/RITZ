@@ -30,11 +30,11 @@
                     </li>
 
                     <li class="pc-item">
-                        <a href="{{ route('client.profile') }}" class="pc-link">
+                        <a href="{{ route('client.engagement') }}" class="pc-link">
                             <span class="pc-micon m-0">
                                 <i class="ph-duotone ph-envelope"></i>
                             </span>
-                            <span class="pc-mtext">Engagement</span>
+                            <span class="pc-mtext">Engagement Letter</span>
                         </a>
                     </li>
 
