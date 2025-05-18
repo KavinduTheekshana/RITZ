@@ -11,12 +11,26 @@ class Company extends Model
     use HasFactory;
 
     protected $fillable = [
-        'company_number', 'company_name', 'company_status', 'company_type',
-        'incorporation_date', 'company_trading_as', 'registered_address',
-        'company_postal_address', 'invoice_address_type', 'company_email',
-        'company_email_domain', 'company_telephone', 'turnover',
-        'date_of_trading', 'sic_code', 'nature_of_business',
-        'corporation_tax_office', 'company_utr', 'companies_house_authentication_code','engagement'
+        'company_number',
+        'company_name',
+        'company_status',
+        'company_type',
+        'incorporation_date',
+        'company_trading_as',
+        'registered_address',
+        'company_postal_address',
+        'invoice_address_type',
+        'company_email',
+        'company_email_domain',
+        'company_telephone',
+        'turnover',
+        'date_of_trading',
+        'sic_code',
+        'nature_of_business',
+        'corporation_tax_office',
+        'company_utr',
+        'companies_house_authentication_code',
+        'engagement'
     ];
 
     protected $casts = [
@@ -89,9 +103,8 @@ class Company extends Model
     {
         return $this->hasOne(OtherDetail::class);
     }
-      public function engagementLetters(): HasMany
+    public function engagementLetters()
     {
         return $this->hasMany(EngagementLetterCompany::class);
     }
-
 }

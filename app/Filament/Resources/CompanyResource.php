@@ -25,6 +25,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Get;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 
 class CompanyResource extends Resource
@@ -908,24 +909,6 @@ class CompanyResource extends Resource
                                 }),
                         ]),
                     ])
-                    // ->action(function (Company $record, array $data) {
-                    //     // Send email with PDF attachment
-                    //     if ($record->company_email) {
-                    //         Mail::to($record->company_email)->send(
-                    //             new EngagementLetter(
-                    //                 $data['engagement_letter'],
-                    //                 $record->company_name
-                    //             )
-                    //         );
-                    //     }
-
-
-
-                    //     Notification::make()
-                    //         ->title('Engagement letter sent successfully')
-                    //         ->success()
-                    //         ->send();
-                    // })
                     ->action(function (Company $record, array $data) {
                         // Generate PDF
                         $letterContent = $data['engagement_letter'];
@@ -971,6 +954,32 @@ class CompanyResource extends Resource
                     ->modalButton('Send as PDF')
                     ->modalWidth('7xl')
                     ->hidden(fn(Company $record) => $record->engagement),
+                Action::make('viewActivities')
+                    ->label('View Activities')
+                    ->icon('heroicon-o-clipboard-document-list')
+                    ->color('info')
+                    ->modalHeading(fn(Company $record) => "Activities for {$record->company_name}")
+                    ->modalContent(function (Company $record) {
+                        $engagementLetters = $record->engagementLetters()
+                            ->orderBy('sent_at', 'desc')
+                            ->get();
+
+                        // Temporary debug - remove this after testing
+                        if ($engagementLetters->isEmpty()) {
+                            return view('filament.company.activities', [
+                                'company' => $record,
+                                'engagementLetters' => collect([]), // Empty collection
+                                'debug' => 'No engagement letters found for company ID: ' . $record->id
+                            ]);
+                        }
+
+                        return view('filament.company.activities', [
+                            'company' => $record,
+                            'engagementLetters' => $engagementLetters,
+                        ]);
+                    })
+                    ->modalWidth('7xl')
+                    ->slideOver(),
 
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
@@ -1341,12 +1350,6 @@ IG6 2TJ
          <p>If you have requested details of the information we hold about you and you are not happy with our response, or you think we have not complied with the GDPR or DPA 2018 in some other way, you can complain to us using the contact details provided at the start of this notice.</p>
 
          <p>If you are not happy with our response, you have a right to lodge a complaint with the ICO (www.ico.org.uk).</p>
-
-    
-    <p>Signed By: _______________________</p>
-    <p>Name: ___________________________</p>
-    <p>Date: ___________________________</p>
-    <p>Printed Name: ____________________</p>
 </div>
 HTML;
     }
