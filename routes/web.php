@@ -37,9 +37,8 @@ Route::middleware(['auth.client'])->group(function () {
     Route::get('client/profile', [ClientController::class, 'profile'])->name('client.profile');
 
     Route::get('client/engagement', [EngagementController::class, 'engagement'])->name('client.engagement');
-     Route::get('/engagement/view-pdf/{id}', [EngagementController::class, 'viewPdf'])->name('engagement.view-pdf');
-    Route::get('/engagement/download-pdf/{id}', [EngagementController::class, 'downloadPdf'])->name('engagement.download-pdf');
-    
+    Route::post('/engagement/sign', [EngagementController::class, 'sign'])->name('client.engagement.sign');
+
     Route::post('/logout', [ClientLoginController::class, 'logout'])->name('client.logout');
 });
 

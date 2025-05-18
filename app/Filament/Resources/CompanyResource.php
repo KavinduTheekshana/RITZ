@@ -943,6 +943,7 @@ class CompanyResource extends Resource
                             'company_id' => $record->id,
                             'content' => $letterContent,
                             'file_path' => $filePath,
+                            'file_name' => $fileName,
                             'sent_at' => now(),
                             'sent_by' => Auth::id() ?? 'system',
                         ]);

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('company_id')->constrained()->onDelete('cascade');
             $table->longText('content');
+            $table->string('file_name')->nullable();
             $table->string('file_path')->nullable();
             $table->timestamp('sent_at')->useCurrent();
             $table->string('sent_by')->nullable();
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->string('browser_data')->nullable();
             $table->date('signed_date')->nullable();
             $table->timestamp('signed_at')->nullable();
+            $table->string('signed_file_path')->nullable(); // Path to the signed PDF
             $table->boolean('is_signed')->default(false);
             $table->timestamps();
         });

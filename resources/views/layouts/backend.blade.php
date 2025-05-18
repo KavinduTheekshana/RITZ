@@ -12,6 +12,8 @@
         content="Light Able admin and dashboard template offer a variety of UI elements and pages, ensuring your admin panel is both fast and effective." />
     <meta name="author" content="phoenixcoded" />
 
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <!-- [Favicon] icon -->
     <link rel="icon" href="{{ asset('backend/images/favicon.svg') }}" type="image/x-icon" />
     <!-- [Google Font : Public Sans] icon -->

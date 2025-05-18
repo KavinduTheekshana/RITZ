@@ -109,6 +109,50 @@
                 flex-direction: column;
                 gap: 10px;
             }
+
+            #signatureModal .modal-dialog {
+                max-width: 600px;
+            }
+
+            .signature-form .form-group {
+                margin-bottom: 1.5rem;
+            }
+
+            .signature-form label {
+                font-weight: 600;
+                color: #495057;
+                margin-bottom: 0.5rem;
+            }
+
+            .signature-form .form-control {
+                border: 2px solid #e9ecef;
+                border-radius: 8px;
+                padding: 0.75rem;
+                transition: border-color 0.3s;
+            }
+
+            .signature-form .form-control:focus {
+                border-color: #007bff;
+                box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            }
+
+            .signature-header {
+                background: linear-gradient(135deg, #007bff, #0056b3);
+                color: white;
+                border-radius: 8px 8px 0 0;
+            }
+
+            .signature-footer {
+                background-color: #f8f9fa;
+                border-radius: 0 0 8px 8px;
+            }
+
+            @media (max-width: 768px) {
+                #signatureModal .modal-dialog {
+                    margin: 1rem;
+                    max-width: calc(100% - 2rem);
+                }
+            }
         }
     </style>
 @endpush
@@ -121,7 +165,7 @@
         @include('backend.components.breadcrumb')
 
         <div class="row">
-            <div class="col-md-7">
+            <div class="col-md-9">
                 <div class="card">
                     <div class="card-body">
                         <div class="row">
@@ -138,32 +182,64 @@
                                                     </div>
 
                                                     <div class="flex-grow-1 ms-4">
-
-                                                        <p class="mb-0 text-muted">Document Name: </p>
-                                                        <p class="mb-0 text-muted">Company :
+                                                        <p class="mb-0 text-muted">Document Name:
+                                                            {{ $company->file_name }}</p>
+                                                        <p class="mb-0 text-muted">Company:
                                                             {{ $company->company->company_name }}
                                                             ({{ $company->company->company_type }})
                                                         </p>
-                                                        <span class="badge bg-light-danger">Signature Required</span>
-
+                                                        @if ($company->is_signed)
+                                                            <span class="badge bg-light-success">
+                                                                <i class="ti ti-check me-1"></i>Signed by
+                                                                {{ $company->signer_full_name }}
+                                                            </span>
+                                                            <small class="text-muted d-block">Signed on:
+                                                                {{ \Carbon\Carbon::parse($company->signed_date)->format('M d, Y') }}</small>
+                                                        @else
+                                                            <span class="badge bg-light-danger">Signature
+                                                                Required</span>
+                                                        @endif
                                                     </div>
+
                                                     <div>
-                                                        <button type="button"
-                                                            class="btn btn-secondary d-inline-flex view-pdf-btn"
-                                                            data-bs-toggle="modal" data-bs-target="#pdfModal"
-                                                            data-url="{{ asset('storage/' . $company->file_path) }}">
-                                                            <i class="ti ti-eye me-1"></i>View
-                                                        </button>
+                                                        @if ($company->is_signed)
+                                                            {{-- Show signed document --}}
+                                                            <button type="button"
+                                                                class="btn btn-secondary d-inline-flex view-pdf-btn"
+                                                                data-bs-toggle="modal" data-bs-target="#pdfModal"
+                                                                data-url="{{ asset('storage/' . $company->signed_file_path) }}">
+                                                                <i class="ti ti-eye me-1"></i>View Signed
+                                                            </button>
 
-                                                        <a href="{{ asset('storage/' . $company->file_path) }}" download
-                                                            type="button" class="btn btn-success d-inline-flex"><i
-                                                                class="ti ti-arrow-big-down me-1"></i>Download</a>
+                                                            <a href="{{ asset('storage/' . $company->signed_file_path) }}"
+                                                                download type="button"
+                                                                class="btn btn-success d-inline-flex">
+                                                                <i class="ti ti-arrow-big-down me-1"></i>Download Signed
+                                                            </a>
+                                                        @else
+                                                            {{-- Show unsigned document --}}
+                                                            <button type="button"
+                                                                class="btn btn-secondary d-inline-flex view-pdf-btn"
+                                                                data-bs-toggle="modal" data-bs-target="#pdfModal"
+                                                                data-url="{{ asset('storage/' . $company->file_path) }}">
+                                                                <i class="ti ti-eye me-1"></i>View
+                                                            </button>
 
-                                                        <button type="button" class="btn btn-warning d-inline-flex"><i
-                                                                class="ti ti-writing-sign me-1"></i>Sign
-                                                            Document</button>
+                                                            <a href="{{ asset('storage/' . $company->file_path) }}"
+                                                                download type="button"
+                                                                class="btn btn-success d-inline-flex">
+                                                                <i class="ti ti-arrow-big-down me-1"></i>Download
+                                                            </a>
+
+                                                            <button type="button"
+                                                                class="btn btn-warning d-inline-flex sign-document-btn"
+                                                                data-bs-toggle="modal" data-bs-target="#signatureModal"
+                                                                data-engagement-id="{{ $company->id }}"
+                                                                data-company-name="{{ $company->company->company_name }}">
+                                                                <i class="ti ti-writing-sign me-1"></i>Sign Document
+                                                            </button>
+                                                        @endif
                                                     </div>
-
                                                 </div>
                                             </li>
                                         @endforeach
@@ -184,7 +260,7 @@
                     </div>
                 </div>
             </div>
-  
+
         </div>
 
     </div>
@@ -200,12 +276,10 @@
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomOut" title="Zoom Out">
                         <i class="ti ti-minus"></i>
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="fitWidth"
-                        title="Fit to Width">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="fitWidth" title="Fit to Width">
                         <i class="ti ti-arrows-horizontal"></i>
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="fitPage"
-                        title="Fit to Page">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="fitPage" title="Fit to Page">
                         <i class="ti ti-arrows-maximize"></i>
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomIn" title="Zoom In">
@@ -275,6 +349,95 @@
     </div>
 </div>
 
+
+{{-- ADD this signature modal AFTER your existing PDF modal (before @endsection) --}}
+{{-- Signature Modal --}}
+<div class="modal fade" id="signatureModal" tabindex="-1" aria-labelledby="signatureModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header signature-header">
+                <h5 class="modal-title" id="signatureModalLabel">
+                    <i class="ti ti-writing-sign me-2"></i>Sign Engagement Letter
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+
+            <form id="signatureForm" action="{{ route('client.engagement.sign') }}" method="POST">
+                @csrf
+                <input type="hidden" id="engagement_id" name="engagement_id" value="">
+
+                <div class="modal-body">
+                    <div class="signature-form">
+                        <div class="alert alert-info">
+                            <i class="ti ti-info-circle me-2"></i>
+                            You are about to sign the engagement letter for <strong><span
+                                    id="companyNameDisplay"></span></strong>.
+                            Please fill in your details below.
+                        </div>
+
+                        <div class="form-group">
+                            <label for="signer_full_name" class="form-label">
+                                <i class="ti ti-user me-1"></i>Full Name *
+                            </label>
+                            <input type="text" class="form-control" id="signer_full_name" name="signer_full_name"
+                                required placeholder="Enter your full legal name">
+                            <small class="form-text text-muted">Enter your name as it appears on legal
+                                documents</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="signer_print_name" class="form-label">
+                                <i class="ti ti-signature me-1"></i>Print Name *
+                            </label>
+                            <input type="text" class="form-control" id="signer_print_name"
+                                name="signer_print_name" required placeholder="Enter your printed name">
+                            <small class="form-text text-muted">How your name should appear in print</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="signer_email" class="form-label">
+                                <i class="ti ti-mail me-1"></i>Email Address *
+                            </label>
+                            <input type="email" class="form-control" id="signer_email" name="signer_email"
+                                required placeholder="Enter your email address">
+                            <small class="form-text text-muted">We'll send a copy of the signed document to this
+                                email</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="signed_date" class="form-label">
+                                <i class="ti ti-calendar me-1"></i>Signature Date *
+                            </label>
+                            <input type="date" class="form-control" id="signed_date" name="signed_date" required
+                                value="{{ date('Y-m-d') }}">
+                            <small class="form-text text-muted">Date you are signing this document</small>
+                        </div>
+
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="confirmSignature" required>
+                            <label class="form-check-label" for="confirmSignature">
+                                I confirm that I have read and understand the engagement letter and agree to its terms
+                                and conditions.
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer signature-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="ti ti-x me-1"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-warning" id="submitSignature">
+                        <i class="ti ti-writing-sign me-1"></i>Sign Document
+                        <span class="spinner-border spinner-border-sm ms-2 d-none" id="signingSpinner"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 
@@ -569,6 +732,135 @@
                 await renderPage(currentPage);
             }
         });
+    });
+</script>
+
+
+<script>
+    // Signature modal elements
+    const signatureModal = document.getElementById('signatureModal');
+    const signatureForm = document.getElementById('signatureForm');
+    const engagementIdInput = document.getElementById('engagement_id');
+    const companyNameDisplay = document.getElementById('companyNameDisplay');
+    const submitButton = document.getElementById('submitSignature');
+    const signingSpinner = document.getElementById('signingSpinner');
+
+    // Event listeners for sign document buttons
+    document.querySelectorAll('.sign-document-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const engagementId = this.getAttribute('data-engagement-id');
+            const companyName = this.getAttribute('data-company-name');
+            engagementIdInput.value = engagementId;
+            companyNameDisplay.textContent = companyName;
+
+            // Reset form
+            signatureForm.reset();
+            document.getElementById('signed_date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('engagement_id').value = engagementId; // Reset this after form reset
+        });
+    });
+
+    // Handle signature form submission
+    signatureForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        console.log('Form submission started');
+
+        // Show loading state
+        submitButton.disabled = true;
+        signingSpinner.classList.remove('d-none');
+
+        // Capture browser data - PUT THIS BACK
+        const browserData = {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language,
+            screen: `${screen.width}x${screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            timestamp: new Date().toISOString()
+        };
+
+        // Create form data and add browser info
+        const formData = new FormData(this);
+        formData.append('browser_data', JSON.stringify(browserData));
+        
+        // Debug: Log all form data including browser data
+        console.log('Form data entries:');
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
+        }
+
+        // Check if CSRF token exists
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+
+        // Submit form via fetch
+        fetch(this.action, {
+                method: 'POST',
+                body: formData, // This now includes browser_data
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken ? csrfToken.getAttribute('content') : ''
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                
+                return response.text().then(text => {
+                    console.log('Response text:', text);
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error('JSON parse error:', e);
+                        throw new Error('Invalid JSON response: ' + text);
+                    }
+                });
+            })
+            .then(data => {
+                console.log('Parsed response data:', data);
+                if (data.success) {
+                    // Hide modal
+                    const modal = bootstrap.Modal.getInstance(signatureModal);
+                    modal.hide();
+
+                    // Show success message
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                    alertDiv.innerHTML = `
+                        <i class="ti ti-check-circle me-2"></i>
+                        <strong>Success!</strong> Engagement letter has been signed successfully.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+
+                    // Insert alert at the top of the page
+                    const container = document.querySelector('.pc-content');
+                    container.insertBefore(alertDiv, container.firstChild);
+
+                    // Reload the page after a short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    console.error('Server returned error:', data.message);
+                    alert('Error: ' + (data.message || 'Failed to sign document'));
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('Error: ' + error.message);
+            })
+            .finally(() => {
+                // Reset button state
+                submitButton.disabled = false;
+                signingSpinner.classList.add('d-none');
+            });
+    });
+
+    // Auto-fill print name when full name is entered
+    document.getElementById('signer_full_name').addEventListener('input', function() {
+        const printNameField = document.getElementById('signer_print_name');
+        if (!printNameField.value) {
+            printNameField.value = this.value;
+        }
     });
 </script>
 @endpush
