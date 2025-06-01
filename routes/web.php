@@ -40,6 +40,13 @@ Route::middleware(['auth.client'])->group(function () {
     Route::post('/engagement/sign', [EngagementController::class, 'sign'])->name('client.engagement.sign');
 
     Route::post('/logout', [ClientLoginController::class, 'logout'])->name('client.logout');
+
+
+      // Chat routes
+    Route::get('/chat', [App\Http\Controllers\ClientChatController::class, 'index'])->name('client.chat');
+    Route::get('/chat/messages', [App\Http\Controllers\ClientChatController::class, 'getMessages'])->name('client.chat.messages');
+    Route::post('/chat/send', [App\Http\Controllers\ClientChatController::class, 'sendMessage'])->name('client.chat.send');
+    Route::get('/chat/unread-counts', [App\Http\Controllers\ClientChatController::class, 'getUnreadCounts'])->name('client.chat.unread');
 });
 
 
