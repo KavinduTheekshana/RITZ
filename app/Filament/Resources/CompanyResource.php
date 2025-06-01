@@ -866,7 +866,6 @@ class CompanyResource extends Resource
                     ]),
             ])
             ->actions([
-
                 Action::make('sendEngagementLetter')
                     ->label('Send Engagement Letter')
                     ->icon('heroicon-o-envelope')
@@ -953,9 +952,10 @@ class CompanyResource extends Resource
                     ->modalHeading('Send Engagement Letter')
                     ->modalButton('Send as PDF')
                     ->modalWidth('7xl')
-                    ->hidden(fn(Company $record) => $record->engagement),
+                    ->visible(fn(Company $record) => !$record->engagement), // Show only when engagement is false
+
                 Action::make('viewActivities')
-                    ->label('View Activities')
+                    ->label('View Engagement Letter')
                     ->icon('heroicon-o-clipboard-document-list')
                     ->color('info')
                     ->modalHeading(fn(Company $record) => "Activities for {$record->company_name}")
@@ -979,8 +979,15 @@ class CompanyResource extends Resource
                         ]);
                     })
                     ->modalWidth('7xl')
-                    ->slideOver(),
+                    ->slideOver()
+                    ->visible(fn(Company $record) => $record->engagement), // Show only when engagement is true
 
+                Tables\Actions\Action::make('chat')
+                    ->label('Chat')
+                    ->icon('heroicon-o-chat-bubble-left-right')
+                    ->color('danger')
+                    ->url(fn(Company $record): string => CompanyResource::getUrl('chat', ['record' => $record]))
+                    ->openUrlInNewTab(false),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
@@ -1372,6 +1379,7 @@ HTML;
             'index' => Pages\ListCompanies::route('/'),
             'create' => Pages\CreateCompany::route('/create'),
             'edit' => Pages\EditCompany::route('/{record}/edit'),
+            'chat' => Pages\CompanyChat::route('/{record}/chat'),
         ];
     }
 }

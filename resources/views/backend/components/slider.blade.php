@@ -34,20 +34,11 @@
                             <span class="pc-micon m-0">
                                 <i class="ph-duotone ph-envelope"></i>
                             </span>
-                            <span class="pc-mtext">Engagement Letter</span>
+                            <span class="pc-mtext">Engagement Letters</span>
                         </a>
                     </li>
 
 
-
-
-
-
-                    {{-- <li class="pc-item"><a href="../other/sample-page.html" class="pc-link">
-                            <span class="pc-micon">
-                                <i class="ph-duotone ph-desktop"></i>
-                            </span>
-                            <span class="pc-mtext">Sample page</span></a></li> --}}
 
                 </ul>
                 <div class="card nav-action-card bg-brand-color-4">
