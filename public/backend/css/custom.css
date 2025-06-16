@@ -1,3 +1,7 @@
-.mr-10{
+.mr-10 {
     margin-right: 10px !important;
+}
+
+.card-padding {
+    padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x);
 }

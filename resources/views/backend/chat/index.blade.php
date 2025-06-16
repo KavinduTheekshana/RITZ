@@ -56,8 +56,8 @@
                         <div class="card-header">
                             <h6>Self Assessment</h6>
                         </div>
-                        <div class="card-body">
-                            <a href="#" class="list-group-item list-group-item-action company-chat-link"
+                        <div class="card-body p-0">
+                            <a href="#" class="list-group-item list-group-item-action company-chat-link card-padding"
                                 data-company-id="self-assessment"
                                 data-company-name="Self Assessment - {{ $selfAssessment->assessment_name }}">
                                 <div class="d-flex w-100 justify-content-between">
@@ -458,7 +458,7 @@
                 ${senderBadge}
                 ${message.message ? `<div class="message-text">${message.message}</div>` : ''}
                 ${fileAttachment}
-                <div class="message-time">${formatTime(message.sent_at)}</div>
+                <div class="message-time">${formatTime(message.created_at)}</div>
             </div>
         `;
 

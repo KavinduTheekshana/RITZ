@@ -124,7 +124,6 @@ class CompanyChat extends Page
             'sender_name' => Auth::user()->name,
             'sender_email' => Auth::user()->email,
             'message' => $data['message'] ?? null,
-            'sent_at' => now(),
         ];
 
         // Handle file upload
@@ -158,7 +157,7 @@ class CompanyChat extends Page
     {
         return CompanyChatList::where('company_id', $this->record->id)
             ->with(['user', 'client'])
-            ->orderBy('sent_at', 'asc')
+            ->orderBy('created_at', 'asc')
             ->get();
     }
 

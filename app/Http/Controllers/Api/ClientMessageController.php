@@ -120,7 +120,7 @@ class ClientMessageController extends Controller
                         ->orWhere('sender_type', 'admin');
                 })
                 ->with(['user', 'client'])
-                ->orderBy('sent_at', 'desc') // Get latest messages first
+                ->orderBy('created_at', 'desc') // Get latest messages first
                 ->limit($limit)
                 ->get()
                 ->reverse() // Then reverse to show chronological order (oldest first)
@@ -134,7 +134,7 @@ class ClientMessageController extends Controller
                         'file_name' => $message->file_name,
                         'file_url' => $message->file_url,
                         'file_size' => $message->formatted_file_size,
-                        'sent_at' => $message->sent_at,
+                        'created_at' => $message->created_at,
                         'is_read' => $message->is_read,
                     ];
                 });
