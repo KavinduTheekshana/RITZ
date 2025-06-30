@@ -5,18 +5,20 @@ namespace App\Filament\Resources\CompanyResource\Pages;
 use App\Filament\Resources\CompanyResource;
 use App\Models\Company;
 use App\Models\CompanyChatList;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Filament\Actions\Action;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Livewire\WithFileUploads;
 
 class CompanyChat extends Page
 {
-    use InteractsWithRecord;
+    use InteractsWithRecord, WithFileUploads;
 
     protected static string $resource = CompanyResource::class;
 
@@ -24,12 +26,17 @@ class CompanyChat extends Page
 
     protected static ?string $title = 'Chat';
 
-    public $sendMessageData = [];
+    public $sendMessageData = [
+        'message' => '',
+    ];
+    
+    public $uploadedFile = null;
+    public $uploadedFileName = '';
 
     public function mount(int | string $record): void
     {
         $this->record = $this->resolveRecord($record);
-        
+
         // Mark all client messages as read for this company
         CompanyChatList::where('company_id', $this->record->id)
             ->where('sender_type', 'client')
@@ -43,8 +50,8 @@ class CompanyChat extends Page
             Action::make('back')
                 ->label('Back to Company')
                 ->icon('heroicon-o-arrow-left')
-                ->url(fn (): string => CompanyResource::getUrl('edit', ['record' => $this->record])),
-                
+                ->url(fn(): string => CompanyResource::getUrl('edit', ['record' => $this->record])),
+
             Action::make('markAllRead')
                 ->label('Mark All Read')
                 ->icon('heroicon-o-check-circle')
@@ -53,13 +60,13 @@ class CompanyChat extends Page
                     CompanyChatList::where('company_id', $this->record->id)
                         ->where('is_read', false)
                         ->update(['is_read' => true]);
-                        
+
                     Notification::make()
                         ->title('All messages marked as read')
                         ->success()
                         ->send();
                 })
-                ->visible(fn () => $this->getUnreadClientMessages() > 0),
+                ->visible(fn() => $this->getUnreadClientMessages() > 0),
         ];
     }
 
@@ -75,23 +82,9 @@ class CompanyChat extends Page
                             ->rows(3)
                             ->maxLength(1000),
 
-                        FileUpload::make('file')
-                            ->label('Attach File')
-                            ->directory('company-chat')
-                            ->preserveFilenames()
-                            ->maxSize(10240) // 10MB
-                            ->acceptedFileTypes([
-                                'application/pdf',
-                                'application/msword',
-                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                                'application/vnd.ms-excel',
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                'image/jpeg',
-                                'image/png',
-                                'image/gif',
-                                'text/plain',
-                            ])
-                            ->helperText('Supported formats: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG, GIF, TXT (Max: 10MB)'),
+                        ViewField::make('custom_file_upload')
+                            ->view('filament.company.custom-file-upload')
+                            ->label('Attach File'),
                     ])
                     ->statePath('sendMessageData')
             ),
@@ -103,12 +96,19 @@ class CompanyChat extends Page
         return $form;
     }
 
+    public function removeFile(): void
+    {
+        $this->uploadedFile = null;
+        $this->uploadedFileName = '';
+        $this->dispatch('file-removed');
+    }
+
     public function sendMessage(): void
     {
         $data = $this->sendMessageForm->getState();
 
         // Validate that either message or file is provided
-        if (empty($data['message']) && empty($data['file'])) {
+        if (empty($data['message']) && !$this->uploadedFile) {
             Notification::make()
                 ->title('Error')
                 ->body('Please provide either a message or attach a file.')
@@ -127,24 +127,22 @@ class CompanyChat extends Page
         ];
 
         // Handle file upload
-        if (!empty($data['file'])) {
-            $file = $data['file'];
-            $chatData['file_path'] = $file;
-            $chatData['file_name'] = basename($file);
+        if ($this->uploadedFile) {
+            $path = $this->uploadedFile->store('company-chat', 'public');
             
-            // Get file info
-            $fullPath = storage_path('app/public/' . $file);
-            if (file_exists($fullPath)) {
-                $chatData['file_size'] = filesize($fullPath);
-                $chatData['file_type'] = mime_content_type($fullPath);
-            }
+            $chatData['file_path'] = $path;
+            $chatData['file_name'] = $this->uploadedFile->getClientOriginalName();
+            $chatData['file_size'] = $this->uploadedFile->getSize();
+            $chatData['file_type'] = $this->uploadedFile->getMimeType();
         }
 
         CompanyChatList::create($chatData);
 
-        // Reset form
-        $this->sendMessageForm->fill([]);
-        $this->sendMessageData = [];
+        // Clear everything
+        $this->sendMessageData = ['message' => ''];
+        $this->uploadedFile = null;
+        $this->uploadedFileName = '';
+        $this->dispatch('clear-file-input');
 
         Notification::make()
             ->title('Message Sent')
@@ -173,11 +171,11 @@ class CompanyChat extends Page
     {
         $unreadCount = $this->getUnreadClientMessages();
         $title = "Chat - {$this->record->company_name}";
-        
+
         if ($unreadCount > 0) {
             $title .= " ({$unreadCount} unread)";
         }
-        
+
         return $title;
     }
 }

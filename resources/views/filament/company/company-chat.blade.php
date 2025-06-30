@@ -5,10 +5,12 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
                     <div class="flex-shrink-0">
-                        <div class="w-16 h-16 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
-                            <div class="p-2 bg-white dark:bg-gray-700 rounded-full border border-primary-600 dark:border-primary-400">
-                                <svg class="w-8 h-8 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                        <div
+                            class="w-16 h-16 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center">
+                            <div
+                                class="p-2 bg-white dark:bg-gray-700 rounded-full border border-primary-600 dark:border-primary-400">
+                                <svg class="w-8 h-8 text-primary-600 dark:text-primary-400" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H3m2 0h4M9 7h6m-6 4h6m-6 4h6">
                                     </path>
@@ -18,7 +20,8 @@
                     </div>
 
                     <div>
-                        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ $record->company_name }}</h2>
+                        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ $record->company_name }}
+                        </h2>
                         <p class="text-sm text-gray-500 dark:text-gray-400">{{ $record->company_email }}</p>
                     </div>
                 </div>
@@ -84,7 +87,7 @@
                                             class="text-sm font-medium {{ $message->isFromAdmin() ? 'text-blue-900 dark:text-blue-100' : 'text-green-900 dark:text-green-100' }}">
                                             {{ $message->sender_display_name }}
                                         </span>
-                                
+
                                     </div>
                                     <span
                                         class="text-xs text-gray-500 dark:text-gray-400">{{ $message->created_at->format('M j, Y g:i A') }}</span>
@@ -100,9 +103,10 @@
 
                                 <!-- File Attachment -->
                                 @if ($message->hasFile())
-                                    <div class="flex items-center space-x-2 p-2 bg-white dark:bg-gray-700 rounded border dark:border-gray-600">
-                                        <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
+                                    <div
+                                        class="flex items-center space-x-2 p-2 bg-white dark:bg-gray-700 rounded border dark:border-gray-600">
+                                        <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
                                             </path>
@@ -113,7 +117,8 @@
                                                 {{ $message->file_name }}
                                             </a>
                                             @if ($message->formatted_file_size)
-                                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $message->formatted_file_size }}
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                    {{ $message->formatted_file_size }}
                                                 </p>
                                             @endif
                                         </div>
@@ -135,14 +140,15 @@
                     </div>
                 @empty
                     <div class="text-center py-8">
-                        <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24" style="width: 100px">
+                        <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24" style="width: 100px">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
                             </path>
                         </svg>
                         <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No messages yet</h3>
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Start a conversation by sending a message or document
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Start a conversation by sending a
+                            message or document
                             below.</p>
                     </div>
                 @endforelse
@@ -155,7 +161,8 @@
 
                     <div class="flex justify-between items-center">
                         <div class="text-sm text-gray-500 dark:text-gray-400">
-                            Sending as: <span class="font-medium text-blue-600 dark:text-blue-400">{{ auth()->user()->name }}
+                            Sending as: <span
+                                class="font-medium text-blue-600 dark:text-blue-400">{{ auth()->user()->name }}
                                 (Admin)</span>
                         </div>
                         <x-filament::button type="submit" icon="heroicon-o-paper-airplane">
@@ -179,7 +186,8 @@
                 <div class="ml-3">
                     <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">Client Messages</h3>
                     <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
-                        <p>Client messages appear on the left side in green. Admin messages appear on the right side in blue. To receive messages from clients, you'll
+                        <p>Client messages appear on the left side in green. Admin messages appear on the right side in
+                            blue. To receive messages from clients, you'll
                             need to:</p>
                         <ul class="mt-1 list-disc list-inside">
                             <li>Provide clients with a way to send messages (web form, email integration, etc.)</li>
@@ -242,4 +250,11 @@
             }
         });
     </script>
+
+        <script>
+            $wire.on('reload-page', () => {
+                window.location.reload();
+            });
+        </script>
+
 </x-filament-panels::page>
