@@ -47,6 +47,8 @@ Route::middleware(['auth.client'])->group(function () {
     Route::get('/chat/messages', [App\Http\Controllers\ClientChatController::class, 'getMessages'])->name('client.chat.messages');
     Route::post('/chat/send', [App\Http\Controllers\ClientChatController::class, 'sendMessage'])->name('client.chat.send');
     Route::get('/chat/unread-counts', [App\Http\Controllers\ClientChatController::class, 'getUnreadCounts'])->name('client.chat.unread');
+      Route::post('/chat/sign-document', [App\Http\Controllers\ClientChatController::class, 'signDocument'])->name('client.chat.sign-document');
+
 });
 
 

@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\CompanyChatList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use setasign\Fpdi\Fpdi;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ClientChatController extends Controller
 {
@@ -59,6 +62,12 @@ class ClientChatController extends Controller
                     'file_url' => $message->file_url,
                     'sent_at' => $message->sent_at->toISOString(),
                     'is_read' => $message->is_read,
+                    // Add signature fields
+                    'requires_signature' => $message->requires_signature ?? false,
+                    'is_signed' => $message->is_signed ?? false,
+                    'signed_file_url' => $message->signed_file_url,
+                    'signer_full_name' => $message->signer_full_name,
+                    'signed_at' => $message->signed_at ? $message->signed_at->toISOString() : null,
                 ];
             });
 
@@ -157,4 +166,161 @@ class ClientChatController extends Controller
             'data' => $unreadCounts
         ]);
     }
+
+    /**
+     * Sign a document in the chat
+     */
+    public function signDocument(Request $request)
+    {
+        $request->validate([
+            'chat_message_id' => 'required|exists:company_chat_lists,id',
+            'signer_full_name' => 'required|string|max:255',
+            'signer_print_name' => 'required|string|max:255',
+            'signer_email' => 'required|email|max:255',
+            'signed_date' => 'required|date',
+            'browser_data' => 'nullable|string',
+        ]);
+
+        $client = Auth::guard('client')->user();
+        $message = CompanyChatList::findOrFail($request->chat_message_id);
+        
+        // Verify access
+        if (!$client->companies->contains('id', $message->company_id)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized access'
+            ], 403);
+        }
+        
+        // Check if already signed
+        if ($message->is_signed) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This document has already been signed'
+            ]);
+        }
+        
+        // Check if signature is required
+        if (!$message->requires_signature) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This document does not require a signature'
+            ]);
+        }
+        
+        try {
+            // Create signed PDF
+            $signedPdfPath = $this->createSignedPdfForChat($message, $request->all());
+            
+            // Update message record
+            $message->update([
+                'signer_full_name' => $request->signer_full_name,
+                'signer_print_name' => $request->signer_print_name,
+                'signer_email' => $request->signer_email,
+                'signer_ip' => $request->ip(),
+                'signer_browser_data' => $request->browser_data,
+                'signed_at' => now(),
+                'signed_file_path' => $signedPdfPath,
+                'is_signed' => true,
+            ]);
+            
+            // Create a system message to notify about signing
+            CompanyChatList::create([
+                'company_id' => $message->company_id,
+                'sender_type' => 'system',
+                'message' => "Document '{$message->file_name}' has been signed by {$request->signer_full_name}",
+                'sent_at' => now(),
+                'is_read' => false,
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Document signed successfully',
+                'signed_file_url' => Storage::url($signedPdfPath)
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error signing chat document', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while signing the document'
+            ], 500);
+        }
+    }
+
+    /**
+     * Create a signed PDF for chat document
+     */
+  private function createSignedPdfForChat($message, $signatureData)
+{
+    $originalPdfPath = storage_path('app/public/' . $message->file_path);
+    
+    if (!file_exists($originalPdfPath)) {
+        throw new \Exception('Original PDF file not found');
+    }
+    
+    $pdf = new Fpdi();
+    
+    try {
+        $pageCount = $pdf->setSourceFile($originalPdfPath);
+        
+        // Copy existing pages
+        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+            $pdf->AddPage();
+            $tplId = $pdf->importPage($pageNo);
+            $pdf->useTemplate($tplId);
+        }
+    } catch (\Exception $e) {
+        Log::error('Error processing PDF: ' . $e->getMessage());
+        throw new \Exception('Error processing PDF file');
+    }
+    
+    // Add signature page
+    $pdf->AddPage();
+    $pdf->SetFont('Arial', 'B', 16);
+    $pdf->Cell(0, 20, 'DIGITAL SIGNATURE', 0, 1, 'C');
+    
+    // Add signature details
+    $pdf->SetFont('Arial', '', 12);
+    $pdf->Ln(10);
+    
+    // Document information
+    $pdf->SetFont('Arial', 'B', 14);
+    $pdf->Cell(0, 10, 'Document Information', 0, 1);
+    $pdf->SetFont('Arial', '', 12);
+    $pdf->Cell(0, 8, 'Document: ' . $message->file_name, 0, 1);
+    $pdf->Cell(0, 8, 'Company: ' . $message->company->company_name, 0, 1);
+    $pdf->Ln(5);
+    
+    // Signature information
+    $pdf->SetFont('Arial', 'B', 14);
+    $pdf->Cell(0, 10, 'Signature Details', 0, 1);
+    $pdf->SetFont('Arial', '', 12);
+    $pdf->Cell(0, 8, 'Signed by: ' . $signatureData['signer_full_name'], 0, 1);
+    $pdf->Cell(0, 8, 'Print Name: ' . $signatureData['signer_print_name'], 0, 1);
+    $pdf->Cell(0, 8, 'Email: ' . $signatureData['signer_email'], 0, 1);
+    $pdf->Cell(0, 8, 'Date: ' . $signatureData['signed_date'], 0, 1);
+    $pdf->Cell(0, 8, 'IP Address: ' . request()->ip(), 0, 1);
+    $pdf->Cell(0, 8, 'Timestamp: ' . now()->format('Y-m-d H:i:s T'), 0, 1);
+    
+    // Save signed PDF
+    $signedFileName = 'signed_' . time() . '_' . $message->file_name;
+    $signedFilePath = 'company-chat/signed/' . $signedFileName;
+    
+    // Create directory in public path if it doesn't exist
+    $publicPath = public_path('company-chat/signed');
+    if (!file_exists($publicPath)) {
+        mkdir($publicPath, 0755, true);
+    }
+    
+    // Save the PDF directly to public path
+    $pdfOutput = $pdf->Output('S');
+    file_put_contents(public_path($signedFilePath), $pdfOutput);
+    
+    return $signedFilePath;
+}
 }

@@ -24,13 +24,55 @@ class CompanyChatList extends Model
         'file_type',
         'is_read',
         'sent_at',
+        'requires_signature',
+    'is_signed',
+    'signer_full_name',
+    'signer_print_name',
+    'signer_email',
+    'signer_ip',
+    'signer_browser_data',
+    'signed_at',
+    'signed_file_path',
     ];
 
     protected $casts = [
         'sent_at' => 'datetime',
-        'is_read' => 'boolean',
-        'file_size' => 'integer',
+    'signed_at' => 'datetime',
+    'is_read' => 'boolean',
+    'is_signed' => 'boolean',
+    'requires_signature' => 'boolean',
+    'file_size' => 'integer',
     ];
+
+
+    /**
+ * Check if this message needs a signature
+ */
+public function needsSignature(): bool
+{
+    return $this->requires_signature && !$this->is_signed && $this->file_path;
+}
+
+/**
+ * Get the signed file URL
+ */
+public function getSignedFileUrlAttribute(): ?string
+{
+  if ($this->signed_file_path) {
+        // Return URL directly from public path
+        return asset($this->signed_file_path);
+    }
+    return null;
+}
+
+/**
+ * Check if file is a PDF
+ */
+public function isPdf(): bool
+{
+    return $this->file_type === 'application/pdf';
+}
+
 
     /**
      * Get the company that owns this chat message.
