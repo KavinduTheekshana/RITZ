@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Validation\Rule;
 
 class SelfAssessment extends Model
@@ -46,7 +47,7 @@ class SelfAssessment extends Model
         });
     }
 
-       public static function rules($id = null): array
+    public static function rules($id = null): array
     {
         return [
             'client_id' => [
@@ -68,7 +69,29 @@ class SelfAssessment extends Model
         return $this->belongsTo(Client::class);
     }
 
+    /**
+     * Get the engagement letters for this self assessment.
+     */
+    public function engagementLetters(): HasMany
+    {
+        return $this->hasMany(EngagementLetterSelfAssessment::class);
+    }
 
+    /**
+     * Get the latest engagement letter for this self assessment.
+     */
+    public function latestEngagementLetter()
+    {
+        return $this->hasOne(EngagementLetterSelfAssessment::class)->latestOfMany('sent_at');
+    }
+
+    /**
+     * Check if this self assessment has a signed engagement letter.
+     */
+    public function hasSignedEngagementLetter(): bool
+    {
+        return $this->engagementLetters()->where('is_signed', true)->exists();
+    }
 
     /**
      * Get the internal details for this self assessment.

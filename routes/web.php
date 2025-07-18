@@ -49,6 +49,17 @@ Route::middleware(['auth.client'])->group(function () {
     Route::get('/chat/unread-counts', [App\Http\Controllers\ClientChatController::class, 'getUnreadCounts'])->name('client.chat.unread');
       Route::post('/chat/sign-document', [App\Http\Controllers\ClientChatController::class, 'signDocument'])->name('client.chat.sign-document');
 
+
+
+      // Self Assessment Chat routes
+Route::get('/self-assessment/chat/messages', [App\Http\Controllers\SelfAssessmentChatController::class, 'getMessages'])->name('client.self-assessment.chat.messages');
+Route::post('/self-assessment/chat/send', [App\Http\Controllers\SelfAssessmentChatController::class, 'sendMessage'])->name('client.self-assessment.chat.send');
+Route::get('/self-assessment/chat/unread-counts', [App\Http\Controllers\SelfAssessmentChatController::class, 'getUnreadCounts'])->name('client.self-assessment.chat.unread');
+Route::post('/self-assessment/chat/sign-document', [App\Http\Controllers\SelfAssessmentChatController::class, 'signDocument'])->name('client.self-assessment.chat.sign-document');
+
+
+
+
 });
 
 

@@ -4,15 +4,25 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SelfAssessmentResource\Pages;
 use App\Filament\Resources\SelfAssessmentResource\RelationManagers;
-use App\Models\Client;
+use App\Models\SelfAssessmentChatList;
 use App\Models\SelfAssessment;
+use App\Models\Client;
+use App\Models\EngagementLetterSelfAssessment;
+use App\Mail\SelfAssessmentEngagementLetter;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Textarea;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SelfAssessmentResource extends Resource
 {
@@ -797,6 +807,92 @@ class SelfAssessmentResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Action::make('sendEngagementLetter')
+    ->label('Send Engagement Letter')
+    ->icon('heroicon-o-envelope')
+    ->color('success')
+    ->requiresConfirmation()
+    ->form([
+        Textarea::make('content')
+            ->label('Engagement Letter Content')
+            ->required()
+            ->default(function (SelfAssessment $record) {
+                return view('filament.self-assessment.engagement-letter-template', [
+                    'selfAssessment' => $record,
+                    'client' => $record->client,
+                ])->render();
+            })
+            ->helperText('Edit the engagement letter content before sending')
+            ->rows(20),
+    ])
+    ->action(function (SelfAssessment $record, array $data) {
+        // Generate PDF
+        $pdf = Pdf::loadHTML($data['content']);
+        $fileName = 'Engagement_Letter_' . str_replace(' ', '_', $record->assessment_name) . '_' . now()->format('Y_m_d') . '.pdf';
+        $filePath = 'engagement-letters/self-assessments/' . $fileName;
+        Storage::disk('public')->put($filePath, $pdf->output());
+
+        // Save to database
+        EngagementLetterSelfAssessment::create([
+            'self_assessment_id' => $record->id,
+            'content' => $data['content'],
+            'file_path' => $filePath,
+            'file_name' => $fileName,
+            'sent_at' => now(),
+            'sent_by' => Auth::id() ?? 'system',
+        ]);
+
+        // Send email if available
+        if ($record->self_assessment_email) {
+            Mail::to($record->self_assessment_email)->send(
+                new SelfAssessmentEngagementLetter(
+                    $data['content'],
+                    $record->assessment_name,
+                    Storage::disk('public')->get($filePath)
+                )
+            );
+        }
+
+        Notification::make()
+            ->title('Engagement letter sent successfully')
+            ->success()
+            ->send();
+    })
+    ->modalHeading('Send Engagement Letter')
+    ->modalButton('Send as PDF')
+    ->modalWidth('7xl')
+    ->visible(fn(SelfAssessment $record) => !$record->hasSignedEngagementLetter()),
+
+Action::make('viewEngagementLetters')
+    ->label('View Engagement Letters')
+    ->icon('heroicon-o-clipboard-document-list')
+    ->color('info')
+    ->modalHeading(fn(SelfAssessment $record) => "Engagement Letters for {$record->assessment_name}")
+    ->modalContent(function (SelfAssessment $record) {
+        $engagementLetters = $record->engagementLetters()
+            ->orderBy('sent_at', 'desc')
+            ->get();
+
+        return view('filament.self-assessment.engagement-letters-list', [
+            'selfAssessment' => $record,
+            'engagementLetters' => $engagementLetters,
+        ]);
+    })
+    ->modalWidth('7xl')
+    ->visible(fn(SelfAssessment $record) => $record->engagementLetters()->exists()),
+
+Action::make('chat')
+    ->label('Messages')
+    ->icon('heroicon-o-chat-bubble-bottom-center-text')
+    ->color('primary')
+    ->url(fn(SelfAssessment $record) => route('filament.admin.resources.self-assessments.chat', $record))
+    ->badge(fn(SelfAssessment $record) => 
+        SelfAssessmentChatList::where('self_assessment_id', $record->id)
+            ->where('sender_type', 'client')
+            ->where('is_read', false)
+            ->count()
+    )
+    ->badgeColor('danger'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -819,6 +915,7 @@ class SelfAssessmentResource extends Resource
             'create' => Pages\CreateSelfAssessment::route('/create'),
             // 'view' => Pages\ViewSelfAssessment::route('/{record}'),
             'edit' => Pages\EditSelfAssessment::route('/{record}/edit'),
+            'chat' => Pages\SelfAssessmentChat::route('/{record}/chat'),
         ];
     }
 }

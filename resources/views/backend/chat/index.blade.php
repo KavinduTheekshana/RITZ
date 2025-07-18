@@ -58,14 +58,19 @@
                         </div>
                         <div class="card-body p-0">
                             <a href="#" class="list-group-item list-group-item-action company-chat-link card-padding"
-                                data-company-id="self-assessment"
+                                data-company-id="self-assessment-{{ $selfAssessment->id }}"
                                 data-company-name="Self Assessment - {{ $selfAssessment->assessment_name }}">
-                                <div class="d-flex w-100 justify-content-between">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
                                     <div>
                                         <h6 class="mb-1">{{ $selfAssessment->assessment_name }}</h6>
                                         <small class="text-muted">Personal Assessment</small>
                                     </div>
-                                    <span class="badge bg-success">SA</span>
+                                    <div class="d-flex flex-column align-items-end">
+                                        <span class="badge bg-success rounded-pill d-none"
+                                            id="unreadCount-self-assessment-{{ $selfAssessment->id }}">
+                                            0
+                                        </span>
+                                    </div>
                                 </div>
                             </a>
                         </div>
@@ -174,6 +179,7 @@
             <form id="documentSignatureForm">
                 <div class="modal-body">
                     <input type="hidden" id="chat_message_id" name="chat_message_id">
+                    <input type="hidden" id="message_id" name="message_id">
                     
                     <div class="alert alert-info">
                         <i class="ph-duotone ph-info me-2"></i>
@@ -363,6 +369,7 @@
 // Global functions that need to be accessible from onclick handlers
 function openSignatureModal(messageId) {
     document.getElementById('chat_message_id').value = messageId;
+    document.getElementById('message_id').value = messageId;
     const modal = new bootstrap.Modal(document.getElementById('documentSignatureModal'));
     modal.show();
 }
@@ -370,6 +377,7 @@ function openSignatureModal(messageId) {
 document.addEventListener('DOMContentLoaded', function() {
     let currentCompanyId = null;
     let isLoading = false;
+    let messages = [];
 
     // DOM Elements
     const companyLinks = document.querySelectorAll('.company-chat-link');
@@ -440,7 +448,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }));
         
         try {
-            const response = await fetch('{{ route("client.chat.sign-document") }}', {
+            let url;
+            if (currentCompanyId && currentCompanyId.startsWith('self-assessment-')) {
+                url = '{{ route("client.self-assessment.chat.sign-document") }}';
+            } else {
+                url = '{{ route("client.chat.sign-document") }}';
+            }
+            
+            const response = await fetch(url, {
                 method: 'POST',
                 body: formData
             });
@@ -450,7 +465,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (result.success) {
                 bootstrap.Modal.getInstance(document.getElementById('documentSignatureModal')).hide();
                 showAlert('Document signed successfully!', 'success');
-                loadMessages(window.currentCompanyId); // Use window.currentCompanyId
+                await loadMessages();
             } else {
                 showAlert(result.message || 'Failed to sign document', 'danger');
             }
@@ -485,7 +500,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showLoading();
 
         // Load messages
-        loadMessages(companyId);
+        loadMessages();
     }
 
     function showLoading() {
@@ -502,25 +517,40 @@ document.addEventListener('DOMContentLoaded', function() {
         messageInput.style.display = 'block';
     }
 
-    async function loadMessages(companyId) {
+    async function loadMessages() {
+        if (!currentCompanyId) return;
+        
         isLoading = true;
         chatStatus.textContent = 'Loading messages...';
 
         try {
-            const response = await fetch(
-                `/chat/messages?company_id=${companyId}`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                            .getAttribute('content')
-                    }
-                });
+            let url, params;
+            
+            if (currentCompanyId.startsWith('self-assessment-')) {
+                // Handle self-assessment messages
+                const selfAssessmentId = currentCompanyId.replace('self-assessment-', '');
+                url = "{{ route('client.self-assessment.chat.messages') }}";
+                params = { self_assessment_id: selfAssessmentId };
+            } else {
+                // Handle company messages
+                url = "{{ route('client.chat.messages') }}";
+                params = { company_id: currentCompanyId };
+            }
+            
+            const response = await fetch(url + '?' + new URLSearchParams(params), {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
 
             const result = await response.json();
 
             if (result.success) {
+                messages = result.data;
                 displayMessages(result.data);
                 chatStatus.textContent = `${result.data.length} messages loaded`;
+                updateUnreadCounts();
             } else {
                 displayMessages([]);
                 chatStatus.textContent = 'No messages found';
@@ -556,123 +586,120 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollToBottom();
     }
 
-   function createMessageElement(message) {
-    const isFromClient = message.sender_type === 'client';
-    const isSystemMessage = message.sender_type === 'system';
-    const messageDiv = document.createElement('div');
-    
-    if (isSystemMessage) {
-        messageDiv.className = 'message-bubble system';
-    } else {
-        messageDiv.className = `message-bubble ${isFromClient ? 'sent' : 'received'}`;
-    }
-
-    let senderBadge = '';
-    if (isSystemMessage) {
-        senderBadge = '<span class="sender-badge bg-info text-white">System</span>';
-    } else {
-        senderBadge = isFromClient ?
-            '<span class="sender-badge bg-light text-dark">You</span>' :
-            '<span class="sender-badge bg-secondary text-white">Admin</span>';
-    }
-
-    let fileAttachment = '';
-    if (message.file_name) {
-        if (message.requires_signature && !message.is_signed && message.sender_type === 'admin') {
-            // Document requires signature
-            fileAttachment = `
-                <div class="file-attachment signature-required">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="flex-grow-1">
-                            <div class="d-flex align-items-center">
-                                <i class="ph-duotone ph-file-text me-2 text-warning"></i>
-                                <div>
-                                    <strong>${message.file_name}</strong>
-                                    <div class="text-warning small">
-                                        <i class="ph-duotone ph-warning-circle me-1"></i>
-                                        Signature Required
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="${message.file_url}" target="_blank" class="btn btn-outline-secondary btn-sm" title="View Original">
-                                <i class="ph-duotone ph-eye"></i>
-                            </a>
-                            <button class="btn btn-warning btn-sm" onclick="openSignatureModal(${message.id})">
-                                <i class="ph-duotone ph-signature me-1"></i> Sign
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        } else if (message.is_signed) {
-            // Document is signed
-            const signedDate = message.signed_at ? new Date(message.signed_at).toLocaleDateString() : '';
-            fileAttachment = `
-                <div class="file-attachment signed">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="flex-grow-1">
-                            <div class="d-flex align-items-center">
-                                <i class="ph-duotone ph-file-check me-2 text-success"></i>
-                                <div>
-                                    <strong>${message.file_name}</strong>
-                                    <div class="text-success small">
-                                        <i class="ph-duotone ph-check-circle me-1"></i>
-                                        Signed by ${message.signer_full_name}${signedDate ? ' on ' + signedDate : ''}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="${message.file_url}" target="_blank" class="btn btn-outline-secondary btn-sm" title="View Original">
-                                <i class="ph-duotone ph-file"></i> Original
-                            </a>
-                            <a href="${message.signed_file_url}" target="_blank" class="btn btn-success btn-sm" title="View Signed Document">
-                                <i class="ph-duotone ph-file-check"></i> Signed
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            `;
+    function createMessageElement(message) {
+        const isFromClient = message.sender_type === 'client';
+        const isSystemMessage = message.sender_type === 'system';
+        const messageDiv = document.createElement('div');
+        
+        if (isSystemMessage) {
+            messageDiv.className = 'message-bubble system';
         } else {
-            // Regular file attachment
-            fileAttachment = `
-                <div class="file-attachment">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="flex-grow-1">
-                            <div class="d-flex align-items-center">
-                                <i class="ph-duotone ph-file me-2"></i>
-                                <a href="${message.file_url}" target="_blank" class="text-decoration-none ${isFromClient ? 'text-white' : ''}">
-                                    <strong>${message.file_name}</strong>
+            messageDiv.className = `message-bubble ${isFromClient ? 'sent' : 'received'}`;
+        }
+
+        let senderBadge = '';
+        if (isSystemMessage) {
+            senderBadge = '<span class="sender-badge bg-info text-white">System</span>';
+        } else {
+            senderBadge = isFromClient ?
+                '<span class="sender-badge bg-light text-dark">You</span>' :
+                '<span class="sender-badge bg-secondary text-white">Admin</span>';
+        }
+
+        let fileAttachment = '';
+        if (message.file_name) {
+            if (message.requires_signature && !message.is_signed && message.sender_type === 'admin') {
+                fileAttachment = `
+                    <div class="file-attachment signature-required">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center">
+                                    <i class="ph-duotone ph-file-text me-2 text-warning"></i>
+                                    <div>
+                                        <strong>${message.file_name}</strong>
+                                        <div class="text-warning small">
+                                            <i class="ph-duotone ph-warning-circle me-1"></i>
+                                            Signature Required
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="${message.file_url}" target="_blank" class="btn btn-outline-secondary btn-sm" title="View Original">
+                                    <i class="ph-duotone ph-eye"></i>
+                                </a>
+                                <button class="btn btn-warning btn-sm" onclick="openSignatureModal(${message.id})">
+                                    <i class="ph-duotone ph-signature me-1"></i> Sign
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (message.is_signed) {
+                const signedDate = message.signed_at ? new Date(message.signed_at).toLocaleDateString() : '';
+                fileAttachment = `
+                    <div class="file-attachment signed">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center">
+                                    <i class="ph-duotone ph-file-check me-2 text-success"></i>
+                                    <div>
+                                        <strong>${message.file_name}</strong>
+                                        <div class="text-success small">
+                                            <i class="ph-duotone ph-check-circle me-1"></i>
+                                            Signed by ${message.signer_full_name}${signedDate ? ' on ' + signedDate : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="${message.file_url}" target="_blank" class="btn btn-outline-secondary btn-sm" title="View Original">
+                                    <i class="ph-duotone ph-file"></i> Original
+                                </a>
+                                <a href="${message.signed_file_url}" target="_blank" class="btn btn-success btn-sm" title="View Signed Document">
+                                    <i class="ph-duotone ph-file-check"></i> Signed
                                 </a>
                             </div>
                         </div>
-                        <div class="d-flex gap-2">
-                            <a href="${message.file_url}" target="_blank" class="btn btn-outline-secondary btn-sm" title="View">
-                                <i class="ph-duotone ph-eye"></i>
-                            </a>
-                            <a href="${message.file_url}" download class="btn btn-outline-primary btn-sm" title="Download">
-                                <i class="ph-duotone ph-download"></i>
-                            </a>
+                    </div>
+                `;
+            } else {
+                fileAttachment = `
+                    <div class="file-attachment">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center">
+                                    <i class="ph-duotone ph-file me-2"></i>
+                                    <a href="${message.file_url}" target="_blank" class="text-decoration-none ${isFromClient ? 'text-white' : ''}">
+                                        <strong>${message.file_name}</strong>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="${message.file_url}" target="_blank" class="btn btn-outline-secondary btn-sm" title="View">
+                                    <i class="ph-duotone ph-eye"></i>
+                                </a>
+                                <a href="${message.file_url}" download class="btn btn-outline-primary btn-sm" title="Download">
+                                    <i class="ph-duotone ph-download"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
         }
+
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                ${senderBadge}
+                ${message.message ? `<div class="message-text">${message.message}</div>` : ''}
+                ${fileAttachment}
+                <div class="message-time">${formatTime(message.sent_at)}</div>
+            </div>
+        `;
+
+        return messageDiv;
     }
-
-    messageDiv.innerHTML = `
-        <div class="message-content">
-            ${senderBadge}
-            ${message.message ? `<div class="message-text">${message.message}</div>` : ''}
-            ${fileAttachment}
-            <div class="message-time">${formatTime(message.sent_at)}</div>
-        </div>
-    `;
-
-    return messageDiv;
-}
 
     async function sendMessage() {
         const message = messageText.value.trim();
@@ -684,7 +711,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (!currentCompanyId) {
-            showAlert('Please select a company first.', 'warning');
+            showAlert('Please select a company or self assessment first.', 'warning');
             return;
         }
 
@@ -694,8 +721,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const formData = new FormData();
-            formData.append('company_id', currentCompanyId);
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+            if (currentCompanyId.startsWith('self-assessment-')) {
+                const selfAssessmentId = currentCompanyId.replace('self-assessment-', '');
+                formData.append('self_assessment_id', selfAssessmentId);
+            } else {
+                formData.append('company_id', currentCompanyId);
+            }
 
             if (message) {
                 formData.append('message', message);
@@ -705,7 +738,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 formData.append('file', file);
             }
 
-            const response = await fetch('{{ route("client.chat.send") }}', {
+            let url = currentCompanyId.startsWith('self-assessment-') 
+                ? "{{ route('client.self-assessment.chat.send') }}"
+                : "{{ route('client.chat.send') }}";
+
+            const response = await fetch(url, {
                 method: 'POST',
                 body: formData
             });
@@ -716,7 +753,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 messageText.value = '';
                 messageFile.value = '';
                 filePreview.classList.add('d-none');
-                loadMessages(currentCompanyId);
+                messages.push(result.data);
+                displayMessages(messages);
                 showAlert('Message sent successfully!', 'success');
             } else {
                 showAlert(result.message || 'Failed to send message.', 'danger');
@@ -727,6 +765,54 @@ document.addEventListener('DOMContentLoaded', function() {
         } finally {
             sendBtn.disabled = false;
             sendBtn.innerHTML = '<i class="ph-duotone ph-paper-plane-tilt me-1"></i> Send';
+        }
+    }
+
+    async function updateUnreadCounts() {
+        try {
+            // Update company unread counts
+            const companyResponse = await fetch("{{ route('client.chat.unread') }}", {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (companyResponse.ok) {
+                const companyResult = await companyResponse.json();
+                if (companyResult.success) {
+                    Object.entries(companyResult.data).forEach(([companyId, count]) => {
+                        const badge = document.getElementById(`unreadCount-${companyId}`);
+                        if (badge) {
+                            badge.textContent = count;
+                            badge.classList.toggle('d-none', count === 0);
+                        }
+                    });
+                }
+            }
+
+            // Update self-assessment unread count if applicable
+            @if($selfAssessment)
+            const selfResponse = await fetch("{{ route('client.self-assessment.chat.unread') }}", {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (selfResponse.ok) {
+                const selfResult = await selfResponse.json();
+                if (selfResult.success) {
+                    const badge = document.getElementById('unreadCount-self-assessment-{{ $selfAssessment->id }}');
+                    if (badge) {
+                        badge.textContent = selfResult.data.self_assessment || 0;
+                        badge.classList.toggle('d-none', selfResult.data.self_assessment === 0);
+                    }
+                }
+            }
+            @endif
+        } catch (error) {
+            console.error('Error updating unread counts:', error);
         }
     }
 
@@ -785,9 +871,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Refresh messages every 30 seconds
     setInterval(() => {
         if (currentCompanyId && !isLoading) {
-            loadMessages(currentCompanyId);
+            loadMessages();
         }
     }, 30000);
+
+    // Update unread counts every 60 seconds
+    setInterval(() => {
+        updateUnreadCounts();
+    }, 60000);
 });
 </script>
 @endpush
