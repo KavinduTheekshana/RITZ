@@ -134,15 +134,24 @@ class EngagementController extends Controller
         }
     }
 
-    private function createSignedPdf($engagement, $signatureData, $type)
-    {
-        try {
-            // Get the original PDF path
-            $originalPdfPath = storage_path('app/public/' . $engagement->file_path);
-
-            if (!file_exists($originalPdfPath)) {
+  private function createSignedPdf($engagement, $signatureData, $type)
+{
+    try {
+        // Fix path separator issue
+        $originalPdfPath = storage_path('app/public/' . str_replace('\\', '/', $engagement->file_path));
+        
+        // Log the path for debugging
+        Log::info('Looking for PDF at: ' . $originalPdfPath);
+        
+        if (!file_exists($originalPdfPath)) {
+            // Try alternative path format
+            $alternativePath = storage_path('app/' . str_replace('\\', '/', $engagement->file_path));
+            if (file_exists($alternativePath)) {
+                $originalPdfPath = $alternativePath;
+            } else {
                 throw new \Exception('Original PDF file not found: ' . $originalPdfPath);
             }
+        }
 
             // Initialize FPDI
             $pdf = new Fpdi();

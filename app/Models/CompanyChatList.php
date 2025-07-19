@@ -56,11 +56,14 @@ public function needsSignature(): bool
 /**
  * Get the signed file URL
  */
+/**
+ * Get the signed file URL
+ */
 public function getSignedFileUrlAttribute(): ?string
 {
-  if ($this->signed_file_path) {
-        // Return URL directly from public path
-        return asset($this->signed_file_path);
+    if ($this->signed_file_path) {
+        // Add 'storage/' prefix to the URL
+        return asset('storage/' . $this->signed_file_path);
     }
     return null;
 }
