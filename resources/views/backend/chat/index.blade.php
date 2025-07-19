@@ -433,47 +433,87 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Handle signature form submission
-    document.getElementById('documentSignatureForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-        
-        // Add browser data
-        formData.append('browser_data', JSON.stringify({
-            userAgent: navigator.userAgent,
-            language: navigator.language,
-            platform: navigator.platform,
-            vendor: navigator.vendor
-        }));
-        
-        try {
-            let url;
-            if (currentCompanyId && currentCompanyId.startsWith('self-assessment-')) {
-                url = '{{ route("client.self-assessment.chat.sign-document") }}';
-            } else {
-                url = '{{ route("client.chat.sign-document") }}';
-            }
-            
-            const response = await fetch(url, {
-                method: 'POST',
-                body: formData
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                bootstrap.Modal.getInstance(document.getElementById('documentSignatureModal')).hide();
-                showAlert('Document signed successfully!', 'success');
-                await loadMessages();
-            } else {
-                showAlert(result.message || 'Failed to sign document', 'danger');
-            }
-        } catch (error) {
-            console.error('Error signing document:', error);
-            showAlert('An error occurred while signing the document', 'danger');
+  // Handle signature form submission
+document.getElementById('documentSignatureForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitButton = this.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="ph-duotone ph-spinner-gap ph-spin"></i> Signing...';
+    
+    const formData = new FormData(this);
+    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    
+    // Add browser data
+    formData.append('browser_data', JSON.stringify({
+        userAgent: navigator.userAgent,
+        language: navigator.language,
+        platform: navigator.platform,
+        vendor: navigator.vendor,
+        screen: {
+            width: screen.width,
+            height: screen.height
         }
-    });
+    }));
+    
+    try {
+        let url;
+        if (window.currentCompanyId && window.currentCompanyId.toString().startsWith('self-assessment-')) {
+            url = '{{ route("client.self-assessment.chat.sign-document") }}';
+        } else {
+            url = '{{ route("client.chat.sign-document") }}';
+        }
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: formData
+        });
+        
+        // Check if response is ok
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Check content type
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new TypeError("Oops, we haven't got JSON!");
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Close modal
+            const modalElement = document.getElementById('documentSignatureModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            modal.hide();
+            
+            // Reset form
+            this.reset();
+            
+            // Show success message
+            showAlert('Document signed successfully!', 'success');
+            
+            // Reload messages after a short delay
+            setTimeout(() => {
+                loadMessages();
+            }, 500);
+        } else {
+            showAlert(result.message || 'Failed to sign document', 'danger');
+        }
+    } catch (error) {
+        console.error('Error signing document:', error);
+        showAlert('An error occurred while signing the document. Please try again.', 'danger');
+    } finally {
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+    }
+});
 
     // Auto-select first company if available
     if (companyLinks.length > 0) {
@@ -769,18 +809,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function updateUnreadCounts() {
-        try {
-            // Update company unread counts
-            const companyResponse = await fetch("{{ route('client.chat.unread') }}", {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            });
+    try {
+        // Update company unread counts
+        const companyResponse = await fetch("{{ route('client.chat.unread') }}", {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        });
 
-            if (companyResponse.ok) {
+        if (companyResponse.ok) {
+            const contentType = companyResponse.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
                 const companyResult = await companyResponse.json();
-                if (companyResult.success) {
+                if (companyResult.success && companyResult.data) {
                     Object.entries(companyResult.data).forEach(([companyId, count]) => {
                         const badge = document.getElementById(`unreadCount-${companyId}`);
                         if (badge) {
@@ -790,19 +834,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
             }
+        }
 
-            // Update self-assessment unread count if applicable
-            @if($selfAssessment)
-            const selfResponse = await fetch("{{ route('client.self-assessment.chat.unread') }}", {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            });
+        // Update self-assessment unread count if applicable
+        @if($selfAssessment)
+        const selfResponse = await fetch("{{ route('client.self-assessment.chat.unread') }}", {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        });
 
-            if (selfResponse.ok) {
+        if (selfResponse.ok) {
+            const contentType = selfResponse.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
                 const selfResult = await selfResponse.json();
-                if (selfResult.success) {
+                if (selfResult.success && selfResult.data) {
                     const badge = document.getElementById('unreadCount-self-assessment-{{ $selfAssessment->id }}');
                     if (badge) {
                         badge.textContent = selfResult.data.self_assessment || 0;
@@ -810,11 +859,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
-            @endif
-        } catch (error) {
-            console.error('Error updating unread counts:', error);
         }
+        @endif
+    } catch (error) {
+        console.error('Error updating unread counts:', error);
     }
+}
 
     function formatTime(dateString) {
         if (!dateString) return '';

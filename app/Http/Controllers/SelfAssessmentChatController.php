@@ -180,7 +180,7 @@ class SelfAssessmentChatController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthorized access to this document.'
-                ]);
+                ], 403);
             }
 
             // Check if document requires signature
@@ -188,7 +188,7 @@ class SelfAssessmentChatController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'This document does not require a signature.'
-                ]);
+                ], 400);
             }
 
             // Check if already signed
@@ -196,7 +196,7 @@ class SelfAssessmentChatController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'This document has already been signed.'
-                ]);
+                ], 400);
             }
 
             // Generate signed PDF
@@ -214,6 +214,15 @@ class SelfAssessmentChatController extends Controller
                 'signed_file_path' => $signedPdfPath,
             ]);
 
+            // Create a system message to notify about signing
+            SelfAssessmentChatList::create([
+                'self_assessment_id' => $message->self_assessment_id,
+                'sender_type' => 'system',
+                'message' => "Document '{$message->file_name}' has been signed by {$request->signer_full_name}",
+                'sent_at' => now(),
+                'is_read' => false,
+            ]);
+
             Log::info('Self assessment document signed successfully', [
                 'message_id' => $message->id,
                 'self_assessment_id' => $message->self_assessment_id
@@ -223,7 +232,7 @@ class SelfAssessmentChatController extends Controller
                 'success' => true,
                 'message' => 'Document signed successfully!',
                 'data' => [
-                    'signed_file_url' => $message->signed_file_url,
+                    'signed_file_url' => $message->fresh()->signed_file_url,
                     'signed_at' => $message->signed_at->toISOString(),
                 ]
             ]);
@@ -244,7 +253,6 @@ class SelfAssessmentChatController extends Controller
     private function generateSignedPdf($message, $signatureData)
     {
         try {
-            // Similar implementation to company chat signing
             $pdf = new Fpdi();
             
             // Get the full path to the original PDF
@@ -257,10 +265,18 @@ class SelfAssessmentChatController extends Controller
             // Get page count
             $pageCount = $pdf->setSourceFile($originalPath);
             
+            // Track the last page size
+            $lastPageSize = null;
+            
             // Import all pages
             for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
                 $templateId = $pdf->importPage($pageNo);
                 $size = $pdf->getTemplateSize($templateId);
+                
+                // Store last page size
+                if ($pageNo === $pageCount) {
+                    $lastPageSize = $size;
+                }
                 
                 // Add a page with the same orientation and size
                 if ($size['width'] > $size['height']) {
@@ -272,41 +288,78 @@ class SelfAssessmentChatController extends Controller
                 $pdf->useTemplate($templateId, 0, 0, null, null, true);
             }
             
-            // Go to the last page to add signature
-            $pdf->setPage($pageCount);
+            // Add signature page or add to last page if there's space
+            if ($lastPageSize) {
+                // Check if we have enough space on the last page
+                $availableSpace = $lastPageSize['height'] - 100; // Reserve 100 units for signature
+                
+                if ($availableSpace > 150) {
+                    // Add signature to the last page
+                    $pdf->setPage($pageCount);
+                    $yPosition = $lastPageSize['height'] - 90;
+                } else {
+                    // Add a new page for signature
+                    $pdf->AddPage('P', 'A4');
+                    $yPosition = 30;
+                }
+            } else {
+                // Fallback: add new page
+                $pdf->AddPage('P', 'A4');
+                $yPosition = 30;
+            }
             
             // Add signature information
-            $pdf->SetFont('Arial', 'B', 12);
+            $pdf->SetFont('Arial', 'B', 14);
             $pdf->SetTextColor(0, 0, 0);
+            $pdf->SetXY(30, $yPosition);
+            $pdf->Cell(0, 10, 'ELECTRONIC SIGNATURE', 0, 1, 'L');
             
-            // Position signature at bottom of last page
-            $pdf->SetXY(30, $size['height'] - 60);
-            $pdf->Cell(0, 10, 'SIGNED ELECTRONICALLY', 0, 1, 'L');
+            $pdf->SetFont('Arial', '', 11);
+            $pdf->SetX(30);
+            $pdf->Cell(0, 6, 'This document has been electronically signed:', 0, 1, 'L');
+            $pdf->Ln(5);
             
             $pdf->SetFont('Arial', '', 10);
             $pdf->SetX(30);
-            $pdf->Cell(0, 5, 'Signed by: ' . $signatureData['signer_full_name'], 0, 1, 'L');
+            $pdf->Cell(40, 6, 'Signed by:', 0, 0, 'L');
+            $pdf->Cell(0, 6, $signatureData['signer_full_name'], 0, 1, 'L');
+            
             $pdf->SetX(30);
-            $pdf->Cell(0, 5, 'Print Name: ' . $signatureData['signer_print_name'], 0, 1, 'L');
+            $pdf->Cell(40, 6, 'Print Name:', 0, 0, 'L');
+            $pdf->Cell(0, 6, $signatureData['signer_print_name'], 0, 1, 'L');
+            
             $pdf->SetX(30);
-            $pdf->Cell(0, 5, 'Email: ' . $signatureData['signer_email'], 0, 1, 'L');
+            $pdf->Cell(40, 6, 'Email:', 0, 0, 'L');
+            $pdf->Cell(0, 6, $signatureData['signer_email'], 0, 1, 'L');
+            
             $pdf->SetX(30);
-            $pdf->Cell(0, 5, 'Date: ' . now()->format('d/m/Y'), 0, 1, 'L');
+            $pdf->Cell(40, 6, 'Date:', 0, 0, 'L');
+            $pdf->Cell(0, 6, now()->format('d/m/Y'), 0, 1, 'L');
+            
             $pdf->SetX(30);
-            $pdf->Cell(0, 5, 'Time: ' . now()->format('H:i:s'), 0, 1, 'L');
+            $pdf->Cell(40, 6, 'Time:', 0, 0, 'L');
+            $pdf->Cell(0, 6, now()->format('H:i:s T'), 0, 1, 'L');
+            
             $pdf->SetX(30);
-            $pdf->Cell(0, 5, 'IP Address: ' . request()->ip(), 0, 1, 'L');
+            $pdf->Cell(40, 6, 'IP Address:', 0, 0, 'L');
+            $pdf->Cell(0, 6, request()->ip(), 0, 1, 'L');
+            
+            // Add a border around signature block
+            $pdf->Rect(25, $yPosition - 5, 160, 65);
             
             // Generate filename
-            $fileName = 'signed_' . time() . '_' . basename($message->file_name, '.pdf') . '.pdf';
+            $fileName = 'signed_' . time() . '_' . str_replace('.pdf', '', $message->file_name) . '.pdf';
             $filePath = 'self-assessment-chat/signed/' . $fileName;
+            
+            // Ensure directory exists
+            Storage::disk('public')->makeDirectory('self-assessment-chat/signed');
             
             // Save the signed PDF
             $pdfContent = $pdf->Output('S');
             Storage::disk('public')->put($filePath, $pdfContent);
             
-            // Return the PUBLIC path (not storage path)
-            return 'storage/' . $filePath;
+            // Return just the path without 'storage/' prefix
+            return $filePath;
             
         } catch (\Exception $e) {
             Log::error('Error generating signed PDF', [

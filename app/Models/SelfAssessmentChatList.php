@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage; 
 
 class SelfAssessmentChatList extends Model
 {
@@ -55,10 +56,10 @@ class SelfAssessmentChatList extends Model
     /**
      * Get the signed file URL
      */
-    public function getSignedFileUrlAttribute(): ?string
+    public function getSignedFileUrlAttribute()
     {
         if ($this->signed_file_path) {
-            return asset($this->signed_file_path);
+            return Storage::url($this->signed_file_path);
         }
         return null;
     }
