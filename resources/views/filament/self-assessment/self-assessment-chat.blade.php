@@ -169,15 +169,35 @@
         }
     </style>
 
-    <!-- JavaScript for file upload handling -->
+    <!-- JavaScript for file upload handling and auto-scroll -->
     <script>
         document.addEventListener('livewire:initialized', () => {
-            // Auto-scroll to bottom on new messages
-            Livewire.hook('morph.updated', ({ el, component }) => {
+            // Function to scroll to bottom
+            function scrollToBottom() {
                 const container = document.getElementById('messagesContainer');
                 if (container) {
                     container.scrollTop = container.scrollHeight;
                 }
+            }
+
+            // Auto-scroll on initial load
+            scrollToBottom();
+
+            // Auto-scroll to bottom on new messages
+            Livewire.hook('morph.updated', ({ el, component }) => {
+                const container = document.getElementById('messagesContainer');
+                if (container) {
+                    // Check if user is near bottom before auto-scrolling
+                    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+                    if (isNearBottom) {
+                        setTimeout(scrollToBottom, 100);
+                    }
+                }
+            });
+
+            // Scroll on refresh
+            Livewire.on('$refresh', () => {
+                setTimeout(scrollToBottom, 100);
             });
         });
 

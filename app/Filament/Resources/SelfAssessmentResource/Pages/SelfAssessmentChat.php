@@ -160,7 +160,7 @@ class SelfAssessmentChat extends Page
     {
         return SelfAssessmentChatList::where('self_assessment_id', $this->record->id)
             ->with(['user', 'client'])
-            ->orderBy('sent_at', 'desc')
+            ->orderBy('sent_at', 'asc') // Changed from 'desc' to 'asc' for chronological order
             ->limit(50)
             ->get();
     }
