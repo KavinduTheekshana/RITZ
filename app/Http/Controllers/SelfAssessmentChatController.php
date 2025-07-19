@@ -157,99 +157,108 @@ class SelfAssessmentChatController extends Controller
             ]
         ]);
     }
-
+    
     /**
-     * Sign a document that requires signature
-     */
-    public function signDocument(Request $request)
-    {
-        $request->validate([
-            'message_id' => 'required|integer',
-            'signer_full_name' => 'required|string|max:255',
-            'signer_print_name' => 'required|string|max:255',
-            'signer_email' => 'required|email|max:255',
-            'browser_data' => 'nullable|string',
-        ]);
+ * Sign a document that requires signature
+ */
+public function signDocument(Request $request)
+{
+    $request->validate([
+        'message_id' => 'required|integer',
+        'signer_full_name' => 'required|string|max:255',
+        'signer_print_name' => 'required|string|max:255',
+        'signer_email' => 'required|email|max:255',
+        'browser_data' => 'nullable|string',
+    ]);
 
-        try {
-            $client = Auth::guard('client')->user();
-            $message = SelfAssessmentChatList::findOrFail($request->message_id);
-            
-            // Verify ownership
-            if (!$client->selfAssessment || $client->selfAssessment->id !== $message->self_assessment_id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized access to this document.'
-                ], 403);
-            }
-
-            // Check if document requires signature
-            if (!$message->requires_signature || !$message->file_path) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This document does not require a signature.'
-                ], 400);
-            }
-
-            // Check if already signed
-            if ($message->is_signed) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This document has already been signed.'
-                ], 400);
-            }
-
-            // Generate signed PDF
-           $signedPdfPath = $this->createSignedPdfForChat($message, $request->all());
-
-            // Update message record
-            $message->update([
-                'is_signed' => true,
-                'signer_full_name' => $request->signer_full_name,
-                'signer_print_name' => $request->signer_print_name,
-                'signer_email' => $request->signer_email,
-                'signer_ip' => $request->ip(),
-                'signer_browser_data' => $request->browser_data,
-                'signed_at' => now(),
-                'signed_file_path' => $signedPdfPath,
-            ]);
-
-            // Create a system message to notify about signing
-            SelfAssessmentChatList::create([
-                'self_assessment_id' => $message->self_assessment_id,
-                'sender_type' => 'system',
-                'message' => "Document '{$message->file_name}' has been signed by {$request->signer_full_name}",
-                'sent_at' => now(),
-                'is_read' => false,
-            ]);
-
-            Log::info('Self assessment document signed successfully', [
-                'message_id' => $message->id,
-                'self_assessment_id' => $message->self_assessment_id
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Document signed successfully!',
-                'data' => [
-                    'signed_file_url' => $message->fresh()->signed_file_url,
-                    'signed_at' => $message->signed_at->toISOString(),
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error signing self assessment document', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
+    try {
+        $client = Auth::guard('client')->user();
+        $message = SelfAssessmentChatList::findOrFail($request->message_id);
+        
+        // Verify ownership
+        if (!$client->selfAssessment || $client->selfAssessment->id !== $message->self_assessment_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while signing the document. Please try again.'
-            ], 500);
+                'message' => 'Unauthorized access to this document.'
+            ], 403);
         }
-    }
 
+        // Check if document requires signature
+        if (!$message->requires_signature || !$message->file_path) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This document does not require a signature.'
+            ], 400);
+        }
+
+        // Check if already signed
+        if ($message->is_signed) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This document has already been signed.'
+            ], 400);
+        }
+
+        // Generate signed PDF
+        $signedPdfPath = $this->createSignedPdfForChat($message, $request->all());
+
+        // Update message record
+        $message->update([
+            'is_signed' => true,
+            'signer_full_name' => $request->signer_full_name,
+            'signer_print_name' => $request->signer_print_name,
+            'signer_email' => $request->signer_email,
+            'signer_ip' => $request->ip(),
+            'signer_browser_data' => $request->browser_data,
+            'signed_at' => now(),
+            'signed_file_path' => $signedPdfPath,
+        ]);
+
+        // Create a system message to notify about signing
+        SelfAssessmentChatList::create([
+            'self_assessment_id' => $message->self_assessment_id,
+            'sender_type' => 'system',
+            'sender_name' => 'System',  // FIX: Add sender_name
+            'sender_email' => 'system@ritzaccounting.com',  // FIX: Add sender_email if required
+            'message' => "Document '{$message->file_name}' has been signed by {$request->signer_full_name}",
+            'sent_at' => now(),
+            'is_read' => false,
+        ]);
+
+        Log::info('Self assessment document signed successfully', [
+            'message_id' => $message->id,
+            'self_assessment_id' => $message->self_assessment_id
+        ]);
+
+        // Refresh the entire message to get all updated fields
+        $message->refresh();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Document signed successfully!',
+            'data' => [
+                'signed_file_url' => $message->signed_file_url,
+                'signed_at' => $message->signed_at ? $message->signed_at->toISOString() : null,
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error signing self assessment document', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'An error occurred while signing the document. Please try again.'
+        ], 500);
+    }
+}
+
+
+    /**
+     * Generate a signed PDF (Legacy method - kept for compatibility)
+     */
     private function generateSignedPdf($message, $signatureData)
     {
         try {
@@ -370,76 +379,72 @@ class SelfAssessmentChatController extends Controller
         }
     }
 
-
     /**
- * Create a signed PDF for chat document
- */
-private function createSignedPdfForChat($message, $signatureData)
-{
-    $originalPdfPath = storage_path('app/public/' . $message->file_path);
-    
-    if (!file_exists($originalPdfPath)) {
-        throw new \Exception('Original PDF file not found');
-    }
-    
-    $pdf = new Fpdi();
-    
-    try {
-        $pageCount = $pdf->setSourceFile($originalPdfPath);
+     * Create a signed PDF for chat document
+     */
+    private function createSignedPdfForChat($message, $signatureData)
+    {
+        $originalPdfPath = storage_path('app/public/' . $message->file_path);
         
-        // Copy existing pages
-        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
-            $pdf->AddPage();
-            $tplId = $pdf->importPage($pageNo);
-            $pdf->useTemplate($tplId);
+        if (!file_exists($originalPdfPath)) {
+            throw new \Exception('Original PDF file not found');
         }
-    } catch (\Exception $e) {
-        Log::error('Error processing PDF: ' . $e->getMessage());
-        throw new \Exception('Error processing PDF file');
+        
+        $pdf = new Fpdi();
+        
+        try {
+            $pageCount = $pdf->setSourceFile($originalPdfPath);
+            
+            // Copy existing pages
+            for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                $pdf->AddPage();
+                $tplId = $pdf->importPage($pageNo);
+                $pdf->useTemplate($tplId);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error processing PDF: ' . $e->getMessage());
+            throw new \Exception('Error processing PDF file');
+        }
+        
+        // Add signature page
+        $pdf->AddPage();
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell(0, 20, 'DIGITAL SIGNATURE', 0, 1, 'C');
+        
+        // Add signature details
+        $pdf->SetFont('Arial', '', 12);
+        $pdf->Ln(10);
+        
+        // Document information
+        $pdf->SetFont('Arial', 'B', 14);
+        $pdf->Cell(0, 10, 'Document Information', 0, 1);
+        $pdf->SetFont('Arial', '', 12);
+        $pdf->Cell(0, 8, 'Document: ' . $message->file_name, 0, 1);
+        $pdf->Cell(0, 8, 'Self Assessment: ' . $message->selfAssessment->assessment_name, 0, 1);
+        $pdf->Ln(5);
+        
+        // Signature information
+        $pdf->SetFont('Arial', 'B', 14);
+        $pdf->Cell(0, 10, 'Signature Details', 0, 1);
+        $pdf->SetFont('Arial', '', 12);
+        $pdf->Cell(0, 8, 'Signed by: ' . $signatureData['signer_full_name'], 0, 1);
+        $pdf->Cell(0, 8, 'Print Name: ' . $signatureData['signer_print_name'], 0, 1);
+        $pdf->Cell(0, 8, 'Email: ' . $signatureData['signer_email'], 0, 1);
+        $pdf->Cell(0, 8, 'Date: ' . now()->format('Y-m-d'), 0, 1);
+        $pdf->Cell(0, 8, 'IP Address: ' . request()->ip(), 0, 1);
+        $pdf->Cell(0, 8, 'Timestamp: ' . now()->format('Y-m-d H:i:s T'), 0, 1);
+        
+        // Save signed PDF
+        $signedFileName = 'signed_' . time() . '_' . $message->file_name;
+        $signedFilePath = 'self-assessment-chat/signed/' . $signedFileName;
+        
+        // Ensure directory exists
+        Storage::disk('public')->makeDirectory('self-assessment-chat/signed');
+        
+        // Save the PDF
+        $pdfContent = $pdf->Output('S');
+        Storage::disk('public')->put($signedFilePath, $pdfContent);
+        
+        return $signedFilePath;
     }
-    
-    // Add signature page
-    $pdf->AddPage();
-    $pdf->SetFont('Arial', 'B', 16);
-    $pdf->Cell(0, 20, 'DIGITAL SIGNATURE', 0, 1, 'C');
-    
-    // Add signature details
-    $pdf->SetFont('Arial', '', 12);
-    $pdf->Ln(10);
-    
-    // Document information
-    $pdf->SetFont('Arial', 'B', 14);
-    $pdf->Cell(0, 10, 'Document Information', 0, 1);
-    $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 8, 'Document: ' . $message->file_name, 0, 1);
-    $pdf->Cell(0, 8, 'Self Assessment: ' . $message->selfAssessment->assessment_name, 0, 1);
-    $pdf->Ln(5);
-    
-    // Signature information
-    $pdf->SetFont('Arial', 'B', 14);
-    $pdf->Cell(0, 10, 'Signature Details', 0, 1);
-    $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 8, 'Signed by: ' . $signatureData['signer_full_name'], 0, 1);
-    $pdf->Cell(0, 8, 'Print Name: ' . $signatureData['signer_print_name'], 0, 1);
-    $pdf->Cell(0, 8, 'Email: ' . $signatureData['signer_email'], 0, 1);
-    $pdf->Cell(0, 8, 'Date: ' . now()->format('Y-m-d'), 0, 1);
-    $pdf->Cell(0, 8, 'IP Address: ' . request()->ip(), 0, 1);
-    $pdf->Cell(0, 8, 'Timestamp: ' . now()->format('Y-m-d H:i:s T'), 0, 1);
-    
-    // Save signed PDF
-    $signedFileName = 'signed_' . time() . '_' . $message->file_name;
-    $signedFilePath = 'self-assessment-chat/signed/' . $signedFileName;
-    
-    // Ensure directory exists
-    Storage::disk('public')->makeDirectory('self-assessment-chat/signed');
-    
-    // Save the PDF
-    $pdfContent = $pdf->Output('S');
-    Storage::disk('public')->put($signedFilePath, $pdfContent);
-    
-    return $signedFilePath;
-}
-
-
-
 }
