@@ -23,28 +23,15 @@ class SelfAssessment extends Model
         'assessment_name',
         'self_assessment_telephone',
         'self_assessment_email',
+        'engagement', // Added engagement field
     ];
 
     protected static function boot()
     {
         parent::boot();
 
-        // Ensure only one self assessment per client before creating
-        static::creating(function ($selfAssessment) {
-            if (static::where('client_id', $selfAssessment->client_id)->exists()) {
-                throw new \Exception('This client already has a self assessment.');
-            }
-        });
-
-        // Ensure only one self assessment per client before updating
-        static::updating(function ($selfAssessment) {
-            if (static::where('client_id', $selfAssessment->client_id)
-                ->where('id', '!=', $selfAssessment->id)
-                ->exists()
-            ) {
-                throw new \Exception('This client already has a self assessment.');
-            }
-        });
+        // REMOVED the creating and updating restrictions to allow editing
+        // The validation rules below will still ensure only one self assessment per client
     }
 
     public static function rules($id = null): array
@@ -58,6 +45,7 @@ class SelfAssessment extends Model
             'assessment_name' => 'nullable|string|max:255',
             'self_assessment_telephone' => 'nullable|string|max:255',
             'self_assessment_email' => 'nullable|email|max:255',
+            'engagement' => 'boolean',
         ];
     }
 
@@ -187,5 +175,13 @@ class SelfAssessment extends Model
     public function otherDetails(): HasOne
     {
         return $this->hasOne(SelfOtherDetails::class);
+    }
+
+    /**
+     * Get the chat messages for this self assessment.
+     */
+    public function chatMessages(): HasMany
+    {
+        return $this->hasMany(SelfAssessmentChatList::class);
     }
 }
