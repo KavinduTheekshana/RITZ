@@ -169,57 +169,80 @@
 </div>
 
 <!-- Document Signature Modal -->
-<div class="modal fade" id="documentSignatureModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+<div class="modal fade" id="documentSignatureModal" tabindex="-1" aria-labelledby="documentSignatureModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Sign Document</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header signature-header">
+                <h5 class="modal-title" id="documentSignatureModalLabel">
+                    <i class="ph-duotone ph-signature me-2"></i>Sign Document
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            
             <form id="documentSignatureForm">
+                <input type="hidden" id="chat_message_id" name="chat_message_id">
+                <input type="hidden" id="message_id" name="message_id">
+                
                 <div class="modal-body">
-                    <input type="hidden" id="chat_message_id" name="chat_message_id">
-                    <input type="hidden" id="message_id" name="message_id">
-                    
-                    <div class="alert alert-info">
-                        <i class="ph-duotone ph-info me-2"></i>
-                        This document requires your signature. Please fill in your details below.
-                    </div>
-                    
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Full Name *</label>
-                            <input type="text" class="form-control" name="signer_full_name" required>
+                    <div class="signature-form">
+                        <div class="alert alert-info">
+                            <i class="ph-duotone ph-info me-2"></i>
+                            You are about to sign this document. Please fill in your details below.
                         </div>
                         
-                        <div class="col-md-6">
-                            <label class="form-label">Print Name *</label>
-                            <input type="text" class="form-control" name="signer_print_name" required>
+                        <div class="form-group">
+                            <label for="signer_full_name" class="form-label">
+                                <i class="ph-duotone ph-user me-1"></i>Full Name *
+                            </label>
+                            <input type="text" class="form-control" id="signer_full_name" name="signer_full_name" 
+                                   required placeholder="Enter your full legal name">
+                            <small class="form-text text-muted">Enter your name as it appears on legal documents</small>
                         </div>
                         
-                        <div class="col-md-6">
-                            <label class="form-label">Email *</label>
-                            <input type="email" class="form-control" name="signer_email" required>
+                        <div class="form-group">
+                            <label for="signer_print_name" class="form-label">
+                                <i class="ph-duotone ph-signature me-1"></i>Print Name *
+                            </label>
+                            <input type="text" class="form-control" id="signer_print_name" name="signer_print_name" 
+                                   required placeholder="Enter your printed name">
+                            <small class="form-text text-muted">How your name should appear in print</small>
                         </div>
                         
-                        <div class="col-md-6">
-                            <label class="form-label">Date *</label>
-                            <input type="date" class="form-control" name="signed_date" value="{{ date('Y-m-d') }}" required>
+                        <div class="form-group">
+                            <label for="signer_email" class="form-label">
+                                <i class="ph-duotone ph-envelope me-1"></i>Email Address *
+                            </label>
+                            <input type="email" class="form-control" id="signer_email" name="signer_email" 
+                                   required placeholder="Enter your email address">
+                            <small class="form-text text-muted">We'll send a copy of the signed document to this email</small>
                         </div>
                         
-                        <div class="col-12">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="confirmDocSignature" required>
-                                <label class="form-check-label" for="confirmDocSignature">
-                                    I confirm that I have read and agree to sign this document
-                                </label>
-                            </div>
+                        <div class="form-group">
+                            <label for="signed_date" class="form-label">
+                                <i class="ph-duotone ph-calendar me-1"></i>Signature Date *
+                            </label>
+                            <input type="date" class="form-control" id="signed_date" name="signed_date" 
+                                   required value="{{ date('Y-m-d') }}">
+                            <small class="form-text text-muted">Date you are signing this document</small>
+                        </div>
+                        
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="confirmDocSignature" required>
+                            <label class="form-check-label" for="confirmDocSignature">
+                                I confirm that I have read and understand the document and agree to its terms and conditions.
+                            </label>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Sign Document</button>
+                
+                <div class="modal-footer signature-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="ph-duotone ph-x me-1"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-warning" id="submitDocSignature">
+                        <i class="ph-duotone ph-signature me-1"></i>Sign Document
+                        <span class="spinner-border spinner-border-sm ms-2 d-none" id="docSigningSpinner"></span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -361,6 +384,7 @@
         scrollbar-width: thin;
         scrollbar-color: #c1c1c1 #f1f1f1;
     }
+    
 </style>
 @endpush
 
@@ -434,28 +458,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle signature form submission
   // Handle signature form submission
+// Replace the existing documentSignatureForm submission handler with this updated version
+
+// Handle signature form submission
 document.getElementById('documentSignatureForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    const submitButton = this.querySelector('button[type="submit"]');
-    const originalButtonText = submitButton.innerHTML;
+    const submitButton = document.getElementById('submitDocSignature');
+    const signingSpinner = document.getElementById('docSigningSpinner');
+    
+    // Show loading state
     submitButton.disabled = true;
-    submitButton.innerHTML = '<i class="ph-duotone ph-spinner-gap ph-spin"></i> Signing...';
+    signingSpinner.classList.remove('d-none');
+    
+    // Capture browser data (same as engagement letter)
+    const browserData = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        vendor: navigator.vendor,
+        screen: `${screen.width}x${screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timestamp: new Date().toISOString()
+    };
     
     const formData = new FormData(this);
     formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-    
-    // Add browser data
-    formData.append('browser_data', JSON.stringify({
-        userAgent: navigator.userAgent,
-        language: navigator.language,
-        platform: navigator.platform,
-        vendor: navigator.vendor,
-        screen: {
-            width: screen.width,
-            height: screen.height
-        }
-    }));
+    formData.append('browser_data', JSON.stringify(browserData));
     
     try {
         let url;
@@ -474,15 +503,13 @@ document.getElementById('documentSignatureForm').addEventListener('submit', asyn
             body: formData
         });
         
-        // Check if response is ok
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        // Check content type
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
-            throw new TypeError("Oops, we haven't got JSON!");
+            throw new TypeError("Invalid response format");
         }
         
         const result = await response.json();
@@ -496,22 +523,59 @@ document.getElementById('documentSignatureForm').addEventListener('submit', asyn
             // Reset form
             this.reset();
             
-            // Show success message
-            showAlert('Document signed successfully!', 'success');
+            // Show success message with better styling
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <i class="ph-duotone ph-check-circle me-2"></i>
+                <strong>Success!</strong> Document has been signed successfully.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // Insert alert at the top of the chat container
+            const chatContainer = document.querySelector('.pc-content') || document.querySelector('.container-fluid');
+            if (chatContainer) {
+                chatContainer.insertBefore(alertDiv, chatContainer.firstChild);
+            }
             
             // Reload messages after a short delay
             setTimeout(() => {
                 loadMessages();
             }, 500);
+            
+            // Auto-dismiss alert after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
         } else {
-            showAlert(result.message || 'Failed to sign document', 'danger');
+            throw new Error(result.message || 'Failed to sign document');
         }
     } catch (error) {
         console.error('Error signing document:', error);
-        showAlert('An error occurred while signing the document. Please try again.', 'danger');
+        
+        // Show error alert
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.innerHTML = `
+            <i class="ph-duotone ph-warning-circle me-2"></i>
+            <strong>Error!</strong> ${error.message || 'An error occurred while signing the document. Please try again.'}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('.modal-body');
+        container.insertBefore(alertDiv, container.firstChild);
     } finally {
+        // Reset button state
         submitButton.disabled = false;
-        submitButton.innerHTML = originalButtonText;
+        signingSpinner.classList.add('d-none');
+    }
+});
+
+// Auto-fill print name when full name is entered (same as engagement letter)
+document.getElementById('signer_full_name').addEventListener('input', function() {
+    const printNameField = document.getElementById('signer_print_name');
+    if (!printNameField.value) {
+        printNameField.value = this.value;
     }
 });
 
@@ -808,7 +872,9 @@ document.getElementById('documentSignatureForm').addEventListener('submit', asyn
         }
     }
 
-    async function updateUnreadCounts() {
+  
+
+async function updateUnreadCounts() {
     try {
         // Update company unread counts
         const companyResponse = await fetch("{{ route('client.chat.unread') }}", {
@@ -824,8 +890,9 @@ document.getElementById('documentSignatureForm').addEventListener('submit', asyn
             const contentType = companyResponse.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
                 const companyResult = await companyResponse.json();
-                if (companyResult.success && companyResult.data) {
-                    Object.entries(companyResult.data).forEach(([companyId, count]) => {
+                if (companyResult.success && companyResult.unread_counts) {
+                    // Use unread_counts instead of data
+                    Object.entries(companyResult.unread_counts).forEach(([companyId, count]) => {
                         const badge = document.getElementById(`unreadCount-${companyId}`);
                         if (badge) {
                             badge.textContent = count;
