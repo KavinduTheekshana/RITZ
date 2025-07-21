@@ -1140,6 +1140,13 @@ document.addEventListener('DOMContentLoaded', function() {
         messageInput.style.display = 'block';
     }
 
+     updateUnreadCounts();
+    
+    // Update counts every 30 seconds
+    setInterval(() => {
+        updateUnreadCounts();
+    }, 30000);
+
     async function loadMessages() {
         if (!currentCompanyId) return;
         
@@ -1170,11 +1177,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
 
             if (result.success) {
-                messages = result.data;
-                displayMessages(result.data);
-                chatStatus.textContent = `${result.data.length} messages loaded`;
+            messages = result.data;
+            displayMessages(result.data);
+            chatStatus.textContent = `${result.data.length} messages loaded`;
+            
+            // Update unread counts after a short delay to ensure server has updated
+            setTimeout(() => {
                 updateUnreadCounts();
-            } else {
+            }, 500);
+        } else {
                 displayMessages([]);
                 chatStatus.textContent = 'No messages found';
             }
@@ -1398,63 +1409,59 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    async function updateUnreadCounts() {
-        try {
-            // Update company unread counts
-            const companyResponse = await fetch("{{ route('client.chat.unread') }}", {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            });
+  async function updateUnreadCounts() {
+    try {
+        // Update company unread counts
+        const companyResponse = await fetch("{{ route('client.chat.unread') }}", {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        });
 
-            if (companyResponse.ok) {
-                const contentType = companyResponse.headers.get("content-type");
-                if (contentType && contentType.includes("application/json")) {
-                    const companyResult = await companyResponse.json();
-                    if (companyResult.success && companyResult.unread_counts) {
-                        Object.entries(companyResult.unread_counts).forEach(([companyId, count]) => {
-                            const badge = document.getElementById(`unreadCount-${companyId}`);
+        if (companyResponse.ok) {
+            const contentType = companyResponse.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const companyResult = await companyResponse.json();
+                if (companyResult.success && companyResult.data) {
+                    // Update all badges to 0 first (hide them)
+                    document.querySelectorAll('[id^="unreadCount-"]').forEach(badge => {
+                        badge.textContent = '0';
+                        badge.classList.add('d-none');
+                    });
+                    
+                    // Update badges with actual counts
+                    Object.entries(companyResult.data).forEach(([key, count]) => {
+                        let badgeId = '';
+                        
+                        if (key.startsWith('company_')) {
+                            // Extract company ID from key like 'company_1'
+                            const companyId = key.replace('company_', '');
+                            badgeId = `unreadCount-${companyId}`;
+                        } else if (key === 'self_assessment') {
+                            // For self assessment
+                            @if($selfAssessment)
+                            badgeId = 'unreadCount-self-assessment-{{ $selfAssessment->id }}';
+                            @endif
+                        }
+                        
+                        if (badgeId) {
+                            const badge = document.getElementById(badgeId);
                             if (badge) {
                                 badge.textContent = count;
                                 badge.classList.toggle('d-none', count === 0);
                             }
-                        });
-                    }
-                }
-            }
-
-            // Update self-assessment unread count if applicable
-            @if($selfAssessment)
-            const selfResponse = await fetch("{{ route('client.self-assessment.chat.unread') }}", {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            });
-
-            if (selfResponse.ok) {
-                const contentType = selfResponse.headers.get("content-type");
-                if (contentType && contentType.includes("application/json")) {
-                    const selfResult = await selfResponse.json();
-                    if (selfResult.success && selfResult.data) {
-                        const badge = document.getElementById('unreadCount-self-assessment-{{ $selfAssessment->id }}');
-                        if (badge) {
-                            badge.textContent = selfResult.data.self_assessment || 0;
-                            badge.classList.toggle('d-none', selfResult.data.self_assessment === 0);
                         }
-                    }
+                    });
                 }
             }
-            @endif
-        } catch (error) {
-            console.error('Error updating unread counts:', error);
         }
+    } catch (error) {
+        console.error('Error updating unread counts:', error);
     }
+}
 
     function formatTime(dateString) {
         if (!dateString) return '';

@@ -145,45 +145,41 @@ class ClientChatController extends Controller
         ], 201);
     }
 
-    /**
-     * Get unread message count for all companies and self assessment
-     */
-    public function getUnreadCounts()
-    {
-        $client = Auth::guard('client')->user();
-        $unreadCounts = [];
-        
-        // Get unread counts for companies
-        $companies = $client->companies;
-        foreach ($companies as $company) {
-            $count = CompanyChatList::where('company_id', $company->id)
-                ->where('sender_type', 'admin')
-                ->where('is_read', false)
-                ->count();
-                
-            if ($count > 0) {
-                $unreadCounts['company-' . $company->id] = $count;
-            }
-        }
-        
-        // Get unread count for self assessment
-        if ($client->selfAssessment) {
-            $count = SelfAssessmentChatList::where('self_assessment_id', $client->selfAssessment->id)
-                ->where('sender_type', 'admin')
-                ->where('is_read', false)
-                ->count();
-                
-            if ($count > 0) {
-                $unreadCounts['self-assessment-' . $client->selfAssessment->id] = $count;
-            }
-        }
-        
-        return response()->json([
-            'success' => true,
-            'unread_counts' => $unreadCounts
-        ]);
+   /**
+ * Get unread message count for all companies and self assessment
+ */
+public function getUnreadCounts()
+{
+    $client = Auth::guard('client')->user();
+    $data = [];
+    
+    // Get unread counts for companies
+    $companies = $client->companies;
+    foreach ($companies as $company) {
+        $count = CompanyChatList::where('company_id', $company->id)
+            ->where('sender_type', 'admin')
+            ->where('is_read', false)
+            ->count();
+            
+        // Use underscore instead of hyphen for consistency with JavaScript
+        $data['company_' . $company->id] = $count;
     }
-
+    
+    // Get unread count for self assessment
+    if ($client->selfAssessment) {
+        $count = SelfAssessmentChatList::where('self_assessment_id', $client->selfAssessment->id)
+            ->where('sender_type', 'admin')
+            ->where('is_read', false)
+            ->count();
+            
+        $data['self_assessment'] = $count;
+    }
+    
+    return response()->json([
+        'success' => true,
+        'data' => $data
+    ]);
+}
  
 
 /**

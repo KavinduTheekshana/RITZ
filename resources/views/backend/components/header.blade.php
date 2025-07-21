@@ -160,25 +160,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Function to update notification badge
-    function updateNotificationBadge() {
-        fetch('/client/chat/unread-counts')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const totalUnread = Object.values(data.data).reduce((sum, count) => sum + count, 0);
-                    const badge = document.getElementById('headerNotificationBadge');
-                    
+   // Function to update notification badge
+function updateNotificationBadge() {
+    fetch('/client/chat/unread-counts')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data) {
+                // Calculate total unread count
+                let totalUnread = 0;
+                for (const key in data.data) {
+                    totalUnread += data.data[key];
+                }
+                
+                // Update header badge
+                const headerBadge = document.getElementById('headerNotificationBadge');
+                if (headerBadge) {
                     if (totalUnread > 0) {
-                        badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
-                        badge.style.display = 'inline-block';
+                        headerBadge.textContent = totalUnread > 99 ? '99+' : totalUnread;
+                        headerBadge.style.display = 'inline-block';
                     } else {
-                        badge.style.display = 'none';
+                        headerBadge.style.display = 'none';
                     }
                 }
-            })
-            .catch(error => console.error('Error fetching unread counts:', error));
-    }
+                
+                // Update sidebar badge if exists
+                const sidebarBadge = document.getElementById('unreadBadge');
+                if (sidebarBadge) {
+                    if (totalUnread > 0) {
+                        sidebarBadge.textContent = totalUnread > 99 ? '99+' : totalUnread;
+                        sidebarBadge.classList.remove('d-none');
+                    } else {
+                        sidebarBadge.classList.add('d-none');
+                    }
+                }
+            }
+        })
+        .catch(error => console.error('Error fetching unread counts:', error));
+}
     
     // Update badge on page load and every 30 seconds
     updateNotificationBadge();
