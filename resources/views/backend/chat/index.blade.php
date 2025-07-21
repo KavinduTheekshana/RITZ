@@ -249,8 +249,86 @@
     </div>
 </div>
 
+{{-- Enhanced PDF Modal with PDF.js --}}
+<div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title mr-10" id="pdfModalLabel">PDF Viewer</h5>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomOut" title="Zoom Out">
+                        <i class="ti ti-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="fitWidth" title="Fit to Width">
+                        <i class="ti ti-arrows-horizontal"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="fitPage" title="Fit to Page">
+                        <i class="ti ti-arrows-maximize"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomIn" title="Zoom In">
+                        <i class="ti ti-plus"></i>
+                    </button>
+                    <span class="btn btn-sm btn-outline-secondary" id="zoomLevel">100%</span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                {{-- Loading indicator --}}
+                <div id="pdfLoading" class="pdf-loading">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Loading PDF...</p>
+                    </div>
+                </div>
+
+                {{-- Error message --}}
+                <div id="pdfError" class="pdf-error d-none">
+                    <div class="alert alert-danger m-3" role="alert">
+                        <h4 class="alert-heading">Error Loading PDF</h4>
+                        <p class="mb-0">Unable to load the PDF file. Please try again or contact support if the problem persists.</p>
+                    </div>
+                </div>
+
+                {{-- PDF Container --}}
+                <div id="pdfContainer" class="pdf-container d-none">
+                    <canvas id="pdfCanvas"></canvas>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="d-flex justify-content-between w-100 align-items-center">
+                    <div class="d-flex align-items-center">
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="firstPage" title="First Page">
+                            <i class="ti ti-chevrons-left"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="prevPage" title="Previous Page">
+                            <i class="ti ti-chevron-left"></i>
+                        </button>
+                        <span class="me-2">Page</span>
+                        <input type="number" class="form-control form-control-sm me-2" id="pageInput" style="width: 80px;" min="1">
+                        <span class="me-2">of <span id="totalPages">-</span></span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="nextPage" title="Next Page">
+                            <i class="ti ti-chevron-right"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="lastPage" title="Last Page">
+                            <i class="ti ti-chevrons-right"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-secondary" id="downloadPdf">
+                            <i class="ti ti-download"></i> Download
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Success/Error Alert Container -->
 <div id="alertContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+
 @endsection
 
 @push('styles')
@@ -384,11 +462,177 @@
         scrollbar-width: thin;
         scrollbar-color: #c1c1c1 #f1f1f1;
     }
-    
+
+    /* File attachment buttons */
+    .file-attachment .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .file-attachment.signature-required {
+        animation: pulse-border 2s infinite;
+    }
+
+    @keyframes pulse-border {
+        0% { border-color: #ffc107; }
+        50% { border-color: #fd7e14; }
+        100% { border-color: #ffc107; }
+    }
+
+    /* Modal styling */
+    #pdfModal .modal-xl {
+        max-width: 95vw;
+    }
+
+    #pdfModal .modal-content {
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #pdfModal .modal-body {
+        flex: 1;
+        overflow: hidden;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* PDF Container styling */
+    .pdf-container {
+        flex: 1;
+        overflow: auto;
+        background-color: #f8f9fa;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 20px;
+        min-height: 0;
+    }
+
+    #pdfCanvas {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-radius: 4px;
+        background-color: white;
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* Loading and error states */
+    .pdf-loading {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f8f9fa;
+    }
+
+    .pdf-error {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f8f9fa;
+    }
+
+    /* Custom scrollbar */
+    .pdf-container::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+    }
+
+    .pdf-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 6px;
+    }
+
+    .pdf-container::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 6px;
+    }
+
+    .pdf-container::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+    /* Page input styling */
+    #pageInput {
+        text-align: center;
+    }
+
+    /* Button states */
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* Signature Modal Styles */
+    .signature-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .signature-footer {
+        background-color: #f8f9fa;
+        border-radius: 0 0 8px 8px;
+    }
+
+    .signature-form .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .signature-form label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .signature-form .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: border-color 0.3s;
+    }
+
+    .signature-form .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        #pdfModal .modal-xl {
+            max-width: 98vw;
+            margin: 1rem;
+        }
+
+        #pdfModal .modal-content {
+            height: 95vh;
+        }
+
+        .modal-header .btn-group {
+            flex-wrap: wrap;
+            gap: 2px;
+        }
+
+        .modal-footer .d-flex {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #documentSignatureModal .modal-dialog {
+            margin: 1rem;
+            max-width: calc(100% - 2rem);
+        }
+    }
 </style>
 @endpush
 
 @push('scripts')
+{{-- Include PDF.js library --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
 <script>
 // Global functions that need to be accessible from onclick handlers
 function openSignatureModal(messageId) {
@@ -399,6 +643,278 @@ function openSignatureModal(messageId) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // PDF.js configuration
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    // Global variables
+    let pdfDoc = null;
+    let currentPage = 1;
+    let currentScale = 1;
+    let fitMode = 'page'; // 'width', 'page', or 'manual'
+    let currentPdfUrl = '';
+
+    // DOM elements
+    const canvas = document.getElementById('pdfCanvas');
+    const ctx = canvas.getContext('2d');
+    const pdfContainer = document.getElementById('pdfContainer');
+    const pdfLoading = document.getElementById('pdfLoading');
+    const pdfError = document.getElementById('pdfError');
+    const pageInput = document.getElementById('pageInput');
+    const totalPagesSpan = document.getElementById('totalPages');
+    const zoomLevelSpan = document.getElementById('zoomLevel');
+
+    // Button elements
+    const zoomInBtn = document.getElementById('zoomIn');
+    const zoomOutBtn = document.getElementById('zoomOut');
+    const fitWidthBtn = document.getElementById('fitWidth');
+    const fitPageBtn = document.getElementById('fitPage');
+    const firstPageBtn = document.getElementById('firstPage');
+    const prevPageBtn = document.getElementById('prevPage');
+    const nextPageBtn = document.getElementById('nextPage');
+    const lastPageBtn = document.getElementById('lastPage');
+    const downloadBtn = document.getElementById('downloadPdf');
+
+    // Global function to open PDF viewer
+    window.viewPdfInApp = function(url) {
+        currentPdfUrl = url;
+        loadPDF(url);
+        const modal = new bootstrap.Modal(document.getElementById('pdfModal'));
+        modal.show();
+    };
+
+    // Load PDF function
+    async function loadPDF(url) {
+        showLoading();
+
+        try {
+            const pdf = await pdfjsLib.getDocument(url).promise;
+            pdfDoc = pdf;
+            currentPage = 1;
+
+            totalPagesSpan.textContent = pdf.numPages;
+            pageInput.max = pdf.numPages;
+            pageInput.value = currentPage;
+
+            // Calculate initial scale based on fit mode
+            await calculateScale();
+            await renderPage(currentPage);
+
+            showPDF();
+            updateNavigationButtons();
+
+        } catch (error) {
+            console.error('Error loading PDF:', error);
+            showError();
+        }
+    }
+
+    // Calculate scale based on fit mode
+    async function calculateScale() {
+        if (!pdfDoc) return;
+
+        const page = await pdfDoc.getPage(1);
+        const viewport = page.getViewport({ scale: 1 });
+
+        const containerWidth = pdfContainer.clientWidth - 40;
+        const containerHeight = pdfContainer.clientHeight - 40;
+
+        if (fitMode === 'width') {
+            currentScale = containerWidth / viewport.width;
+        } else if (fitMode === 'page') {
+            const scaleX = containerWidth / viewport.width;
+            const scaleY = containerHeight / viewport.height;
+            currentScale = Math.min(scaleX, scaleY);
+        }
+
+        updateZoomLevel();
+    }
+
+    // Render page
+    async function renderPage(pageNum) {
+        if (!pdfDoc) return;
+
+        currentPage = pageNum;
+        pageInput.value = pageNum;
+
+        const page = await pdfDoc.getPage(pageNum);
+        const viewport = page.getViewport({ scale: currentScale });
+
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        const renderContext = {
+            canvasContext: ctx,
+            viewport: viewport
+        };
+
+        await page.render(renderContext).promise;
+        updateNavigationButtons();
+    }
+
+    // Update navigation button states
+    function updateNavigationButtons() {
+        firstPageBtn.disabled = currentPage <= 1;
+        prevPageBtn.disabled = currentPage <= 1;
+        nextPageBtn.disabled = currentPage >= pdfDoc?.numPages;
+        lastPageBtn.disabled = currentPage >= pdfDoc?.numPages;
+    }
+
+    // Update zoom level display
+    function updateZoomLevel() {
+        zoomLevelSpan.textContent = Math.round(currentScale * 100) + '%';
+    }
+
+    // Show loading state
+    function showLoading() {
+        pdfLoading.classList.remove('d-none');
+        pdfContainer.classList.add('d-none');
+        pdfError.classList.add('d-none');
+    }
+
+    // Show PDF
+    function showPDF() {
+        pdfLoading.classList.add('d-none');
+        pdfContainer.classList.remove('d-none');
+        pdfError.classList.add('d-none');
+    }
+
+    // Show error state
+    function showError() {
+        pdfLoading.classList.add('d-none');
+        pdfContainer.classList.add('d-none');
+        pdfError.classList.remove('d-none');
+    }
+
+    // Navigation event listeners
+    firstPageBtn.addEventListener('click', () => {
+        if (pdfDoc && currentPage > 1) {
+            renderPage(1);
+        }
+    });
+
+    prevPageBtn.addEventListener('click', () => {
+        if (pdfDoc && currentPage > 1) {
+            renderPage(currentPage - 1);
+        }
+    });
+
+    nextPageBtn.addEventListener('click', () => {
+        if (pdfDoc && currentPage < pdfDoc.numPages) {
+            renderPage(currentPage + 1);
+        }
+    });
+
+    lastPageBtn.addEventListener('click', () => {
+        if (pdfDoc && currentPage < pdfDoc.numPages) {
+            renderPage(pdfDoc.numPages);
+        }
+    });
+
+    // Page input handler
+    pageInput.addEventListener('change', () => {
+        if (!pdfDoc) return;
+
+        let pageNum = parseInt(pageInput.value);
+        if (pageNum < 1 || pageNum > pdfDoc.numPages) {
+            pageInput.value = currentPage;
+            return;
+        }
+
+        renderPage(pageNum);
+    });
+
+    // Zoom event listeners
+    zoomInBtn.addEventListener('click', async () => {
+        if (!pdfDoc) return;
+
+        fitMode = 'manual';
+        currentScale *= 1.25;
+        currentScale = Math.min(currentScale, 5);
+        updateZoomLevel();
+        await renderPage(currentPage);
+    });
+
+    zoomOutBtn.addEventListener('click', async () => {
+        if (!pdfDoc) return;
+
+        fitMode = 'manual';
+        currentScale /= 1.25;
+        currentScale = Math.max(currentScale, 0.1);
+        updateZoomLevel();
+        await renderPage(currentPage);
+    });
+
+    fitWidthBtn.addEventListener('click', async () => {
+        if (!pdfDoc) return;
+
+        fitMode = 'width';
+        await calculateScale();
+        await renderPage(currentPage);
+    });
+
+    fitPageBtn.addEventListener('click', async () => {
+        if (!pdfDoc) return;
+
+        fitMode = 'page';
+        await calculateScale();
+        await renderPage(currentPage);
+    });
+
+    // Download button handler
+    downloadBtn.addEventListener('click', () => {
+        if (currentPdfUrl) {
+            const link = document.createElement('a');
+            link.href = currentPdfUrl;
+            link.download = '';
+            link.click();
+        }
+    });
+
+    // Handle window resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        if (!pdfDoc) return;
+
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(async () => {
+            if (fitMode !== 'manual') {
+                await calculateScale();
+                await renderPage(currentPage);
+            }
+        }, 250);
+    });
+
+    // Handle modal close
+    const pdfModal = document.getElementById('pdfModal');
+    pdfModal.addEventListener('hidden.bs.modal', function() {
+        // Reset state
+        pdfDoc = null;
+        currentPage = 1;
+        currentScale = 1;
+        fitMode = 'page';
+        currentPdfUrl = '';
+
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Reset UI
+        totalPagesSpan.textContent = '-';
+        pageInput.value = '';
+        updateZoomLevel();
+
+        // Show loading state for next time
+        showLoading();
+    });
+
+    // Handle modal shown (recalculate scale if needed)
+    pdfModal.addEventListener('shown.bs.modal', async function() {
+        if (pdfDoc && fitMode !== 'manual') {
+            await calculateScale();
+            await renderPage(currentPage);
+        }
+    });
+
+    // Chat functionality
     let currentCompanyId = null;
     let isLoading = false;
     let messages = [];
@@ -457,127 +973,130 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Handle signature form submission
-  // Handle signature form submission
-// Replace the existing documentSignatureForm submission handler with this updated version
+    document.getElementById('documentSignatureModal').addEventListener('hidden.bs.modal', function () {
+        // Reload messages to show the updated signed status
+        if (currentCompanyId) {
+            loadMessages();
+        }
+    });
 
-// Handle signature form submission
-document.getElementById('documentSignatureForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const submitButton = document.getElementById('submitDocSignature');
-    const signingSpinner = document.getElementById('docSigningSpinner');
-    
-    // Show loading state
-    submitButton.disabled = true;
-    signingSpinner.classList.remove('d-none');
-    
-    // Capture browser data (same as engagement letter)
-    const browserData = {
-        userAgent: navigator.userAgent,
-        platform: navigator.platform,
-        language: navigator.language,
-        vendor: navigator.vendor,
-        screen: `${screen.width}x${screen.height}`,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        timestamp: new Date().toISOString()
-    };
-    
-    const formData = new FormData(this);
-    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-    formData.append('browser_data', JSON.stringify(browserData));
-    
-    try {
-        let url;
-        if (window.currentCompanyId && window.currentCompanyId.toString().startsWith('self-assessment-')) {
-            url = '{{ route("client.self-assessment.chat.sign-document") }}';
-        } else {
-            url = '{{ route("client.chat.sign-document") }}';
-        }
+    // Handle signature form submission
+    document.getElementById('documentSignatureForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            },
-            body: formData
-        });
+        const submitButton = document.getElementById('submitDocSignature');
+        const signingSpinner = document.getElementById('docSigningSpinner');
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        // Show loading state
+        submitButton.disabled = true;
+        signingSpinner.classList.remove('d-none');
         
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-            throw new TypeError("Invalid response format");
-        }
+        // Capture browser data
+        const browserData = {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language,
+            vendor: navigator.vendor,
+            screen: `${screen.width}x${screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            timestamp: new Date().toISOString()
+        };
         
-        const result = await response.json();
+        const formData = new FormData(this);
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+        formData.append('browser_data', JSON.stringify(browserData));
         
-        if (result.success) {
-            // Close modal
-            const modalElement = document.getElementById('documentSignatureModal');
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            modal.hide();
+        try {
+            let url;
+            if (window.currentCompanyId && window.currentCompanyId.toString().startsWith('self-assessment-')) {
+                url = '{{ route("client.self-assessment.chat.sign-document") }}';
+            } else {
+                url = '{{ route("client.chat.sign-document") }}';
+            }
             
-            // Reset form
-            this.reset();
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: formData
+            });
             
-            // Show success message with better styling
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new TypeError("Invalid response format");
+            }
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Close modal
+                const modalElement = document.getElementById('documentSignatureModal');
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                modal.hide();
+                
+                // Reset form
+                this.reset();
+                
+                // Show success message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    <i class="ph-duotone ph-check-circle me-2"></i>
+                    <strong>Success!</strong> Document has been signed successfully.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                const chatContainer = document.querySelector('.pc-content') || document.querySelector('.container-fluid');
+                if (chatContainer) {
+                    chatContainer.insertBefore(alertDiv, chatContainer.firstChild);
+                }
+                
+                // Reload messages after a short delay
+                setTimeout(() => {
+                    loadMessages();
+                }, 500);
+                
+                // Auto-dismiss alert after 5 seconds
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 5000);
+            } else {
+                throw new Error(result.message || 'Failed to sign document');
+            }
+        } catch (error) {
+            console.error('Error signing document:', error);
+            
+            // Show error alert
             const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-success alert-dismissible fade show';
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
             alertDiv.innerHTML = `
-                <i class="ph-duotone ph-check-circle me-2"></i>
-                <strong>Success!</strong> Document has been signed successfully.
+                <i class="ph-duotone ph-warning-circle me-2"></i>
+                <strong>Error!</strong> ${error.message || 'An error occurred while signing the document. Please try again.'}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             `;
             
-            // Insert alert at the top of the chat container
-            const chatContainer = document.querySelector('.pc-content') || document.querySelector('.container-fluid');
-            if (chatContainer) {
-                chatContainer.insertBefore(alertDiv, chatContainer.firstChild);
-            }
-            
-            // Reload messages after a short delay
-            setTimeout(() => {
-                loadMessages();
-            }, 500);
-            
-            // Auto-dismiss alert after 5 seconds
-            setTimeout(() => {
-                alertDiv.remove();
-            }, 5000);
-        } else {
-            throw new Error(result.message || 'Failed to sign document');
+            const container = document.querySelector('.modal-body');
+            container.insertBefore(alertDiv, container.firstChild);
+        } finally {
+            // Reset button state
+            submitButton.disabled = false;
+            signingSpinner.classList.add('d-none');
         }
-    } catch (error) {
-        console.error('Error signing document:', error);
-        
-        // Show error alert
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-        alertDiv.innerHTML = `
-            <i class="ph-duotone ph-warning-circle me-2"></i>
-            <strong>Error!</strong> ${error.message || 'An error occurred while signing the document. Please try again.'}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-        
-        const container = document.querySelector('.modal-body');
-        container.insertBefore(alertDiv, container.firstChild);
-    } finally {
-        // Reset button state
-        submitButton.disabled = false;
-        signingSpinner.classList.add('d-none');
-    }
-});
+    });
 
-// Auto-fill print name when full name is entered (same as engagement letter)
-document.getElementById('signer_full_name').addEventListener('input', function() {
-    const printNameField = document.getElementById('signer_print_name');
-    if (!printNameField.value) {
-        printNameField.value = this.value;
-    }
-});
+    // Auto-fill print name when full name is entered
+    document.getElementById('signer_full_name').addEventListener('input', function() {
+        const printNameField = document.getElementById('signer_print_name');
+        if (!printNameField.value) {
+            printNameField.value = this.value;
+        }
+    });
 
     // Auto-select first company if available
     if (companyLinks.length > 0) {
@@ -729,11 +1248,11 @@ document.getElementById('signer_full_name').addEventListener('input', function()
                                 </div>
                             </div>
                             <div class="d-flex gap-2">
-                                <a href="${message.file_url}" target="_blank" class="btn btn-outline-secondary btn-sm" title="View Original">
-                                    <i class="ph-duotone ph-eye"></i>
-                                </a>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="viewPdfInApp('${message.file_url}')" title="View Document">
+                                    <i class="ti ti-eye"></i> View
+                                </button>
                                 <button class="btn btn-warning btn-sm" onclick="openSignatureModal(${message.id})">
-                                    <i class="ph-duotone ph-signature me-1"></i> Sign
+                                    <i class="ti ti-writing-sign me-1"></i> Sign
                                 </button>
                             </div>
                         </div>
@@ -757,34 +1276,41 @@ document.getElementById('signer_full_name').addEventListener('input', function()
                                 </div>
                             </div>
                             <div class="d-flex gap-2">
-                                <a href="${message.file_url}" target="_blank" class="btn btn-outline-secondary btn-sm" title="View Original">
-                                    <i class="ph-duotone ph-file"></i> Original
-                                </a>
-                                <a href="${message.signed_file_url}" target="_blank" class="btn btn-success btn-sm" title="View Signed Document">
-                                    <i class="ph-duotone ph-file-check"></i> Signed
+                                <button class="btn btn-outline-secondary btn-sm" onclick="viewPdfInApp('${message.file_url}')" title="View Original">
+                                    <i class="ti ti-eye"></i> Original
+                                </button>
+                                <button class="btn btn-success btn-sm" onclick="viewPdfInApp('${message.signed_file_url}')" title="View Signed Document">
+                                    <i class="ti ti-file-check"></i> Signed
+                                </button>
+                                <a href="${message.signed_file_url}" download class="btn btn-outline-success btn-sm" title="Download Signed">
+                                    <i class="ti ti-download"></i>
                                 </a>
                             </div>
                         </div>
                     </div>
                 `;
             } else {
+                // For regular files, check if it's a PDF
+                const isPdf = message.file_type && message.file_type.includes('pdf');
                 fileAttachment = `
                     <div class="file-attachment">
                         <div class="d-flex align-items-center justify-content-between">
                             <div class="flex-grow-1">
                                 <div class="d-flex align-items-center">
                                     <i class="ph-duotone ph-file me-2"></i>
-                                    <a href="${message.file_url}" target="_blank" class="text-decoration-none ${isFromClient ? 'text-white' : ''}">
-                                        <strong>${message.file_name}</strong>
-                                    </a>
+                                    <span class="text-decoration-none ${isFromClient ? '' : 'text-primary'}">
+                                        ${message.file_name}
+                                    </span>
                                 </div>
                             </div>
                             <div class="d-flex gap-2">
-                                <a href="${message.file_url}" target="_blank" class="btn btn-outline-secondary btn-sm" title="View">
-                                    <i class="ph-duotone ph-eye"></i>
-                                </a>
+                                ${isPdf ? `
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="viewPdfInApp('${message.file_url}')" title="View Document">
+                                        <i class="ti ti-eye"></i> View
+                                    </button>
+                                ` : ''}
                                 <a href="${message.file_url}" download class="btn btn-outline-primary btn-sm" title="Download">
-                                    <i class="ph-duotone ph-download"></i>
+                                    <i class="ti ti-download"></i> Download
                                 </a>
                             </div>
                         </div>
@@ -872,66 +1398,63 @@ document.getElementById('signer_full_name').addEventListener('input', function()
         }
     }
 
-  
-
-async function updateUnreadCounts() {
-    try {
-        // Update company unread counts
-        const companyResponse = await fetch("{{ route('client.chat.unread') }}", {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        });
-
-        if (companyResponse.ok) {
-            const contentType = companyResponse.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-                const companyResult = await companyResponse.json();
-                if (companyResult.success && companyResult.unread_counts) {
-                    // Use unread_counts instead of data
-                    Object.entries(companyResult.unread_counts).forEach(([companyId, count]) => {
-                        const badge = document.getElementById(`unreadCount-${companyId}`);
-                        if (badge) {
-                            badge.textContent = count;
-                            badge.classList.toggle('d-none', count === 0);
-                        }
-                    });
+    async function updateUnreadCounts() {
+        try {
+            // Update company unread counts
+            const companyResponse = await fetch("{{ route('client.chat.unread') }}", {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
-            }
-        }
+            });
 
-        // Update self-assessment unread count if applicable
-        @if($selfAssessment)
-        const selfResponse = await fetch("{{ route('client.self-assessment.chat.unread') }}", {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        });
-
-        if (selfResponse.ok) {
-            const contentType = selfResponse.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-                const selfResult = await selfResponse.json();
-                if (selfResult.success && selfResult.data) {
-                    const badge = document.getElementById('unreadCount-self-assessment-{{ $selfAssessment->id }}');
-                    if (badge) {
-                        badge.textContent = selfResult.data.self_assessment || 0;
-                        badge.classList.toggle('d-none', selfResult.data.self_assessment === 0);
+            if (companyResponse.ok) {
+                const contentType = companyResponse.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const companyResult = await companyResponse.json();
+                    if (companyResult.success && companyResult.unread_counts) {
+                        Object.entries(companyResult.unread_counts).forEach(([companyId, count]) => {
+                            const badge = document.getElementById(`unreadCount-${companyId}`);
+                            if (badge) {
+                                badge.textContent = count;
+                                badge.classList.toggle('d-none', count === 0);
+                            }
+                        });
                     }
                 }
             }
+
+            // Update self-assessment unread count if applicable
+            @if($selfAssessment)
+            const selfResponse = await fetch("{{ route('client.self-assessment.chat.unread') }}", {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+
+            if (selfResponse.ok) {
+                const contentType = selfResponse.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const selfResult = await selfResponse.json();
+                    if (selfResult.success && selfResult.data) {
+                        const badge = document.getElementById('unreadCount-self-assessment-{{ $selfAssessment->id }}');
+                        if (badge) {
+                            badge.textContent = selfResult.data.self_assessment || 0;
+                            badge.classList.toggle('d-none', selfResult.data.self_assessment === 0);
+                        }
+                    }
+                }
+            }
+            @endif
+        } catch (error) {
+            console.error('Error updating unread counts:', error);
         }
-        @endif
-    } catch (error) {
-        console.error('Error updating unread counts:', error);
     }
-}
 
     function formatTime(dateString) {
         if (!dateString) return '';

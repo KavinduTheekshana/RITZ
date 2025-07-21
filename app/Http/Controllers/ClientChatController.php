@@ -63,6 +63,7 @@ class ClientChatController extends Controller
                     'message' => $message->message,
                     'file_name' => $message->file_name,
                     'file_url' => $message->file_url,
+                    'file_type' => $message->file_type,
                     'sent_at' => $message->sent_at->toISOString(),
                     'is_read' => $message->is_read,
                     // Add signature fields
