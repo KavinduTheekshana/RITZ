@@ -27,7 +27,7 @@
                     <a class="pc-head-link dropdown-toggle arrow-none me-0" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" aria-expanded="false">
                         <i class="ph-duotone ph-bell"></i>
-                        <span class="badge bg-success pc-h-badge" id="headerNotificationBadge">0</span>
+                        <span class="badge bg-success pc-h-badge" id="headerNotificationBadge" style="display: none;">0</span>
                     </a>
                     <div class="dropdown-menu dropdown-notification dropdown-menu-end pc-h-dropdown">
                         <div class="dropdown-header d-flex align-items-center justify-content-between">
@@ -100,7 +100,7 @@
                                             <span class="d-flex align-items-center">
                                                 <i class="ph-duotone ph-chat-circle"></i>
                                                 <span>Messages</span>
-                                                <span class="badge bg-light-success ms-auto" id="headerMessageBadge"></span>
+                                                <span class="badge bg-light-success ms-auto" id="headerMessageBadge" style="display: none;">0</span>
                                             </span>
                                         </a>
                                         <a href="{{ route('client.engagement') }}" class="dropdown-item">
@@ -141,7 +141,49 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Function to load notifications
+    let totalUnreadCount = 0;
+    
+    // Function to update the notification badge with unread count
+    function updateNotificationBadge() {
+        // Use the existing web route instead of API
+        fetch('/client/chat/unread-counts')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Calculate total unread count (only admin messages)
+                    totalUnreadCount = Object.values(data.data).reduce((sum, count) => sum + count, 0);
+                    
+                    const headerBadge = document.getElementById('headerNotificationBadge');
+                    const messageBadge = document.getElementById('headerMessageBadge');
+                    
+                    if (totalUnreadCount > 0) {
+                        // Update notification badge
+                        if (headerBadge) {
+                            headerBadge.textContent = totalUnreadCount > 99 ? '99+' : totalUnreadCount;
+                            headerBadge.style.display = 'inline-block';
+                        }
+                        // Update message badge in dropdown
+                        if (messageBadge) {
+                            messageBadge.textContent = totalUnreadCount > 99 ? '99+' : totalUnreadCount;
+                            messageBadge.style.display = 'inline-block';
+                        }
+                    } else {
+                        // Hide badges when no unread messages
+                        if (headerBadge) {
+                            headerBadge.style.display = 'none';
+                        }
+                        if (messageBadge) {
+                            messageBadge.style.display = 'none';
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error updating notification badge:', error);
+            });
+    }
+    
+    // Function to load recent notifications
     function loadNotifications() {
         const clientEmail = '{{ Auth::guard("client")->user()->email }}';
         
@@ -151,69 +193,80 @@ document.addEventListener('DOMContentLoaded', function() {
                 const notificationsList = document.getElementById('notificationsList');
                 const loadingElement = document.getElementById('loadingNotifications');
                 const noNotificationsElement = document.getElementById('noNotifications');
-                const headerBadge = document.getElementById('headerNotificationBadge');
                 
                 // Clear loading state
-                loadingElement.classList.add('d-none');
+                if (loadingElement) {
+                    loadingElement.classList.add('d-none');
+                }
                 
                 if (data.success && data.data.length > 0) {
                     // Clear existing notifications
                     notificationsList.innerHTML = '';
                     
-                    // Count unread messages
-                    let unreadCount = 0;
+                    // Filter to show only unread admin messages
+                    const unreadAdminMessages = data.data.filter(notification => 
+                        notification.sender_type === 'admin' && !notification.is_read
+                    );
                     
-                    // Add notifications
-                    data.data.forEach(notification => {
-                        if (!notification.is_read) {
-                            unreadCount++;
+                    if (unreadAdminMessages.length > 0) {
+                        // Add only unread admin notifications
+                        unreadAdminMessages.forEach(notification => {
+                            const notificationItem = document.createElement('li');
+                            notificationItem.className = 'list-group-item';
+                            
+                            const timeAgo = getTimeAgo(new Date(notification.sent_at));
+                            
+                            notificationItem.innerHTML = `
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <div class="avtar avtar-s bg-light-primary">
+                                            <i class="ph-duotone ph-user-circle f-18"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="d-flex align-items-start justify-content-between mb-1">
+                                            <h6 class="mb-0 fw-bold">${notification.company_name}</h6>
+                                            <small class="text-muted">${timeAgo}</small>
+                                        </div>
+                                        <p class="mb-0 text-muted">
+                                            <span class="fw-bold">${notification.sender_name}:</span>
+                                            ${notification.message || (notification.file_name ? 'Sent a file' : 'New message')}
+                                        </p>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            notificationsList.appendChild(notificationItem);
+                        });
+                        
+                        // Show "no notifications" if all are hidden
+                        if (notificationsList.children.length === 0 && noNotificationsElement) {
+                            noNotificationsElement.classList.remove('d-none');
                         }
-                        
-                        const notificationItem = document.createElement('li');
-                        notificationItem.className = 'list-group-item';
-                        
-                        const isUnread = !notification.is_read ? 'fw-bold' : '';
-                        const timeAgo = getTimeAgo(new Date(notification.sent_at));
-                        
-                        notificationItem.innerHTML = `
-                            <div class="d-flex align-items-start">
-                                <div class="flex-shrink-0">
-                                    <div class="avtar avtar-s ${notification.sender_type === 'admin' ? 'bg-light-primary' : 'bg-light-success'}">
-                                        <i class="ph-duotone ${notification.sender_type === 'admin' ? 'ph-user-circle' : 'ph-user'} f-18"></i>
-                                    </div>
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <div class="d-flex align-items-start justify-content-between mb-1">
-                                        <h6 class="mb-0 ${isUnread}">${notification.company_name}</h6>
-                                        <small class="text-muted">${timeAgo}</small>
-                                    </div>
-                                    <p class="mb-0 text-muted">
-                                        <span class="${isUnread}">${notification.sender_name}:</span>
-                                        ${notification.message || (notification.file_name ? 'Sent a file' : 'New message')}
-                                    </p>
-                                </div>
-                            </div>
-                        `;
-                        
-                        notificationsList.appendChild(notificationItem);
-                    });
-                    
-                    // Update badge
-                    if (unreadCount > 0) {
-                        headerBadge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-                        headerBadge.classList.remove('d-none');
                     } else {
-                        headerBadge.classList.add('d-none');
+                        // No unread admin messages
+                        if (noNotificationsElement) {
+                            noNotificationsElement.classList.remove('d-none');
+                        }
                     }
                 } else {
-                    noNotificationsElement.classList.remove('d-none');
-                    headerBadge.classList.add('d-none');
+                    // No notifications at all
+                    if (noNotificationsElement) {
+                        noNotificationsElement.classList.remove('d-none');
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error loading notifications:', error);
-                document.getElementById('loadingNotifications').classList.add('d-none');
-                document.getElementById('noNotifications').classList.remove('d-none');
+                const loadingElement = document.getElementById('loadingNotifications');
+                const noNotificationsElement = document.getElementById('noNotifications');
+                
+                if (loadingElement) {
+                    loadingElement.classList.add('d-none');
+                }
+                if (noNotificationsElement) {
+                    noNotificationsElement.classList.remove('d-none');
+                }
             });
     }
     
@@ -239,33 +292,29 @@ document.addEventListener('DOMContentLoaded', function() {
         return 'Just now';
     }
     
-    // Load notifications on page load
+    // Load data on page load
+    updateNotificationBadge();
     loadNotifications();
     
-    // Refresh notifications every 30 seconds
-    setInterval(loadNotifications, 30000);
+    // Refresh every 30 seconds
+    setInterval(() => {
+        updateNotificationBadge();
+        loadNotifications();
+    }, 30000);
     
-    // Update message badge in profile dropdown
-    function updateMessageBadge() {
-        fetch(`/client/chat/unread-counts`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const totalUnread = Object.values(data.data).reduce((sum, count) => sum + count, 0);
-                    const badge = document.getElementById('headerMessageBadge');
-                    
-                    if (badge && totalUnread > 0) {
-                        badge.textContent = totalUnread > 99 ? '99+' : totalUnread;
-                        badge.classList.remove('d-none');
-                    } else if (badge) {
-                        badge.classList.add('d-none');
-                    }
-                }
-            })
-            .catch(error => console.error('Error updating message badge:', error));
-    }
+    // Listen for custom events from chat component to update badges
+    window.addEventListener('messages-read', function() {
+        updateNotificationBadge();
+        loadNotifications();
+    });
     
-    // Update message badge on load
-    updateMessageBadge();
+    window.addEventListener('new-message-sent', function() {
+        // Don't increment count for client's own messages
+        // Just refresh to ensure accuracy
+        setTimeout(() => {
+            updateNotificationBadge();
+            loadNotifications();
+        }, 1000);
+    });
 });
 </script>
