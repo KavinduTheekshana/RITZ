@@ -4,7 +4,6 @@ namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -19,7 +18,7 @@ class SelfAssessmentEngagementLetter extends Mailable
     public function __construct(
         public string $letterContent,
         public string $assessmentName,
-        public $pdfContent
+        public $pdfContent // Keep this for backward compatibility but won't use it
     ) {}
 
     /**
@@ -52,9 +51,7 @@ class SelfAssessmentEngagementLetter extends Mailable
      */
     public function attachments(): array
     {
-        return [
-            Attachment::fromData(fn () => $this->pdfContent, 'Self_Assessment_Engagement_Letter.pdf')
-                ->withMime('application/pdf'),
-        ];
+        // Return empty array - no attachments
+        return [];
     }
 }

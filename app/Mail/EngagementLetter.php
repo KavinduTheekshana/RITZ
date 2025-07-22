@@ -7,8 +7,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Mail\Mailables\Attachment;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class EngagementLetter extends Mailable
 {
@@ -30,18 +28,15 @@ class EngagementLetter extends Mailable
     {
         return new Content(
             view: 'emails.engagement-letter-email',
+            with: [
+                'companyName' => $this->companyName,
+            ]
         );
     }
 
     public function attachments(): array
     {
-        $pdf = Pdf::loadView('pdfs.engagement-letter', [
-            'letterContent' => $this->letterContent
-        ]);
-
-        return [
-            Attachment::fromData(fn () => $pdf->output(), 'engagement-letter.pdf')
-                ->withMime('application/pdf'),
-        ];
+        // Return empty array - no attachments
+        return [];
     }
 }
