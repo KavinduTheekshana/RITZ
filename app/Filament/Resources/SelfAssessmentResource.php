@@ -4,15 +4,28 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SelfAssessmentResource\Pages;
 use App\Filament\Resources\SelfAssessmentResource\RelationManagers;
-use App\Models\Client;
+use App\Models\SelfAssessmentChatList;
 use App\Models\SelfAssessment;
+use App\Models\Client;
+use App\Models\EngagementLetterSelfAssessment;
+use App\Mail\SelfAssessmentEngagementLetter;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\Actions\Action as FormAction;
+use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SelfAssessmentResource extends Resource
 {
@@ -32,49 +45,29 @@ class SelfAssessmentResource extends Resource
                             ->schema([
                                 Forms\Components\Section::make('Self Assessment Details')
                                     ->schema([
-
-
-                                        // Forms\Components\Select::make('client_id')
-                                        //     ->label('Client')
-                                        //     ->relationship(
-                                        //         'client',
-                                        //         'full_name'  // Using your accessor here
-                                        //     )
-                                        //     ->searchable(['first_name', 'middle_name', 'last_name']) // Search across these fields
-                                        //     ->getOptionLabelFromRecordUsing(fn(Client $record) => $record->full_name) // Format display
-                                        //     ->preload()
-                                        //     ->required(),
-
                                         Forms\Components\Select::make('client_id')
-                                            ->label('Client')
-                                            ->relationship(
-                                                'client',
-                                                'full_name'
-                                            )
-                                            ->searchable(['first_name', 'middle_name', 'last_name'])
-                                            ->getOptionLabelFromRecordUsing(fn(Client $record) => $record->full_name)
-                                            ->preload()
-                                            ->required()
-                                            ->rules([
-                                                function () {
-                                                    return function (string $attribute, $value, \Closure $fail) {
-                                                        // Get the current record ID if editing
-                                                        $currentId = request()->route('record');
-
-                                                        // Check if another self assessment exists for this client
-                                                        $exists = \App\Models\SelfAssessment::where('client_id', $value)
-                                                            ->when($currentId, function ($query, $currentId) {
-                                                                return $query->where('id', '!=', $currentId);
-                                                            })
-                                                            ->exists();
-
-                                                        if ($exists) {
-                                                            $fail('This client already has a self assessment.');
-                                                        }
-                                                    };
-                                                },
-                                            ])
-                                            ->helperText('Each client can only have one self assessment.'),
+    ->label('Client')
+    ->options(Client::all()->pluck('full_name', 'id'))
+    ->searchable()
+    ->required()
+    ->reactive()
+    ->disabled(fn(?SelfAssessment $record) => $record !== null) // Disable on edit, allow on create
+    ->afterStateUpdated(function ($state, callable $set) {
+        if ($state) {
+            $client = Client::find($state);
+            if ($client) {
+                // Pre-fill fields from client data
+                $set('self_assessment_telephone', $client->mobile_number ?? $client->telephone_number);
+                $set('self_assessment_email', $client->email);
+                $set('assessment_name', $client->full_name . ' - Self Assessment');
+            }
+        }
+    })
+    ->helperText(fn(?SelfAssessment $record) => 
+        $record !== null 
+            ? 'Client cannot be changed after creation.' 
+            : 'Each client can only have one self assessment.'
+    ),
 
                                         Forms\Components\TextInput::make('assessment_name')
                                             ->label('Assessment Name')
@@ -732,7 +725,6 @@ class SelfAssessmentResource extends Resource
     {
         return $table
             ->columns([
-
                 Tables\Columns\TextColumn::make('client.full_name')
                     ->label('Client Name')
                     ->searchable(['first_name', 'middle_name', 'last_name'])
@@ -740,7 +732,6 @@ class SelfAssessmentResource extends Resource
                     ->formatStateUsing(function ($record) {
                         return $record->client ? $record->client->full_name : 'No Client';
                     }),
-
 
                 Tables\Columns\TextColumn::make('assessment_name')
                     ->label('Assessment Name')
@@ -779,30 +770,292 @@ class SelfAssessmentResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                // Tables\Filters\SelectFilter::make('client_grade')
-                //     ->relationship('internalDetails', 'client_grade')
-                //     ->options([
-                //         'A' => 'A',
-                //         'B' => 'B',
-                //         'C' => 'C',
-                //     ]),
-                // Tables\Filters\SelectFilter::make('client_risk_level')
-                //     ->relationship('internalDetails', 'client_risk_level')
-                //     ->options([
-                //         'Low' => 'Low',
-                //         'Medium' => 'Medium',
-                //         'High' => 'High',
-                //     ]),
+                //
             ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-            ])
+            // Replace the actions() method in app/Filament/Resources/SelfAssessmentResource.php
+
+->actions([
+    // View Engagement Letter (when engagement is true)
+    Action::make('viewEngagementLetters')
+        ->label('View Engagement Letter')
+        ->icon('heroicon-o-clipboard-document-list')
+        ->color('info')
+        ->modalHeading(fn(SelfAssessment $record) => "Engagement Letters for {$record->assessment_name}")
+        ->modalContent(function (SelfAssessment $record) {
+            $engagementLetters = $record->engagementLetters()
+                ->orderBy('sent_at', 'desc')
+                ->get();
+
+            return view('filament.self-assessment.engagement-letters-list', [
+                'selfAssessment' => $record,
+                'engagementLetters' => $engagementLetters,
+            ]);
+        })
+        ->modalWidth('7xl')
+        ->slideOver()
+        ->visible(fn(SelfAssessment $record) => $record->engagement), // Show only when engagement is true
+
+    // Send Engagement Letter (when engagement is false)
+    Action::make('sendEngagementLetter')
+        ->label('Send Engagement Letter')
+        ->icon('heroicon-o-envelope')
+        ->color('primary')
+        ->form([
+            RichEditor::make('engagement_letter')
+                ->label('Engagement Letter')
+                ->toolbarButtons([
+                    'bold',
+                    'italic',
+                    'underline',
+                    'h2',
+                    'h3',
+                    'bulletList',
+                    'orderedList',
+                    'redo',
+                    'undo',
+                    'link',
+                    'strike',
+                ])
+                ->default(fn(SelfAssessment $record) => self::getDefaultEngagementLetter($record))
+                ->required()
+                ->columnSpanFull(),
+            Actions::make([
+                FormAction::make('download')
+                    ->label('Download PDF')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('gray')
+                    ->action(function (SelfAssessment $record, Get $get) {
+                        $letterContent = $get('engagement_letter');
+                        
+                        $pdf = Pdf::loadView('pdfs.engagement-letter', [
+                            'letterContent' => $letterContent
+                        ]);
+                        
+                        return response()->streamDownload(
+                            fn() => print($pdf->output()),
+                            'engagement-letter-self-assessment-' . $record->id . '.pdf'
+                        );
+                    }),
+            ])->alignEnd()->columnSpanFull(),
+        ])
+        ->action(function (SelfAssessment $record, array $data) {
+            $letterContent = $data['engagement_letter'];
+            
+            // Generate PDF
+            $pdf = Pdf::loadView('pdfs.engagement-letter', [
+                'letterContent' => $letterContent
+            ]);
+            
+            // Save PDF to storage
+            $fileName = 'self-assessment-engagement-letter-' . $record->id . '-' . time() . '.pdf';
+            $filePath = 'engagement-letters/self-assessments/' . $fileName;
+            Storage::disk('public')->put($filePath, $pdf->output());
+            
+            // Save to database
+            EngagementLetterSelfAssessment::create([
+                'self_assessment_id' => $record->id,
+                'content' => $letterContent,
+                'file_path' => $filePath,
+                'file_name' => $fileName,
+                'sent_at' => now(),
+                'sent_by' => Auth::id() ?? 'system',
+            ]);
+            
+            // Update the record to mark engagement letter as sent
+            $record->update(['engagement' => true]);
+            
+            // Send email if available
+            if ($record->self_assessment_email) {
+                Mail::to($record->self_assessment_email)->send(
+                    new SelfAssessmentEngagementLetter(
+                        $letterContent,
+                        $record->assessment_name,
+                        Storage::disk('public')->get($filePath)
+                    )
+                );
+            }
+            
+            Notification::make()
+                ->title('Engagement letter sent successfully')
+                ->success()
+                ->send();
+        })
+        ->modalHeading('Send Engagement Letter')
+        ->modalButton('Send as PDF')
+        ->modalWidth('7xl')
+        ->visible(fn(SelfAssessment $record) => !$record->engagement), // Show only when engagement is false
+
+    // Chat/Messages
+    Action::make('chat')
+        ->label('Chat')
+        ->icon('heroicon-o-chat-bubble-left-right')
+        ->color('danger')
+        ->url(fn(SelfAssessment $record) => route('filament.admin.resources.self-assessments.chat', $record))
+        ->badge(fn(SelfAssessment $record) => 
+            SelfAssessmentChatList::where('self_assessment_id', $record->id)
+                ->where('sender_type', 'client')
+                ->where('is_read', false)
+                ->count()
+        )
+        ->badgeColor('danger'),
+
+    // View
+    Tables\Actions\ViewAction::make(),
+
+    // Edit
+    Tables\Actions\EditAction::make(),
+])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    protected static function getDefaultEngagementLetter(SelfAssessment $selfAssessment): string
+    {
+        $today = now()->format('d F Y');
+        $client = $selfAssessment->client;
+        $clientName = $client ? $client->full_name : '[Client Name]';
+        $yearEnd = '5 April ' . now()->year;
+
+        $services = $selfAssessment->servicesRequired;
+        $scopeOfServices = '';
+
+        if ($services) {
+            $serviceList = [];
+
+            // Check each service and add to list if price is greater than 0
+            if ($services->accounts > 0) $serviceList[] = 'Personal Tax Return Preparation';
+            if ($services->bookkeeping > 0) $serviceList[] = 'Personal Bookkeeping';
+            if ($services->vat_returns > 0) $serviceList[] = 'VAT Returns';
+            if ($services->consultation_advice > 0) $serviceList[] = 'Tax Planning & Consultation';
+            if ($services->fee_protection_service > 0) $serviceList[] = 'Fee Protection Service';
+
+            // Convert to HTML unordered list
+            if (!empty($serviceList)) {
+                $scopeOfServices = '<ul>';
+                foreach ($serviceList as $service) {
+                    $scopeOfServices .= '<li>' . $service . '</li>';
+                }
+                $scopeOfServices .= '</ul>';
+            } else {
+                $scopeOfServices = '<p>Self Assessment Tax Return preparation and submission.</p>';
+            }
+        } else {
+            $scopeOfServices = '<p>Self Assessment Tax Return preparation and submission.</p>';
+        }
+
+        return <<<HTML
+<div class="company-header"><h2>NTE ACCOUNTING LTD</h2></div>
+
+<p>{$clientName}<br>
+{$client?->address1}<br>
+{$client?->address2}<br>
+{$client?->city} {$client?->state} {$client?->postal_code}<br>
+{$today}</p>
+
+<p>Dear {$clientName},</p>
+
+<p class="section-title"><strong>Engagement Letter - Self Assessment Services</strong></p>
+
+<p>Thank you for engaging us to act on your behalf for your personal tax affairs. I will be your main point of contact and will have primary responsibility for this assignment.</p>
+
+<p>This letter, including the attached schedules of services, and our standard terms and conditions, sets out the basis on which we will act. These documents contain the terms on which we will deliver the work for you so <strong>please read these carefully</strong>.</p>
+
+<p class="sub-section"><strong>Who we are acting for</strong></p>
+<p>We are acting for you <strong>{$clientName}</strong> only in relation to your personal tax affairs. Where you would like us to act for anyone else such as your spouse/partner, we will issue a separate engagement letter to them.</p>
+
+<p class="sub-section"><strong>Period of engagement</strong></p>
+<p>This engagement will start on <strong>{$today}</strong> and will continue for subsequent tax years unless terminated by either party.</p>
+
+<p class="sub-section"><strong>Scope of services</strong></p>
+{$scopeOfServices}
+
+<p>Full details of the work that you have instructed us to carry out are in the attached schedule. The schedule confirms the scope of the services to be provided and each party's responsibilities in relation to the work to be carried out.</p>
+
+<p class="sub-section"><strong>Your responsibilities</strong></p>
+<p>You are legally responsible for:</p>
+<ul>
+    <li>Ensuring that your tax returns are correct and complete</li>
+    <li>Filing any returns by the due date</li>
+    <li>Paying tax on time</li>
+</ul>
+
+<p>Failure to do any of the above may lead to penalties and/or interest. We will use our reasonable care and skill when preparing your self assessment tax return but the ultimate responsibility remains with you.</p>
+
+<p>You agree to provide us with complete and accurate information necessary to enable us to prepare your tax return, including details of all sources of income, capital gains, claims for allowances and deductions.</p>
+
+<p class="sub-section"><strong>Fees</strong></p>
+<p>Our fees will be charged in accordance with our proposal and our standard terms and conditions. We will bill you after the completion of your tax return unless we have agreed a different arrangement.</p>
+
+<p class="sub-section"><strong>Limitation of liability</strong></p>
+<p>We specifically draw your attention to our standard terms and conditions which set out the basis on which we limit our liability to you and to others. <strong>These are important clauses, please read them and ensure you are happy with them.</strong></p>
+
+<p class="sub-section">Requirements of the Data Protection Act (DPA) 2018 and the UK General Data Protection Regulation (UK GDPR)</p>
+<p>The DPA 2018 and the UK GDPR set out a number of requirements in relation to the processing of personal data.</p>
+
+<p>Here at <strong>NTE ACCOUNTING LTD</strong> we take your privacy and the privacy of the information we process seriously. We will only use your personal information and the personal information you give us access to under this contract to administer your account and to provide the services you have requested from us.</p>
+
+<p>We attach our privacy notice setting out our approach to handling your information. In signing one copy of this letter you will be indicating that you have received and read our privacy notice.</p>
+
+<p class="sub-section extra-space"><strong>Your agreement</strong></p>
+<p>Please confirm your acceptance of:</p>
+<ul>
+    <li>the terms of this letter</li>
+    <li>the attached schedule of services</li>
+    <li>the privacy notice</li>
+    <li>the standard terms and conditions</li>
+</ul>
+<p>by signing and returning one copy of this letter.</p>
+
+<p><strong>Acceptance</strong></p>
+<p>I acknowledge receipt of and accept the terms of your letter dated {$today}, the attached schedule of services, the privacy notice and standard terms and conditions, which fully record the agreement between us concerning your appointment to carry out the work described in the schedule of services.</p>
+
+<h3>SELF ASSESSMENT TAX RETURN SERVICES</h3>
+
+<p><strong>Responsibilities of the taxpayer</strong></p>
+<p>As a taxpayer, you are responsible for:</p>
+<ul>
+    <li>Keeping records of all your income and capital gains</li>
+    <li>Retaining receipts and evidence for expenses and tax deductions claimed</li>
+    <li>Providing us with all information necessary to complete your return</li>
+    <li>Reviewing and approving your tax return before submission</li>
+    <li>Meeting the filing deadline of 31 January following the tax year end</li>
+    <li>Paying any tax due by the payment deadline</li>
+</ul>
+
+<p><strong>Our responsibilities</strong></p>
+<p>We will:</p>
+<ul>
+    <li>Prepare your self assessment tax return based on the information you provide</li>
+    <li>Calculate your tax liability</li>
+    <li>Advise you of key tax saving opportunities</li>
+    <li>Submit your return to HMRC once approved by you</li>
+    <li>Provide you with a copy of your tax return and tax calculation</li>
+    <li>Deal with routine HMRC queries</li>
+</ul>
+
+<p><strong>Timescales</strong></p>
+<p>To ensure we can submit your tax return by the deadline, we need to receive all your information by <strong>30 November</strong>. If information is received after this date, we cannot guarantee submission by the 31 January deadline and you may incur late filing penalties.</p>
+
+<p><strong>Records</strong></p>
+<p>You are required by law to keep records to support your tax return for at least 22 months after the end of the tax year (5 years and 10 months if you have business or rental income).</p>
+
+<p><strong>PRIVACY NOTICE</strong></p>
+<p>The full privacy notice is as detailed in the company engagement letter format and applies equally to our handling of your personal tax information.</p>
+
+<div style="margin-top: 50px;">
+    <p>_______________________________<br>
+    Signature</p>
+
+    <p>_______________________________<br>
+    Name (Please Print)</p>
+
+    <p>_______________________________<br>
+    Date</p>
+</div>
+HTML;
     }
 
     public static function getRelations(): array
@@ -817,8 +1070,8 @@ class SelfAssessmentResource extends Resource
         return [
             'index' => Pages\ListSelfAssessments::route('/'),
             'create' => Pages\CreateSelfAssessment::route('/create'),
-            // 'view' => Pages\ViewSelfAssessment::route('/{record}'),
             'edit' => Pages\EditSelfAssessment::route('/{record}/edit'),
+            'chat' => Pages\SelfAssessmentChat::route('/{record}/chat'),
         ];
     }
 }

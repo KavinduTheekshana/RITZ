@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Validation\Rule;
 
 class SelfAssessment extends Model
@@ -22,31 +23,18 @@ class SelfAssessment extends Model
         'assessment_name',
         'self_assessment_telephone',
         'self_assessment_email',
+        'engagement', // Added engagement field
     ];
 
     protected static function boot()
     {
         parent::boot();
 
-        // Ensure only one self assessment per client before creating
-        static::creating(function ($selfAssessment) {
-            if (static::where('client_id', $selfAssessment->client_id)->exists()) {
-                throw new \Exception('This client already has a self assessment.');
-            }
-        });
-
-        // Ensure only one self assessment per client before updating
-        static::updating(function ($selfAssessment) {
-            if (static::where('client_id', $selfAssessment->client_id)
-                ->where('id', '!=', $selfAssessment->id)
-                ->exists()
-            ) {
-                throw new \Exception('This client already has a self assessment.');
-            }
-        });
+        // REMOVED the creating and updating restrictions to allow editing
+        // The validation rules below will still ensure only one self assessment per client
     }
 
-       public static function rules($id = null): array
+    public static function rules($id = null): array
     {
         return [
             'client_id' => [
@@ -57,6 +45,7 @@ class SelfAssessment extends Model
             'assessment_name' => 'nullable|string|max:255',
             'self_assessment_telephone' => 'nullable|string|max:255',
             'self_assessment_email' => 'nullable|email|max:255',
+            'engagement' => 'boolean',
         ];
     }
 
@@ -68,7 +57,29 @@ class SelfAssessment extends Model
         return $this->belongsTo(Client::class);
     }
 
+    /**
+     * Get the engagement letters for this self assessment.
+     */
+    public function engagementLetters(): HasMany
+    {
+        return $this->hasMany(EngagementLetterSelfAssessment::class);
+    }
 
+    /**
+     * Get the latest engagement letter for this self assessment.
+     */
+    public function latestEngagementLetter()
+    {
+        return $this->hasOne(EngagementLetterSelfAssessment::class)->latestOfMany('sent_at');
+    }
+
+    /**
+     * Check if this self assessment has a signed engagement letter.
+     */
+    public function hasSignedEngagementLetter(): bool
+    {
+        return $this->engagementLetters()->where('is_signed', true)->exists();
+    }
 
     /**
      * Get the internal details for this self assessment.
@@ -164,5 +175,13 @@ class SelfAssessment extends Model
     public function otherDetails(): HasOne
     {
         return $this->hasOne(SelfOtherDetails::class);
+    }
+
+    /**
+     * Get the chat messages for this self assessment.
+     */
+    public function chatMessages(): HasMany
+    {
+        return $this->hasMany(SelfAssessmentChatList::class);
     }
 }

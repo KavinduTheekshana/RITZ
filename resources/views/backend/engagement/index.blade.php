@@ -1,161 +1,3 @@
-@push('styles')
-    <style>
-        /* Modal styling */
-        #pdfModal .modal-xl {
-            max-width: 95vw;
-        }
-
-        #pdfModal .modal-content {
-            height: 90vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #pdfModal .modal-body {
-            flex: 1;
-            overflow: hidden;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* PDF Container styling */
-        .pdf-container {
-            flex: 1;
-            overflow: auto;
-            background-color: #f8f9fa;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 20px;
-            min-height: 0;
-        }
-
-        #pdfCanvas {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border-radius: 4px;
-            background-color: white;
-            max-width: 100%;
-            height: auto;
-        }
-
-        /* Loading and error states */
-        .pdf-loading {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f8f9fa;
-        }
-
-        .pdf-error {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f8f9fa;
-        }
-
-        /* Custom scrollbar */
-        .pdf-container::-webkit-scrollbar {
-            width: 12px;
-            height: 12px;
-        }
-
-        .pdf-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 6px;
-        }
-
-        .pdf-container::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 6px;
-        }
-
-        .pdf-container::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
-
-        /* Page input styling */
-        #pageInput {
-            text-align: center;
-        }
-
-        /* Button states */
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            #pdfModal .modal-xl {
-                max-width: 98vw;
-                margin: 1rem;
-            }
-
-            #pdfModal .modal-content {
-                height: 95vh;
-            }
-
-            .modal-header .btn-group {
-                flex-wrap: wrap;
-                gap: 2px;
-            }
-
-            .modal-footer .d-flex {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            #signatureModal .modal-dialog {
-                max-width: 600px;
-            }
-
-            .signature-form .form-group {
-                margin-bottom: 1.5rem;
-            }
-
-            .signature-form label {
-                font-weight: 600;
-                color: #495057;
-                margin-bottom: 0.5rem;
-            }
-
-            .signature-form .form-control {
-                border: 2px solid #e9ecef;
-                border-radius: 8px;
-                padding: 0.75rem;
-                transition: border-color 0.3s;
-            }
-
-            .signature-form .form-control:focus {
-                border-color: #007bff;
-                box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-            }
-
-            .signature-header {
-                background: linear-gradient(135deg, #007bff, #0056b3);
-                color: white;
-                border-radius: 8px 8px 0 0;
-            }
-
-            .signature-footer {
-                background-color: #f8f9fa;
-                border-radius: 0 0 8px 8px;
-            }
-
-            @media (max-width: 768px) {
-                #signatureModal .modal-dialog {
-                    margin: 1rem;
-                    max-width: calc(100% - 2rem);
-                }
-            }
-        }
-    </style>
-@endpush
 @extends('layouts.backend')
 
 @section('content')
@@ -173,7 +15,6 @@
                                 <p>Companies</p>
                                 @if ($companyLetter->count())
                                     <ul class="list-unstyled">
-
                                         @foreach ($companyLetter as $company)
                                             <li class="pb-3">
                                                 <div class="d-flex align-items-center">
@@ -235,7 +76,8 @@
                                                                 class="btn btn-warning d-inline-flex sign-document-btn"
                                                                 data-bs-toggle="modal" data-bs-target="#signatureModal"
                                                                 data-engagement-id="{{ $company->id }}"
-                                                                data-company-name="{{ $company->company->company_name }}">
+                                                                data-engagement-type="company"
+                                                                data-entity-name="{{ $company->company->company_name }}">
                                                                 <i class="ti ti-writing-sign me-1"></i>Sign Document
                                                             </button>
                                                         @endif
@@ -249,10 +91,82 @@
                                 @endif
                                 <hr>
 
-                                <p>Self Assesment</p>
-                                @if ($selfLetter)
+                                <p>Self Assessment</p>
+                                @if ($selfLetter && count($selfLetter) > 0)
+                                    <ul class="list-unstyled">
+                                        @foreach ($selfLetter as $letter)
+                                            <li class="pb-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avtar avtar-l bg-light-info flex-shrink-0">
+                                                        <i class="ph-duotone ph-file-pdf f-40"></i>
+                                                    </div>
+
+                                                    <div class="flex-grow-1 ms-4">
+                                                        <p class="mb-0 text-muted">Document Name:
+                                                            {{ $letter->file_name }}</p>
+                                                        <p class="mb-0 text-muted">Assessment:
+                                                            {{ $letter->selfAssessment->assessment_name }}
+                                                            <span class="badge bg-light-primary ms-2">Self Assessment</span>
+                                                        </p>
+                                                        @if ($letter->is_signed)
+                                                            <span class="badge bg-light-success">
+                                                                <i class="ti ti-check me-1"></i>Signed by
+                                                                {{ $letter->signer_full_name }}
+                                                            </span>
+                                                            <small class="text-muted d-block">Signed on:
+                                                                {{ \Carbon\Carbon::parse($letter->signed_date)->format('M d, Y') }}</small>
+                                                        @else
+                                                            <span class="badge bg-light-danger">Signature
+                                                                Required</span>
+                                                        @endif
+                                                    </div>
+
+                                                    <div>
+                                                        @if ($letter->is_signed)
+                                                            {{-- Show signed document --}}
+                                                            <button type="button"
+                                                                class="btn btn-secondary d-inline-flex view-pdf-btn"
+                                                                data-bs-toggle="modal" data-bs-target="#pdfModal"
+                                                                data-url="{{ asset('storage/' . $letter->signed_file_path) }}">
+                                                                <i class="ti ti-eye me-1"></i>View Signed
+                                                            </button>
+
+                                                            <a href="{{ asset('storage/' . $letter->signed_file_path) }}"
+                                                                download type="button"
+                                                                class="btn btn-success d-inline-flex">
+                                                                <i class="ti ti-arrow-big-down me-1"></i>Download Signed
+                                                            </a>
+                                                        @else
+                                                            {{-- Show unsigned document --}}
+                                                            <button type="button"
+                                                                class="btn btn-secondary d-inline-flex view-pdf-btn"
+                                                                data-bs-toggle="modal" data-bs-target="#pdfModal"
+                                                                data-url="{{ asset('storage/' . $letter->file_path) }}">
+                                                                <i class="ti ti-eye me-1"></i>View
+                                                            </button>
+
+                                                            <a href="{{ asset('storage/' . $letter->file_path) }}"
+                                                                download type="button"
+                                                                class="btn btn-success d-inline-flex">
+                                                                <i class="ti ti-arrow-big-down me-1"></i>Download
+                                                            </a>
+
+                                                            <button type="button"
+                                                                class="btn btn-warning d-inline-flex sign-document-btn"
+                                                                data-bs-toggle="modal" data-bs-target="#signatureModal"
+                                                                data-engagement-id="{{ $letter->id }}"
+                                                                data-engagement-type="self_assessment"
+                                                                data-entity-name="{{ $letter->selfAssessment->assessment_name }}">
+                                                                <i class="ti ti-writing-sign me-1"></i>Sign Document
+                                                            </button>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    </ul>
                                 @else
-                                    <p>No self assessment data found.</p>
+                                    <p>No self assessment engagement letters found.</p>
                                 @endif
 
                             </div>
@@ -349,8 +263,6 @@
     </div>
 </div>
 
-
-{{-- ADD this signature modal AFTER your existing PDF modal (before @endsection) --}}
 {{-- Signature Modal --}}
 <div class="modal fade" id="signatureModal" tabindex="-1" aria-labelledby="signatureModalLabel"
     aria-hidden="true">
@@ -367,13 +279,14 @@
             <form id="signatureForm" action="{{ route('client.engagement.sign') }}" method="POST">
                 @csrf
                 <input type="hidden" id="engagement_id" name="engagement_id" value="">
+                <input type="hidden" id="engagement_type" name="engagement_type" value="">
 
                 <div class="modal-body">
                     <div class="signature-form">
                         <div class="alert alert-info">
                             <i class="ti ti-info-circle me-2"></i>
                             You are about to sign the engagement letter for <strong><span
-                                    id="companyNameDisplay"></span></strong>.
+                                    id="entityNameDisplay"></span></strong>.
                             Please fill in your details below.
                         </div>
 
@@ -440,7 +353,157 @@
 </div>
 @endsection
 
+@push('styles')
+    <style>
+        /* Modal styling */
+        #pdfModal .modal-xl {
+            max-width: 95vw;
+        }
 
+        #pdfModal .modal-content {
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #pdfModal .modal-body {
+            flex: 1;
+            overflow: hidden;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* PDF Container styling */
+        .pdf-container {
+            flex: 1;
+            overflow: auto;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            min-height: 0;
+        }
+
+        #pdfCanvas {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+            background-color: white;
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Loading and error states */
+        .pdf-loading {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f8f9fa;
+        }
+
+        .pdf-error {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f8f9fa;
+        }
+
+        /* Custom scrollbar */
+        .pdf-container::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        .pdf-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 6px;
+        }
+
+        .pdf-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 6px;
+        }
+
+        .pdf-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Page input styling */
+        #pageInput {
+            text-align: center;
+        }
+
+        /* Button states */
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Signature Modal Styles */
+        .signature-header {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .signature-footer {
+            background-color: #f8f9fa;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .signature-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .signature-form label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        .signature-form .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem;
+            transition: border-color 0.3s;
+        }
+
+        .signature-form .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #pdfModal .modal-xl {
+                max-width: 98vw;
+                margin: 1rem;
+            }
+
+            #pdfModal .modal-content {
+                height: 95vh;
+            }
+
+            .modal-header .btn-group {
+                flex-wrap: wrap;
+                gap: 2px;
+            }
+
+            .modal-footer .d-flex {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #signatureModal .modal-dialog {
+                margin: 1rem;
+                max-width: calc(100% - 2rem);
+            }
+        }
+    </style>
+@endpush
 
 @push('scripts')
 {{-- Include PDF.js library --}}
@@ -735,13 +798,13 @@
     });
 </script>
 
-
 <script>
     // Signature modal elements
     const signatureModal = document.getElementById('signatureModal');
     const signatureForm = document.getElementById('signatureForm');
     const engagementIdInput = document.getElementById('engagement_id');
-    const companyNameDisplay = document.getElementById('companyNameDisplay');
+    const engagementTypeInput = document.getElementById('engagement_type');
+    const entityNameDisplay = document.getElementById('entityNameDisplay');
     const submitButton = document.getElementById('submitSignature');
     const signingSpinner = document.getElementById('signingSpinner');
 
@@ -749,14 +812,18 @@
     document.querySelectorAll('.sign-document-btn').forEach(function(button) {
         button.addEventListener('click', function() {
             const engagementId = this.getAttribute('data-engagement-id');
-            const companyName = this.getAttribute('data-company-name');
+            const engagementType = this.getAttribute('data-engagement-type');
+            const entityName = this.getAttribute('data-entity-name');
+            
             engagementIdInput.value = engagementId;
-            companyNameDisplay.textContent = companyName;
+            engagementTypeInput.value = engagementType;
+            entityNameDisplay.textContent = entityName;
 
             // Reset form
             signatureForm.reset();
             document.getElementById('signed_date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('engagement_id').value = engagementId; // Reset this after form reset
+            document.getElementById('engagement_id').value = engagementId;
+            document.getElementById('engagement_type').value = engagementType;
         });
     });
 
@@ -770,7 +837,7 @@
         submitButton.disabled = true;
         signingSpinner.classList.remove('d-none');
 
-        // Capture browser data - PUT THIS BACK
+        // Capture browser data
         const browserData = {
             userAgent: navigator.userAgent,
             platform: navigator.platform,
@@ -796,7 +863,7 @@
         // Submit form via fetch
         fetch(this.action, {
                 method: 'POST',
-                body: formData, // This now includes browser_data
+                body: formData,
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': csrfToken ? csrfToken.getAttribute('content') : ''

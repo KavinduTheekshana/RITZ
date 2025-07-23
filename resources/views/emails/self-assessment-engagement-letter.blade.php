@@ -40,24 +40,14 @@
             color: #8DC63F;
             margin-bottom: 20px;
         }
-        .company-info {
+        .content ul {
             background-color: #f8faf9;
             border-left: 4px solid #8DC63F;
-            padding: 20px;
+            padding: 20px 20px 20px 40px;
             margin: 20px 0;
         }
-        .services-list {
-            background-color: #f8faf9;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-        }
-        .services-list ul {
-            margin: 10px 0;
-            padding-left: 20px;
-        }
-        .services-list li {
-            margin-bottom: 8px;
+        .content ul li {
+            margin-bottom: 10px;
             color: #555;
         }
         .cta-section {
@@ -117,13 +107,6 @@
             border-top: 1px solid #e0e0e0;
             text-align: center;
         }
-        .highlight-box {
-            background-color: #e8f5e9;
-            border: 1px solid #8DC63F;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 5px;
-        }
     </style>
 </head>
 <body>
@@ -136,59 +119,35 @@
         
         <!-- Main Content -->
         <div class="content">
-            <p>Dear {{ $companyName }},</p>
+            <p>Dear Client,</p>
 
-            <h3>Your Company Engagement Letter is Ready for Review</h3>
+            <h3>Your Self Assessment Engagement Letter is Ready</h3>
 
-            <p>We are delighted to confirm our engagement to provide comprehensive accounting and tax services to your company. This letter sets out the terms of our professional relationship.</p>
+            <p>We are pleased to confirm our engagement to provide self assessment tax services. This engagement letter outlines the terms of our professional relationship.</p>
 
-            <div class="company-info">
-                <strong>Company: {{ $companyName }}</strong><br>
-                <p style="margin-top: 10px;">This engagement covers all agreed professional services for your company's accounting and tax requirements.</p>
-            </div>
-
-            <div class="services-list">
-                <h3 style="color: #8DC63F; margin-top: 0;">Our Services Include:</h3>
-                <ul>
-                    <li>Annual accounts preparation and filing</li>
-                    <li>Corporation tax computation and returns</li>
-                    <li>VAT returns and compliance</li>
-                    <li>Payroll services and RTI submissions</li>
-                    <li>Company secretarial services</li>
-                    <li>Management accounts and reporting</li>
-                    <li>Tax planning and advisory services</li>
-                    <li>HMRC correspondence and representation</li>
-                </ul>
-            </div>
+            <p><strong>What's included in our engagement:</strong></p>
+            <ul>
+                <li>Comprehensive self assessment tax services</li>
+                <li>Expert guidance on tax planning and compliance</li>
+                <li>Timely submission of your tax returns</li>
+                <li>Year-round support for tax-related queries</li>
+                <li>Professional representation with HMRC when needed</li>
+            </ul>
 
             <div class="divider"></div>
 
             <div class="cta-section">
-                <h3 style="color: #8DC63F; margin-top: 0;">Action Required</h3>
-                <p>Please review the engagement letter carefully. Once you're satisfied with the terms, you can sign it electronically through your secure client portal.</p>
-                <a href="{{ url('/client/engagement') }}" class="cta-button">Access Client Portal</a>
+                <h3 style="color: #8DC63F; margin-top: 0;">Next Steps</h3>
+                <p>Please review the engagement terms carefully. Once you're ready to proceed, you can sign the engagement letter through your client portal.</p>
+                <a href="{{ url('/client/engagement') }}" class="cta-button">View & Sign Engagement Letter</a>
             </div>
 
-            <div class="highlight-box">
-                <strong>Why Choose RITZ Accounting?</strong>
-                <p style="margin-top: 10px; margin-bottom: 0;">
-                    ✓ Experienced chartered accountants<br>
-                    ✓ Proactive tax planning approach<br>
-                    ✓ Fixed fee arrangements available<br>
-                    ✓ Year-round support and advice
-                </p>
-            </div>
+            <p><strong>Important Information:</strong></p>
+            <p>This engagement letter details our mutual responsibilities and the scope of services we'll provide. Please ensure you understand all terms before signing.</p>
 
-            <p><strong>Next Steps:</strong></p>
-            <ol style="color: #555;">
-                <li>Review the engagement letter terms</li>
-                <li>Sign electronically via your client portal</li>
-                <li>Return one signed copy for our records</li>
-            </ol>
+            <p>If you have any questions or need clarification on any aspect of the engagement letter, please don't hesitate to contact us.</p>
 
-            <p>If you have any questions regarding this engagement letter or need clarification on any terms, please don't hesitate to contact us. We're here to help.</p>
-
-            <p>We look forward to a successful partnership and helping your business achieve its financial goals.</p>
+            <p>We look forward to working with you on your self assessment tax matters.</p>
 
             <p style="margin-top: 30px;">
                 <strong>Best regards,</strong><br>

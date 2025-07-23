@@ -15,6 +15,7 @@ use Filament\Actions\Action;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\WithFileUploads;
+use Filament\Forms\Components\Toggle;
 
 class CompanyChat extends Page
 {
@@ -70,26 +71,30 @@ class CompanyChat extends Page
         ];
     }
 
-    protected function getForms(): array
-    {
-        return [
-            'sendMessageForm' => $this->sendMessageForm(
-                $this->makeForm()
-                    ->schema([
-                        Textarea::make('message')
-                            ->label('Message')
-                            ->placeholder('Type your message here...')
-                            ->rows(3)
-                            ->maxLength(1000),
+  protected function getForms(): array
+{
+    return [
+        'sendMessageForm' => $this->makeForm()
+            ->schema([
+                Textarea::make('message')
+                    ->label('Message')
+                    ->placeholder('Type your message here...')
+                    ->rows(3)
+                    ->maxLength(1000),
 
-                        ViewField::make('custom_file_upload')
-                            ->view('filament.company.custom-file-upload')
-                            ->label('Attach File'),
-                    ])
-                    ->statePath('sendMessageData')
-            ),
-        ];
-    }
+                ViewField::make('custom_file_upload')
+                    ->view('filament.company.custom-file-upload')
+                    ->label('Attach File'),
+                    
+                Toggle::make('requires_signature')
+                    ->label('Require client signature')
+                    ->helperText('Check this if the client needs to sign the attached PDF document')
+                    ->visible(fn () => $this->uploadedFile !== null && $this->uploadedFile->getMimeType() === 'application/pdf')
+                    ->default(false),
+            ])
+            ->statePath('sendMessageData')
+    ];
+}
 
     protected function sendMessageForm(Form $form): Form
     {
@@ -103,54 +108,61 @@ class CompanyChat extends Page
         $this->dispatch('file-removed');
     }
 
-    public function sendMessage(): void
-    {
-        $data = $this->sendMessageForm->getState();
+   public function sendMessage(): void
+{
+    $data = $this->sendMessageForm->getState();
 
-        // Validate that either message or file is provided
-        if (empty($data['message']) && !$this->uploadedFile) {
-            Notification::make()
-                ->title('Error')
-                ->body('Please provide either a message or attach a file.')
-                ->danger()
-                ->send();
-            return;
-        }
-
-        $chatData = [
-            'company_id' => $this->record->id,
-            'user_id' => Auth::id(),
-            'sender_type' => 'admin',
-            'sender_name' => Auth::user()->name,
-            'sender_email' => Auth::user()->email,
-            'message' => $data['message'] ?? null,
-        ];
-
-        // Handle file upload
-        if ($this->uploadedFile) {
-            $path = $this->uploadedFile->store('company-chat', 'public');
-            
-            $chatData['file_path'] = $path;
-            $chatData['file_name'] = $this->uploadedFile->getClientOriginalName();
-            $chatData['file_size'] = $this->uploadedFile->getSize();
-            $chatData['file_type'] = $this->uploadedFile->getMimeType();
-        }
-
-        CompanyChatList::create($chatData);
-
-        // Clear everything
-        $this->sendMessageData = ['message' => ''];
-        $this->uploadedFile = null;
-        $this->uploadedFileName = '';
-        $this->dispatch('clear-file-input');
-
+    // Validate that either message or file is provided
+    if (empty($data['message']) && !$this->uploadedFile) {
         Notification::make()
-            ->title('Message Sent')
-            ->body('Your message has been sent successfully.')
-            ->success()
+            ->title('Error')
+            ->body('Please provide either a message or attach a file.')
+            ->danger()
             ->send();
+        return;
     }
 
+    $chatData = [
+        'company_id' => $this->record->id,
+        'user_id' => Auth::id(),
+        'sender_type' => 'admin',
+        'sender_name' => Auth::user()->name,
+        'sender_email' => Auth::user()->email,
+        'message' => $data['message'] ?? null,
+        'sent_at' => now(), // ADD THIS LINE - Critical for messages to show up
+        'is_read' => false, // ADD THIS LINE - So clients see unread messages
+    ];
+
+    // Handle file upload
+    if ($this->uploadedFile) {
+        $path = $this->uploadedFile->store('company-chat', 'public');
+        
+        $chatData['file_path'] = $path;
+        $chatData['file_name'] = $this->uploadedFile->getClientOriginalName();
+        $chatData['file_size'] = $this->uploadedFile->getSize();
+        $chatData['file_type'] = $this->uploadedFile->getMimeType();
+        
+        // Check if signature is required (will add this field to form)
+        $chatData['requires_signature'] = $data['requires_signature'] ?? false;
+    }
+
+    CompanyChatList::create($chatData);
+
+    // Clear everything
+    $this->sendMessageData = ['message' => '', 'requires_signature' => false];
+    $this->uploadedFile = null;
+    $this->uploadedFileName = '';
+    $this->dispatch('clear-file-input');
+    
+    // Refresh the chat messages
+    $this->dispatch('$refresh');
+
+    Notification::make()
+        ->title('Message Sent')
+        ->body('Your message has been sent successfully.')
+        ->success()
+        ->send();
+}
     public function getChatMessages()
     {
         return CompanyChatList::where('company_id', $this->record->id)

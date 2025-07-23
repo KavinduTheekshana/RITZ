@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\EngagementLetterCompany;
-use App\Models\EngagementLetterDetails;
+use App\Models\EngagementLetterSelfAssessment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -17,13 +17,18 @@ class EngagementController extends Controller
     {
         $client = Auth::guard('client')->user();
 
+        // Get company engagement letters
         $companyLetter = $client->companies()
             ->with('engagementLetters')
             ->get()
             ->pluck('engagementLetters')
             ->flatten();
 
+        // Get self assessment engagement letters
         $selfLetter = null;
+        if ($client->selfAssessment) {
+            $selfLetter = $client->selfAssessment->engagementLetters;
+        }
 
         return view('backend.engagement.index', compact('companyLetter', 'selfLetter'));
     }
@@ -33,13 +38,15 @@ class EngagementController extends Controller
         // Log the incoming request for debugging
         Log::info('Sign request received', [
             'engagement_id' => $request->engagement_id,
+            'engagement_type' => $request->engagement_type,
             'signer_full_name' => $request->signer_full_name,
             'browser_data' => $request->browser_data ? 'Present' : 'Missing',
             'ip' => $request->ip()
         ]);
 
         $request->validate([
-            'engagement_id' => 'required|exists:engagement_letter_companies,id',
+            'engagement_id' => 'required|integer',
+            'engagement_type' => 'required|in:company,self_assessment',
             'signer_full_name' => 'required|string|max:255',
             'signer_print_name' => 'required|string|max:255',
             'signer_email' => 'required|email|max:255',
@@ -48,7 +55,29 @@ class EngagementController extends Controller
         ]);
 
         try {
-            $engagement = EngagementLetterCompany::findOrFail($request->engagement_id);
+            $client = Auth::guard('client')->user();
+            
+            if ($request->engagement_type === 'company') {
+                $engagement = EngagementLetterCompany::findOrFail($request->engagement_id);
+                
+                // Verify that the engagement belongs to the authenticated client's company
+                if (!$client->companies->contains('id', $engagement->company_id)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Unauthorized access to this document.'
+                    ]);
+                }
+            } else {
+                $engagement = EngagementLetterSelfAssessment::findOrFail($request->engagement_id);
+                
+                // Verify that the engagement belongs to the authenticated client's self assessment
+                if (!$client->selfAssessment || $client->selfAssessment->id !== $engagement->self_assessment_id) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Unauthorized access to this document.'
+                    ]);
+                }
+            }
 
             // Check if already signed
             if ($engagement->is_signed) {
@@ -58,19 +87,10 @@ class EngagementController extends Controller
                 ]);
             }
 
-            // Verify that the engagement belongs to the authenticated client's company
-            $client = Auth::guard('client')->user();
-            if (!$client->companies->contains('id', $engagement->company_id)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized access to this document.'
-                ]);
-            }
-
             // Create signed PDF
-            $signedPdfPath = $this->createSignedPdf($engagement, $request->all());
+            $signedPdfPath = $this->createSignedPdf($engagement, $request->all(), $request->engagement_type);
 
-            // Update the engagement record - MAKE SURE both ip and browser_data are included
+            // Update the engagement record
             $updateData = [
                 'signer_full_name' => $request->signer_full_name,
                 'signer_print_name' => $request->signer_print_name,
@@ -91,6 +111,7 @@ class EngagementController extends Controller
             // Log successful update
             Log::info('Document signed successfully', [
                 'engagement_id' => $engagement->id,
+                'engagement_type' => $request->engagement_type,
                 'ip_saved' => $engagement->ip,
                 'browser_data_saved' => $engagement->browser_data ? 'Yes' : 'No'
             ]);
@@ -113,15 +134,24 @@ class EngagementController extends Controller
         }
     }
 
-    private function createSignedPdf($engagement, $signatureData)
-    {
-        try {
-            // Get the original PDF path
-            $originalPdfPath = storage_path('app/public/' . $engagement->file_path);
-
-            if (!file_exists($originalPdfPath)) {
+  private function createSignedPdf($engagement, $signatureData, $type)
+{
+    try {
+        // Fix path separator issue
+        $originalPdfPath = storage_path('app/public/' . str_replace('\\', '/', $engagement->file_path));
+        
+        // Log the path for debugging
+        Log::info('Looking for PDF at: ' . $originalPdfPath);
+        
+        if (!file_exists($originalPdfPath)) {
+            // Try alternative path format
+            $alternativePath = storage_path('app/' . str_replace('\\', '/', $engagement->file_path));
+            if (file_exists($alternativePath)) {
+                $originalPdfPath = $alternativePath;
+            } else {
                 throw new \Exception('Original PDF file not found: ' . $originalPdfPath);
             }
+        }
 
             // Initialize FPDI
             $pdf = new Fpdi();
@@ -149,7 +179,13 @@ class EngagementController extends Controller
             $pdf->Cell(0, 10, 'Document Information', 0, 1);
             $pdf->SetFont('Arial', '', 12);
             $pdf->Cell(0, 8, 'Document: Engagement Letter', 0, 1);
-            $pdf->Cell(0, 8, 'Company: ' . $engagement->company->company_name, 0, 1);
+            
+            if ($type === 'company') {
+                $pdf->Cell(0, 8, 'Company: ' . $engagement->company->company_name, 0, 1);
+            } else {
+                $pdf->Cell(0, 8, 'Self Assessment: ' . $engagement->selfAssessment->assessment_name, 0, 1);
+            }
+            
             $pdf->Ln(10);
 
             // Signer Information Table
@@ -256,15 +292,18 @@ class EngagementController extends Controller
 
             $pdf->Ln(20);
 
-
-
             // Footer disclaimer
             $pdf->Ln(25);
             $pdf->SetFont('Arial', 'I', 8);
             $pdf->MultiCell(0, 4, 'This document has been electronically signed and is legally binding. The signature above was applied electronically and verified through digital means including IP address tracking and browser identification.', 0, 'C');
 
             // Generate unique filename for signed PDF
-            $signedFileName = 'engagement_letters/signed_' . $engagement->id . '_' . time() . '.pdf';
+            if ($type === 'company') {
+                $signedFileName = 'engagement_letters/signed_company_' . $engagement->company_id . '_' . time() . '.pdf';
+            } else {
+                $signedFileName = 'engagement_letters/self_assessments/signed_self_' . $engagement->self_assessment_id . '_' . time() . '.pdf';
+            }
+            
             $signedPdfPath = storage_path('app/public/' . $signedFileName);
 
             // Ensure directory exists
