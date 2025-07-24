@@ -33,7 +33,7 @@
     <link rel="stylesheet" href="{{ asset('backend/css/style-preset.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('backend/css/custom.css') }}" media="all">
       @stack('styles')
-    @vite(['', 'resources/js/app.js'])
+    {{-- @vite(['', 'resources/js/app.js']) --}}
 
 </head>
 <!-- [Head] end -->
