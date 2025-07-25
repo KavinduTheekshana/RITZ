@@ -36,6 +36,10 @@ Route::prefix('client')->middleware(['auth.client'])->group(function () {
     Route::get('/dashboard', [ClientDashboardController::class, 'index'])->name('client.dashboard');
     Route::get('/profile', [ClientController::class, 'profile'])->name('client.profile');
 
+
+    Route::put('/profile/password', [ClientController::class, 'updatePassword'])->name('client.password.update');
+
+
     Route::get('/engagement', [EngagementController::class, 'engagement'])->name('client.engagement');
     Route::post('/engagement/sign', [EngagementController::class, 'sign'])->name('client.engagement.sign');
 
