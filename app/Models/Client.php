@@ -106,4 +106,10 @@ class Client extends Authenticatable
     {
         return $this->selfAssessment()->exists();
     }
+
+
+public function chatMessages()
+{
+    return $this->hasMany(CompanyChatList::class);
+}
 }
