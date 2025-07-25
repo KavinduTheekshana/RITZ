@@ -472,4 +472,32 @@ public function signDocument(Request $request)
         throw new \Exception('Failed to create signed PDF: ' . $e->getMessage());
     }
 }
+
+
+/**
+ * Download attachment with proper filename
+ */
+public function downloadAttachment(CompanyChatList $message)
+{
+    $client = Auth::guard('client')->user();
+    
+    // Verify access
+    if (!$client->companies->contains('id', $message->company_id)) {
+        abort(403);
+    }
+    
+    if (!$message->file_path) {
+        abort(404, 'File not found');
+    }
+    
+    $filePath = storage_path('app/public/' . $message->file_path);
+    
+    if (!file_exists($filePath)) {
+        abort(404, 'File not found');
+    }
+    
+    return response()->download($filePath, $message->file_name);
+}
+
+
 }

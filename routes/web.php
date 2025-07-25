@@ -10,6 +10,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ServiceController;
 use App\Mail\EngagementLetter;
 use Illuminate\Support\Facades\Route;
+use App\Models\CompanyChatList;
+use App\Models\SelfAssessmentChatList;
 
 Route::get('/', [HomeController::class, 'index'])->name('/');
 Route::get('contact', [HomeController::class, 'contact'])->name('contact');
@@ -57,7 +59,44 @@ Route::prefix('client')->middleware(['auth.client'])->group(function () {
     Route::post('/self-assessment/chat/send', [App\Http\Controllers\SelfAssessmentChatController::class, 'sendMessage'])->name('client.self-assessment.chat.send');
     Route::get('/self-assessment/chat/unread-counts', [App\Http\Controllers\SelfAssessmentChatController::class, 'getUnreadCounts'])->name('client.self-assessment.chat.unread');
     Route::post('/self-assessment/chat/sign-document', [App\Http\Controllers\SelfAssessmentChatController::class, 'signDocument'])->name('client.self-assessment.chat.sign-document');
+
+    Route::get('/chat/download/{message}', [App\Http\Controllers\ClientChatController::class, 'downloadAttachment'])->name('client.chat.download');
+    Route::get('/self-assessment/chat/download/{message}', [App\Http\Controllers\SelfAssessmentChatController::class, 'downloadAttachment'])->name('client.self-assessment.chat.download');
+
+
 });
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/admin/chat/download/company/{message}', function(CompanyChatList $message) {
+        if (!$message->file_path) {
+            abort(404, 'File not found');
+        }
+        
+        $filePath = storage_path('app/public/' . $message->file_path);
+        
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found');
+        }
+        
+        return response()->download($filePath, $message->file_name);
+    })->name('admin.chat.download.company');
+    
+    Route::get('/admin/chat/download/self-assessment/{message}', function(SelfAssessmentChatList $message) {
+        if (!$message->file_path) {
+            abort(404, 'File not found');
+        }
+        
+        $filePath = storage_path('app/public/' . $message->file_path);
+        
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found');
+        }
+        
+        return response()->download($filePath, $message->file_name);
+    })->name('admin.chat.download.self-assessment');
+});
+
 
 Route::fallback(function () {
     abort(404);

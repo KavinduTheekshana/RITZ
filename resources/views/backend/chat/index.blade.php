@@ -1315,33 +1315,42 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
             } else {
-                // For regular files, check if it's a PDF
-                const isPdf = message.file_type && message.file_type.includes('pdf');
-                fileAttachment = `
-                    <div class="file-attachment">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div class="flex-grow-1">
-                                <div class="d-flex align-items-center">
-                                    <i class="ph-duotone ph-file me-2"></i>
-                                    <span class="text-decoration-none ${isFromClient ? '' : 'text-primary'}">
-                                        ${message.file_name}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="d-flex gap-2">
-                                ${isPdf ? `
-                                    <button class="btn btn-outline-secondary btn-sm" onclick="viewPdfInApp('${message.file_url}')" title="View Document">
-                                        <i class="ti ti-eye"></i> View
-                                    </button>
-                                ` : ''}
-                                <a href="${message.file_url}" download class="btn btn-outline-primary btn-sm" title="Download">
-                                    <i class="ti ti-download"></i> Download
-                                </a>
-                            </div>
-                        </div>
+    // For regular files, check if it's a PDF
+    const isPdf = message.file_type && message.file_type.includes('pdf');
+    fileAttachment = `
+        <div class="file-attachment">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="flex-grow-1">
+                    <div class="d-flex align-items-center">
+                        <i class="ph-duotone ph-file me-2"></i>
+                        <span class="text-decoration-none ${isFromClient ? '' : 'text-primary'}">
+                            ${message.file_name}
+                        </span>
                     </div>
-                `;
-            }
+                </div>
+                <div class="d-flex gap-2">
+                    ${isPdf ? `
+                        <button class="btn btn-outline-secondary btn-sm" onclick="viewPdfInApp('${message.file_url}')" title="View Document">
+                            <i class="ti ti-eye"></i> View
+                        </button>
+                    ` : ''}
+                    ${(() => {
+                        // Determine the download URL based on chat type
+                        let downloadUrl;
+                        if (currentCompanyId.startsWith('self-assessment-')) {
+                            downloadUrl = `/client/self-assessment/chat/download/${message.id}`;
+                        } else {
+                            downloadUrl = `/client/chat/download/${message.id}`;
+                        }
+                        return `<a href="${downloadUrl}" class="btn btn-outline-primary btn-sm" title="Download">
+                            <i class="ti ti-download"></i> Download
+                        </a>`;
+                    })()}
+                </div>
+            </div>
+        </div>
+    `;
+}
         }
 
         messageDiv.innerHTML = `
