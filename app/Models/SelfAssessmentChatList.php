@@ -168,4 +168,22 @@ class SelfAssessmentChatList extends Model
     {
         return $this->sender_type === 'system';
     }
+
+    /**
+ * Get the proper download URL for normal attachments
+ */
+public function getDownloadUrlAttribute(): ?string
+{
+    if (!$this->file_path) {
+        return null;
+    }
+    
+    // For admin (when accessed from Filament)
+    if (auth()->check()) {
+        return route('admin.chat.download.self-assessment', $this->id);
+    }
+    
+    // For client
+    return route('client.self-assessment.chat.download', $this->id);
+}
 }

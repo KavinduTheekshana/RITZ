@@ -107,4 +107,29 @@ class Company extends Model
     {
         return $this->hasMany(EngagementLetterCompany::class);
     }
+
+public function accountsAndReturnsDetail()
+{
+    return $this->hasOne(AccountsAndReturnsDetail::class);
+}
+
+public function vatDetail()
+{
+    return $this->hasOne(VatDetail::class);
+}
+
+public function payeDetail()
+{
+    return $this->hasOne(PayeDetail::class);
+}
+
+public function companyInternalDetail()
+{
+    return $this->hasOne(CompanyInternalDetail::class);
+}
+
+public function chatMessages()
+{
+    return $this->hasMany(CompanyChatList::class);
+}
 }

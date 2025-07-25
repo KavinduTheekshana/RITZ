@@ -1,4 +1,5 @@
 <?php
+// app/Providers/Filament/AdminPanelProvider.php
 
 namespace App\Providers\Filament;
 
@@ -17,6 +18,17 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+
+// Import only the working widgets
+use App\Filament\Widgets\SimpleOverviewWidget;
+use App\Filament\Widgets\FinancialServicesWidget;
+use App\Filament\Widgets\TaxComplianceWidget;
+use App\Filament\Widgets\CommunicationsWidget;
+use App\Filament\Widgets\ContentManagementWidget;
+use App\Filament\Widgets\RevenueBreakdownChart;
+use App\Filament\Widgets\CompanyAnalyticsChart;
+use App\Filament\Widgets\ActivityTimelineChart;
+use App\Filament\Widgets\QuickActionsWidget;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -37,8 +49,16 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Start with working widgets only
+                SimpleOverviewWidget::class,
+                FinancialServicesWidget::class,
+                TaxComplianceWidget::class,
+                CommunicationsWidget::class,
+                ContentManagementWidget::class,
+                QuickActionsWidget::class,
+                RevenueBreakdownChart::class,
+                CompanyAnalyticsChart::class,
+                ActivityTimelineChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,

@@ -219,4 +219,25 @@ public function isPdf(): bool
     {
         return $query->where('is_read', false);
     }
+
+
+    /**
+ * Get the proper download URL for normal attachments
+ */
+public function getDownloadUrlAttribute(): ?string
+{
+    if (!$this->file_path) {
+        return null;
+    }
+    
+    // For admin (when accessed from Filament)
+    if (auth()->check()) {
+        return route('admin.chat.download.company', $this->id);
+    }
+    
+    // For client
+    return route('client.chat.download', $this->id);
+}
+
+
 }
