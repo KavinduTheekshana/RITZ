@@ -180,8 +180,9 @@
             </div>
             
             <form id="documentSignatureForm">
-                <input type="hidden" id="chat_message_id" name="chat_message_id">
-                <input type="hidden" id="message_id" name="message_id">
+                 @csrf
+                <input type="text" id="chat_message_id" name="chat_message_id">
+                <input type="text" id="message_id" name="message_id">
                 
                 <div class="modal-body">
                     <div class="signature-form">
@@ -194,7 +195,7 @@
                             <label for="signer_full_name" class="form-label">
                                 <i class="ph-duotone ph-user me-1"></i>Full Name *
                             </label>
-                            <input type="text" class="form-control" id="signer_full_name" name="signer_full_name" 
+                            <input type="text" class="form-control" id="signer_full_name" name="signer_full_name"  value="XXXXX"
                                    required placeholder="Enter your full legal name">
                             <small class="form-text text-muted">Enter your name as it appears on legal documents</small>
                         </div>
@@ -203,7 +204,7 @@
                             <label for="signer_print_name" class="form-label">
                                 <i class="ph-duotone ph-signature me-1"></i>Print Name *
                             </label>
-                            <input type="text" class="form-control" id="signer_print_name" name="signer_print_name" 
+                            <input type="text" class="form-control" id="signer_print_name" name="signer_print_name"  value="XXXXX"
                                    required placeholder="Enter your printed name">
                             <small class="form-text text-muted">How your name should appear in print</small>
                         </div>
@@ -212,7 +213,7 @@
                             <label for="signer_email" class="form-label">
                                 <i class="ph-duotone ph-envelope me-1"></i>Email Address *
                             </label>
-                            <input type="email" class="form-control" id="signer_email" name="signer_email" 
+                            <input type="email" class="form-control" id="signer_email" name="signer_email"  value="xxxx@xxxx.xxx"
                                    required placeholder="Enter your email address">
                             <small class="form-text text-muted">We'll send a copy of the signed document to this email</small>
                         </div>
@@ -221,7 +222,7 @@
                             <label for="signed_date" class="form-label">
                                 <i class="ph-duotone ph-calendar me-1"></i>Signature Date *
                             </label>
-                            <input type="date" class="form-control" id="signed_date" name="signed_date" 
+                            <input type="date" class="form-control" id="signed_date" name="signed_date"
                                    required value="{{ date('Y-m-d') }}">
                             <small class="form-text text-muted">Date you are signing this document</small>
                         </div>
@@ -568,7 +569,6 @@
 
     /* Signature Modal Styles */
     .signature-header {
-        background: linear-gradient(135deg, #007bff, #0056b3);
         color: white;
         border-radius: 8px 8px 0 0;
     }
@@ -1034,8 +1034,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: formData
             });
             
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+         if (!response.ok) {
+             const errorData = await response.json(); // Parse the JSON body
+        throw new Error(`HTTP error! ${errorData.message || 'Unknown error'}`);
             }
             
             const contentType = response.headers.get("content-type");

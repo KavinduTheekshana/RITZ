@@ -444,7 +444,6 @@
 
         /* Signature Modal Styles */
         .signature-header {
-            background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
             border-radius: 8px 8px 0 0;
         }
@@ -759,7 +758,7 @@
 
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(async () => {
-                if (fitMode !== 'manual') {
+                if (fitMode !== 'width') {
                     await calculateScale();
                     await renderPage(currentPage);
                 }
@@ -790,7 +789,7 @@
 
         // Handle modal shown (recalculate scale if needed)
         pdfModal.addEventListener('shown.bs.modal', async function() {
-            if (pdfDoc && fitMode !== 'manual') {
+            if (pdfDoc && fitMode !== 'width') {
                 await calculateScale();
                 await renderPage(currentPage);
             }

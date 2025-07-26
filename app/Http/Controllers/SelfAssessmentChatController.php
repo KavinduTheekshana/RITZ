@@ -175,6 +175,15 @@ public function signDocument(Request $request)
         'browser_data' => 'nullable|string',
     ]);
 
+    Log::info('Signing self assessment document', [
+        'message_id' => $request->message_id,
+        'signer_full_name' => $request->signer_full_name,
+        'signer_print_name' => $request->signer_print_name,
+        'signer_email' => $request->signer_email,
+        'signed_date' => $request->signed_date,
+        'browser_data' => $request->browser_data,
+    ]);
+
     try {
         $client = Auth::guard('client')->user();
         $message = SelfAssessmentChatList::findOrFail($request->message_id);
@@ -263,7 +272,7 @@ public function signDocument(Request $request)
 
         return response()->json([
             'success' => false,
-            'message' => 'An error occurred while signing the document. Please try again.'
+            'message' => $e->getMessage()
         ], 500);
     }
 }
