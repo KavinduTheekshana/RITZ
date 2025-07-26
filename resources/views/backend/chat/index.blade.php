@@ -21,7 +21,9 @@
                                     <a href="#"
                                         class="list-group-item list-group-item-action company-chat-link {{ $loop->first ? 'active' : '' }}"
                                         data-company-id="{{ $company->id }}"
-                                        data-company-name="{{ $company->company_name }}">
+                                        data-company-name="{{ $company->company_name }}"
+                                        role="button"
+                                        aria-label="Select {{ $company->company_name }} for messaging">
                                         <div class="d-flex w-100 justify-content-between align-items-center">
                                             <div>
                                                 <h6 class="mb-1">{{ $company->company_name }}</h6>
@@ -32,7 +34,8 @@
                                             </div>
                                             <div class="d-flex flex-column align-items-end">
                                                 <span class="badge bg-primary rounded-pill d-none"
-                                                    id="unreadCount-{{ $company->id }}">
+                                                    id="unreadCount-{{ $company->id }}"
+                                                    aria-label="Unread messages">
                                                     0
                                                 </span>
                                                 <small class="text-muted" id="lastTime-{{ $company->id }}"></small>
@@ -43,7 +46,7 @@
                             </div>
                         @else
                             <div class="text-center p-4">
-                                <i class="ph-duotone ph-buildings f-40 text-muted"></i>
+                                <i class="ph-duotone ph-buildings f-40 text-muted" aria-hidden="true"></i>
                                 <p class="text-muted mt-2">No companies linked to your account.</p>
                             </div>
                         @endif
@@ -59,7 +62,9 @@
                         <div class="card-body p-0">
                             <a href="#" class="list-group-item list-group-item-action company-chat-link card-padding"
                                 data-company-id="self-assessment-{{ $selfAssessment->id }}"
-                                data-company-name="Self Assessment - {{ $selfAssessment->assessment_name }}">
+                                data-company-name="Self Assessment - {{ $selfAssessment->assessment_name }}"
+                                role="button"
+                                aria-label="Select self assessment for messaging">
                                 <div class="d-flex w-100 justify-content-between align-items-center">
                                     <div>
                                         <h6 class="mb-1">{{ $selfAssessment->assessment_name }}</h6>
@@ -67,7 +72,8 @@
                                     </div>
                                     <div class="d-flex flex-column align-items-end">
                                         <span class="badge bg-success rounded-pill d-none"
-                                            id="unreadCount-self-assessment-{{ $selfAssessment->id }}">
+                                            id="unreadCount-self-assessment-{{ $selfAssessment->id }}"
+                                            aria-label="Unread messages">
                                             0
                                         </span>
                                     </div>
@@ -85,7 +91,7 @@
                     <div class="card-header" id="chatHeader">
                         <div class="d-flex align-items-center">
                             <div class="avtar avtar-s bg-primary me-3">
-                                <i class="ph-duotone ph-buildings f-18"></i>
+                                <i class="ph-duotone ph-buildings f-18" aria-hidden="true"></i>
                             </div>
                             <div>
                                 <h6 class="mb-0" id="currentCompanyName">Select a company to start messaging</h6>
@@ -96,11 +102,11 @@
 
                     <!-- Messages Area -->
                     <div class="card-body p-0">
-                        <div id="messagesContainer" class="position-relative" style="height: 400px; overflow-y: auto;">
+                        <div id="messagesContainer" class="position-relative" style="height: 400px; overflow-y: auto;" role="log" aria-live="polite" aria-label="Chat messages">
                             <!-- Welcome message when no company selected -->
                             <div id="welcomeMessage" class="d-flex align-items-center justify-content-center h-100">
                                 <div class="text-center">
-                                    <i class="ph-duotone ph-chat-circle f-40 text-muted"></i>
+                                    <i class="ph-duotone ph-chat-circle f-40 text-muted" aria-hidden="true"></i>
                                     <h6 class="mt-3 text-muted">Welcome to Messages</h6>
                                     <p class="text-muted">Select a company from the sidebar to start a conversation</p>
                                 </div>
@@ -133,26 +139,28 @@
                             <!-- File Preview Area -->
                             <div id="filePreview" class="mb-2 d-none">
                                 <div class="alert alert-info d-flex align-items-center">
-                                    <i class="ph-duotone ph-paperclip me-2"></i>
+                                    <i class="ph-duotone ph-paperclip me-2" aria-hidden="true"></i>
                                     <span id="fileName">No file selected</span>
-                                    <button type="button" class="btn-close ms-auto" id="removeFile"></button>
+                                    <button type="button" class="btn-close ms-auto" id="removeFile" aria-label="Remove file"></button>
                                 </div>
                             </div>
 
                             <div class="input-group">
+                                <label for="messageText" class="visually-hidden">Type your message</label>
                                 <input type="text" class="form-control" id="messageText" name="message"
-                                    placeholder="Type your message..." maxlength="1000">
+                                    placeholder="Type your message..." maxlength="1000" autocomplete="off">
 
                                 <input type="file" id="messageFile" name="file" class="d-none"
-                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.txt">
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.txt"
+                                    aria-label="Attach file">
 
                                 <button type="button" class="btn btn-outline-secondary" id="attachFileBtn"
-                                    title="Attach File">
-                                    <i class="ph-duotone ph-paperclip"></i>
+                                    title="Attach File" aria-label="Attach File">
+                                    <i class="ph-duotone ph-paperclip" aria-hidden="true"></i>
                                 </button>
 
-                                <button type="submit" class="btn btn-primary" id="sendBtn">
-                                    <i class="ph-duotone ph-paper-plane-tilt me-1"></i>
+                                <button type="submit" class="btn btn-primary" id="sendBtn" aria-label="Send message">
+                                    <i class="ph-duotone ph-paper-plane-tilt me-1" aria-hidden="true"></i>
                                     Send
                                 </button>
                             </div>
@@ -174,56 +182,60 @@
         <div class="modal-content">
             <div class="modal-header signature-header">
                 <h5 class="modal-title" id="documentSignatureModalLabel">
-                    <i class="ph-duotone ph-signature me-2"></i>Sign Document
+                    <i class="ph-duotone ph-signature me-2" aria-hidden="true"></i>Sign Document
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             
-            <form id="documentSignatureForm">
-                 @csrf
-                <input type="text" id="chat_message_id" name="chat_message_id">
-                <input type="text" id="message_id" name="message_id">
+            <form id="documentSignatureForm" novalidate>
+                @csrf
+                <input type="hidden" id="chat_message_id" name="chat_message_id">
+                <input type="hidden" id="message_id" name="message_id">
                 
                 <div class="modal-body">
                     <div class="signature-form">
-                        <div class="alert alert-info">
-                            <i class="ph-duotone ph-info me-2"></i>
+                        <div class="alert alert-info" role="alert">
+                            <i class="ph-duotone ph-info me-2" aria-hidden="true"></i>
                             You are about to sign this document. Please fill in your details below.
                         </div>
                         
                         <div class="form-group">
                             <label for="signer_full_name" class="form-label">
-                                <i class="ph-duotone ph-user me-1"></i>Full Name *
+                                <i class="ph-duotone ph-user me-1" aria-hidden="true"></i>Full Name *
                             </label>
-                            <input type="text" class="form-control" id="signer_full_name" name="signer_full_name"  value="XXXXX"
-                                   required placeholder="Enter your full legal name">
+                            <input type="text" class="form-control" id="signer_full_name" name="signer_full_name"
+                                   required placeholder="Enter your full legal name" autocomplete="name">
+                            <div class="invalid-feedback">Please enter your full legal name.</div>
                             <small class="form-text text-muted">Enter your name as it appears on legal documents</small>
                         </div>
                         
                         <div class="form-group">
                             <label for="signer_print_name" class="form-label">
-                                <i class="ph-duotone ph-signature me-1"></i>Print Name *
+                                <i class="ph-duotone ph-signature me-1" aria-hidden="true"></i>Print Name *
                             </label>
-                            <input type="text" class="form-control" id="signer_print_name" name="signer_print_name"  value="XXXXX"
-                                   required placeholder="Enter your printed name">
+                            <input type="text" class="form-control" id="signer_print_name" name="signer_print_name"
+                                   required placeholder="Enter your printed name" autocomplete="name">
+                            <div class="invalid-feedback">Please enter your printed name.</div>
                             <small class="form-text text-muted">How your name should appear in print</small>
                         </div>
                         
                         <div class="form-group">
                             <label for="signer_email" class="form-label">
-                                <i class="ph-duotone ph-envelope me-1"></i>Email Address *
+                                <i class="ph-duotone ph-envelope me-1" aria-hidden="true"></i>Email Address *
                             </label>
-                            <input type="email" class="form-control" id="signer_email" name="signer_email"  value="xxxx@xxxx.xxx"
-                                   required placeholder="Enter your email address">
+                            <input type="email" class="form-control" id="signer_email" name="signer_email"
+                                   required placeholder="Enter your email address" autocomplete="email">
+                            <div class="invalid-feedback">Please enter a valid email address.</div>
                             <small class="form-text text-muted">We'll send a copy of the signed document to this email</small>
                         </div>
                         
                         <div class="form-group">
                             <label for="signed_date" class="form-label">
-                                <i class="ph-duotone ph-calendar me-1"></i>Signature Date *
+                                <i class="ph-duotone ph-calendar me-1" aria-hidden="true"></i>Signature Date *
                             </label>
                             <input type="date" class="form-control" id="signed_date" name="signed_date"
                                    required value="{{ date('Y-m-d') }}">
+                            <div class="invalid-feedback">Please select a signature date.</div>
                             <small class="form-text text-muted">Date you are signing this document</small>
                         </div>
                         
@@ -232,17 +244,18 @@
                             <label class="form-check-label" for="confirmDocSignature">
                                 I confirm that I have read and understand the document and agree to its terms and conditions.
                             </label>
+                            <div class="invalid-feedback">You must confirm that you have read and agree to the document terms.</div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="modal-footer signature-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="ph-duotone ph-x me-1"></i>Cancel
+                        <i class="ph-duotone ph-x me-1" aria-hidden="true"></i>Cancel
                     </button>
                     <button type="submit" class="btn btn-warning" id="submitDocSignature">
-                        <i class="ph-duotone ph-signature me-1"></i>Sign Document
-                        <span class="spinner-border spinner-border-sm ms-2 d-none" id="docSigningSpinner"></span>
+                        <i class="ph-duotone ph-signature me-1" aria-hidden="true"></i>Sign Document
+                        <span class="spinner-border spinner-border-sm ms-2 d-none" id="docSigningSpinner" role="status" aria-hidden="true"></span>
                     </button>
                 </div>
             </form>
@@ -256,20 +269,20 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title mr-10" id="pdfModalLabel">PDF Viewer</h5>
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomOut" title="Zoom Out">
-                        <i class="ti ti-minus"></i>
+                <div class="btn-group" role="group" aria-label="PDF zoom controls">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomOut" title="Zoom Out" aria-label="Zoom Out">
+                        <i class="ti ti-minus" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="fitWidth" title="Fit to Width">
-                        <i class="ti ti-arrows-horizontal"></i>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="fitWidth" title="Fit to Width" aria-label="Fit to Width">
+                        <i class="ti ti-arrows-horizontal" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="fitPage" title="Fit to Page">
-                        <i class="ti ti-arrows-maximize"></i>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="fitPage" title="Fit to Page" aria-label="Fit to Page">
+                        <i class="ti ti-arrows-maximize" aria-hidden="true"></i>
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomIn" title="Zoom In">
-                        <i class="ti ti-plus"></i>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="zoomIn" title="Zoom In" aria-label="Zoom In">
+                        <i class="ti ti-plus" aria-hidden="true"></i>
                     </button>
-                    <span class="btn btn-sm btn-outline-secondary" id="zoomLevel">100%</span>
+                    <span class="btn btn-sm btn-outline-secondary" id="zoomLevel" aria-label="Current zoom level">100%</span>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -294,31 +307,31 @@
 
                 {{-- PDF Container --}}
                 <div id="pdfContainer" class="pdf-container d-none">
-                    <canvas id="pdfCanvas"></canvas>
+                    <canvas id="pdfCanvas" aria-label="PDF document viewer"></canvas>
                 </div>
             </div>
             <div class="modal-footer">
                 <div class="d-flex justify-content-between w-100 align-items-center">
-                    <div class="d-flex align-items-center">
-                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="firstPage" title="First Page">
-                            <i class="ti ti-chevrons-left"></i>
+                    <div class="d-flex align-items-center" role="group" aria-label="PDF navigation controls">
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="firstPage" title="First Page" aria-label="Go to first page">
+                            <i class="ti ti-chevrons-left" aria-hidden="true"></i>
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="prevPage" title="Previous Page">
-                            <i class="ti ti-chevron-left"></i>
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="prevPage" title="Previous Page" aria-label="Go to previous page">
+                            <i class="ti ti-chevron-left" aria-hidden="true"></i>
                         </button>
-                        <span class="me-2">Page</span>
-                        <input type="number" class="form-control form-control-sm me-2" id="pageInput" style="width: 80px;" min="1">
+                        <label for="pageInput" class="me-2">Page</label>
+                        <input type="number" class="form-control form-control-sm me-2" id="pageInput" style="width: 80px;" min="1" aria-label="Current page number">
                         <span class="me-2">of <span id="totalPages">-</span></span>
-                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="nextPage" title="Next Page">
-                            <i class="ti ti-chevron-right"></i>
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="nextPage" title="Next Page" aria-label="Go to next page">
+                            <i class="ti ti-chevron-right" aria-hidden="true"></i>
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" id="lastPage" title="Last Page">
-                            <i class="ti ti-chevrons-right"></i>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="lastPage" title="Last Page" aria-label="Go to last page">
+                            <i class="ti ti-chevrons-right" aria-hidden="true"></i>
                         </button>
                     </div>
                     <div>
-                        <button type="button" class="btn btn-sm btn-secondary" id="downloadPdf">
-                            <i class="ti ti-download"></i> Download
+                        <button type="button" class="btn btn-sm btn-secondary" id="downloadPdf" aria-label="Download PDF">
+                            <i class="ti ti-download" aria-hidden="true"></i> Download
                         </button>
                     </div>
                 </div>
@@ -328,7 +341,7 @@
 </div>
 
 <!-- Success/Error Alert Container -->
-<div id="alertContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div>
+<div id="alertContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;" role="alert" aria-live="assertive"></div>
 
 @endsection
 
@@ -600,6 +613,19 @@
         box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
     }
 
+    .signature-form .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+
+    .signature-form .form-control.is-valid {
+        border-color: #28a745;
+    }
+
+    /* Focus management */
+    .modal:focus {
+        outline: none;
+    }
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
         #pdfModal .modal-xl {
@@ -625,6 +651,16 @@
             margin: 1rem;
             max-width: calc(100% - 2rem);
         }
+
+        .message-bubble {
+            max-width: 85%;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .file-attachment.signature-required {
+            animation: none;
+        }
     }
 </style>
 @endpush
@@ -634,651 +670,624 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 <script>
-// Badge update integration functions
-function notifyMessagesRead() {
-    // Dispatch custom event that header is listening for
-    window.dispatchEvent(new Event('messages-read'));
-}
+(function() {
+    'use strict';
 
-function notifyNewMessageSent() {
-    // Dispatch custom event that header is listening for
-    window.dispatchEvent(new Event('new-message-sent'));
-}
+    // Utility functions
+    const Utils = {
+        debounce: function(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        },
 
-// Global functions that need to be accessible from onclick handlers
-function openSignatureModal(messageId) {
-    document.getElementById('chat_message_id').value = messageId;
-    document.getElementById('message_id').value = messageId;
-    const modal = new bootstrap.Modal(document.getElementById('documentSignatureModal'));
-    modal.show();
-}
+        sanitizeHtml: function(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        },
 
-document.addEventListener('DOMContentLoaded', function() {
-    // PDF.js configuration
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-    // Global variables
-    let pdfDoc = null;
-    let currentPage = 1;
-    let currentScale = 1;
-    let fitMode = 'page'; // 'width', 'page', or 'manual'
-    let currentPdfUrl = '';
-
-    // DOM elements
-    const canvas = document.getElementById('pdfCanvas');
-    const ctx = canvas.getContext('2d');
-    const pdfContainer = document.getElementById('pdfContainer');
-    const pdfLoading = document.getElementById('pdfLoading');
-    const pdfError = document.getElementById('pdfError');
-    const pageInput = document.getElementById('pageInput');
-    const totalPagesSpan = document.getElementById('totalPages');
-    const zoomLevelSpan = document.getElementById('zoomLevel');
-
-    // Button elements
-    const zoomInBtn = document.getElementById('zoomIn');
-    const zoomOutBtn = document.getElementById('zoomOut');
-    const fitWidthBtn = document.getElementById('fitWidth');
-    const fitPageBtn = document.getElementById('fitPage');
-    const firstPageBtn = document.getElementById('firstPage');
-    const prevPageBtn = document.getElementById('prevPage');
-    const nextPageBtn = document.getElementById('nextPage');
-    const lastPageBtn = document.getElementById('lastPage');
-    const downloadBtn = document.getElementById('downloadPdf');
-
-    // Global function to open PDF viewer
-    window.viewPdfInApp = function(url) {
-        currentPdfUrl = url;
-        loadPDF(url);
-        const modal = new bootstrap.Modal(document.getElementById('pdfModal'));
-        modal.show();
-    };
-
-    // Load PDF function
-    async function loadPDF(url) {
-        showLoading();
-
-        try {
-            const pdf = await pdfjsLib.getDocument(url).promise;
-            pdfDoc = pdf;
-            currentPage = 1;
-
-            totalPagesSpan.textContent = pdf.numPages;
-            pageInput.max = pdf.numPages;
-            pageInput.value = currentPage;
-
-            // Calculate initial scale based on fit mode
-            await calculateScale();
-            await renderPage(currentPage);
-
-            showPDF();
-            updateNavigationButtons();
-
-        } catch (error) {
-            console.error('Error loading PDF:', error);
-            showError();
-        }
-    }
-
-    // Calculate scale based on fit mode
-    async function calculateScale() {
-        if (!pdfDoc) return;
-
-        const page = await pdfDoc.getPage(1);
-        const viewport = page.getViewport({ scale: 1 });
-
-        const containerWidth = pdfContainer.clientWidth - 40;
-        const containerHeight = pdfContainer.clientHeight - 40;
-
-        if (fitMode === 'width') {
-            currentScale = containerWidth / viewport.width;
-        } else if (fitMode === 'page') {
-            const scaleX = containerWidth / viewport.width;
-            const scaleY = containerHeight / viewport.height;
-            currentScale = Math.min(scaleX, scaleY);
-        }
-
-        updateZoomLevel();
-    }
-
-    // Render page
-    async function renderPage(pageNum) {
-        if (!pdfDoc) return;
-
-        currentPage = pageNum;
-        pageInput.value = pageNum;
-
-        const page = await pdfDoc.getPage(pageNum);
-        const viewport = page.getViewport({ scale: currentScale });
-
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        const renderContext = {
-            canvasContext: ctx,
-            viewport: viewport
-        };
-
-        await page.render(renderContext).promise;
-        updateNavigationButtons();
-    }
-
-    // Update navigation button states
-    function updateNavigationButtons() {
-        firstPageBtn.disabled = currentPage <= 1;
-        prevPageBtn.disabled = currentPage <= 1;
-        nextPageBtn.disabled = currentPage >= pdfDoc?.numPages;
-        lastPageBtn.disabled = currentPage >= pdfDoc?.numPages;
-    }
-
-    // Update zoom level display
-    function updateZoomLevel() {
-        zoomLevelSpan.textContent = Math.round(currentScale * 100) + '%';
-    }
-
-    // Show loading state
-    function showLoading() {
-        pdfLoading.classList.remove('d-none');
-        pdfContainer.classList.add('d-none');
-        pdfError.classList.add('d-none');
-    }
-
-    // Show PDF
-    function showPDF() {
-        pdfLoading.classList.add('d-none');
-        pdfContainer.classList.remove('d-none');
-        pdfError.classList.add('d-none');
-    }
-
-    // Show error state
-    function showError() {
-        pdfLoading.classList.add('d-none');
-        pdfContainer.classList.add('d-none');
-        pdfError.classList.remove('d-none');
-    }
-
-    // Navigation event listeners
-    firstPageBtn.addEventListener('click', () => {
-        if (pdfDoc && currentPage > 1) {
-            renderPage(1);
-        }
-    });
-
-    prevPageBtn.addEventListener('click', () => {
-        if (pdfDoc && currentPage > 1) {
-            renderPage(currentPage - 1);
-        }
-    });
-
-    nextPageBtn.addEventListener('click', () => {
-        if (pdfDoc && currentPage < pdfDoc.numPages) {
-            renderPage(currentPage + 1);
-        }
-    });
-
-    lastPageBtn.addEventListener('click', () => {
-        if (pdfDoc && currentPage < pdfDoc.numPages) {
-            renderPage(pdfDoc.numPages);
-        }
-    });
-
-    // Page input handler
-    pageInput.addEventListener('change', () => {
-        if (!pdfDoc) return;
-
-        let pageNum = parseInt(pageInput.value);
-        if (pageNum < 1 || pageNum > pdfDoc.numPages) {
-            pageInput.value = currentPage;
-            return;
-        }
-
-        renderPage(pageNum);
-    });
-
-    // Zoom event listeners
-    zoomInBtn.addEventListener('click', async () => {
-        if (!pdfDoc) return;
-
-        fitMode = 'manual';
-        currentScale *= 1.25;
-        currentScale = Math.min(currentScale, 5);
-        updateZoomLevel();
-        await renderPage(currentPage);
-    });
-
-    zoomOutBtn.addEventListener('click', async () => {
-        if (!pdfDoc) return;
-
-        fitMode = 'manual';
-        currentScale /= 1.25;
-        currentScale = Math.max(currentScale, 0.1);
-        updateZoomLevel();
-        await renderPage(currentPage);
-    });
-
-    fitWidthBtn.addEventListener('click', async () => {
-        if (!pdfDoc) return;
-
-        fitMode = 'width';
-        await calculateScale();
-        await renderPage(currentPage);
-    });
-
-    fitPageBtn.addEventListener('click', async () => {
-        if (!pdfDoc) return;
-
-        fitMode = 'page';
-        await calculateScale();
-        await renderPage(currentPage);
-    });
-
-    // Download button handler
-    downloadBtn.addEventListener('click', () => {
-        if (currentPdfUrl) {
-            const link = document.createElement('a');
-            link.href = currentPdfUrl;
-            link.download = '';
-            link.click();
-        }
-    });
-
-    // Handle window resize
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        if (!pdfDoc) return;
-
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(async () => {
-            if (fitMode !== 'manual') {
-                await calculateScale();
-                await renderPage(currentPage);
+        formatTime: function(dateString) {
+            if (!dateString) return '';
+            
+            const date = new Date(dateString);
+            
+            if (isNaN(date.getTime())) {
+                return 'Invalid date';
             }
-        }, 250);
-    });
+            
+            const now = new Date();
+            const diffInMinutes = Math.floor((now - date) / (1000 * 60));
 
-    // Handle modal close
-    const pdfModal = document.getElementById('pdfModal');
-    pdfModal.addEventListener('hidden.bs.modal', function() {
-        // Reset state
-        pdfDoc = null;
-        currentPage = 1;
-        currentScale = 1;
-        fitMode = 'page';
-        currentPdfUrl = '';
-
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Reset UI
-        totalPagesSpan.textContent = '-';
-        pageInput.value = '';
-        updateZoomLevel();
-
-        // Show loading state for next time
-        showLoading();
-    });
-
-    // Handle modal shown (recalculate scale if needed)
-    pdfModal.addEventListener('shown.bs.modal', async function() {
-        if (pdfDoc && fitMode !== 'manual') {
-            await calculateScale();
-            await renderPage(currentPage);
-        }
-    });
-
-    // Chat functionality
-    let currentCompanyId = null;
-    let isLoading = false;
-    let messages = [];
-
-    // DOM Elements
-    const companyLinks = document.querySelectorAll('.company-chat-link');
-    const messagesContainer = document.getElementById('messagesContainer');
-    const welcomeMessage = document.getElementById('welcomeMessage');
-    const loadingMessages = document.getElementById('loadingMessages');
-    const messagesList = document.getElementById('messagesList');
-    const messageInput = document.getElementById('messageInput');
-    const sendMessageForm = document.getElementById('sendMessageForm');
-    const messageText = document.getElementById('messageText');
-    const messageFile = document.getElementById('messageFile');
-    const attachFileBtn = document.getElementById('attachFileBtn');
-    const removeFileBtn = document.getElementById('removeFile');
-    const filePreview = document.getElementById('filePreview');
-    const fileName = document.getElementById('fileName');
-    const currentCompanyName = document.getElementById('currentCompanyName');
-    const chatStatus = document.getElementById('chatStatus');
-    const selectedCompanyId = document.getElementById('selectedCompanyId');
-
-    // Make currentCompanyId accessible to other functions
-    window.currentCompanyId = currentCompanyId;
-
-    // Event Listeners
-    companyLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const companyId = this.getAttribute('data-company-id');
-            const companyName = this.getAttribute('data-company-name');
-            selectCompany(companyId, companyName, this);
-        });
-    });
-
-    attachFileBtn.addEventListener('click', function() {
-        messageFile.click();
-    });
-
-    messageFile.addEventListener('change', function() {
-        if (this.files.length > 0) {
-            const file = this.files[0];
-            fileName.textContent = file.name;
-            filePreview.classList.remove('d-none');
-        }
-    });
-
-    removeFileBtn.addEventListener('click', function() {
-        messageFile.value = '';
-        filePreview.classList.add('d-none');
-    });
-
-    sendMessageForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        sendMessage();
-    });
-
-    // Handle signature form submission
-    document.getElementById('documentSignatureModal').addEventListener('hidden.bs.modal', function () {
-        // Reload messages to show the updated signed status
-        if (currentCompanyId) {
-            loadMessages();
-        }
-    });
-
-    // Handle signature form submission
-    document.getElementById('documentSignatureForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const submitButton = document.getElementById('submitDocSignature');
-        const signingSpinner = document.getElementById('docSigningSpinner');
-        
-        // Show loading state
-        submitButton.disabled = true;
-        signingSpinner.classList.remove('d-none');
-        
-        // Capture browser data
-        const browserData = {
-            userAgent: navigator.userAgent,
-            platform: navigator.platform,
-            language: navigator.language,
-            vendor: navigator.vendor,
-            screen: `${screen.width}x${screen.height}`,
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            timestamp: new Date().toISOString()
-        };
-        
-        const formData = new FormData(this);
-        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-        formData.append('browser_data', JSON.stringify(browserData));
-        
-        try {
-            let url;
-            if (window.currentCompanyId && window.currentCompanyId.toString().startsWith('self-assessment-')) {
-                url = '{{ route("client.self-assessment.chat.sign-document") }}';
+            if (diffInMinutes < 1) {
+                return 'Just now';
+            } else if (diffInMinutes < 60) {
+                return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+            } else if (diffInMinutes < 1440) {
+                const hours = Math.floor(diffInMinutes / 60);
+                return `${hours} hour${hours > 1 ? 's' : ''} ago`;
             } else {
-                url = '{{ route("client.chat.sign-document") }}';
+                return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
             }
-            
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                },
-                body: formData
-            });
-            
-         if (!response.ok) {
-             const errorData = await response.json(); // Parse the JSON body
-        throw new Error(`HTTP error! ${errorData.message || 'Unknown error'}`);
-            }
-            
-            const contentType = response.headers.get("content-type");
-            if (!contentType || !contentType.includes("application/json")) {
-                throw new TypeError("Invalid response format");
-            }
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                // Close modal
-                const modalElement = document.getElementById('documentSignatureModal');
-                const modal = bootstrap.Modal.getInstance(modalElement);
-                modal.hide();
-                
-                // Reset form
-                this.reset();
-                
-                // Show success message
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert alert-success alert-dismissible fade show';
-                alertDiv.innerHTML = `
-                    <i class="ph-duotone ph-check-circle me-2"></i>
-                    <strong>Success!</strong> Document has been signed successfully.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                `;
-                
-                const chatContainer = document.querySelector('.pc-content') || document.querySelector('.container-fluid');
-                if (chatContainer) {
-                    chatContainer.insertBefore(alertDiv, chatContainer.firstChild);
-                }
-                
-                // Reload messages after a short delay
-                setTimeout(() => {
-                    loadMessages();
-                }, 500);
-                
-                // Auto-dismiss alert after 5 seconds
-                setTimeout(() => {
-                    alertDiv.remove();
-                }, 5000);
-            } else {
-                throw new Error(result.message || 'Failed to sign document');
-            }
-        } catch (error) {
-            console.error('Error signing document:', error);
-            
-            // Show error alert
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-            alertDiv.innerHTML = `
-                <i class="ph-duotone ph-warning-circle me-2"></i>
-                <strong>Error!</strong> ${error.message || 'An error occurred while signing the document. Please try again.'}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            
-            const container = document.querySelector('.modal-body');
-            container.insertBefore(alertDiv, container.firstChild);
-        } finally {
-            // Reset button state
-            submitButton.disabled = false;
-            signingSpinner.classList.add('d-none');
-        }
-    });
+        },
 
-    // Auto-fill print name when full name is entered
-    document.getElementById('signer_full_name').addEventListener('input', function() {
-        const printNameField = document.getElementById('signer_print_name');
-        if (!printNameField.value) {
-            printNameField.value = this.value;
-        }
-    });
+        validateEmail: function(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        },
 
-    // Auto-select first company if available
-    if (companyLinks.length > 0) {
-        const firstCompany = companyLinks[0];
-        const companyId = firstCompany.getAttribute('data-company-id');
-        const companyName = firstCompany.getAttribute('data-company-name');
-        selectCompany(companyId, companyName, firstCompany);
-    }
-
-    // Functions
-    function selectCompany(companyId, companyName, linkElement) {
-        if (isLoading || currentCompanyId === companyId) return;
-
-        // Update UI
-        companyLinks.forEach(link => link.classList.remove('active'));
-        linkElement.classList.add('active');
-
-        currentCompanyId = companyId;
-        window.currentCompanyId = companyId; // Update global variable
-        selectedCompanyId.value = companyId;
-        currentCompanyName.textContent = companyName;
-
-        // Show loading state
-        showLoading();
-
-        // Load messages
-        loadMessages();
-    }
-
-    function showLoading() {
-        welcomeMessage.classList.add('d-none');
-        messagesList.classList.add('d-none');
-        loadingMessages.classList.remove('d-none');
-        messageInput.style.display = 'none';
-    }
-
-    function showMessages() {
-        welcomeMessage.classList.add('d-none');
-        loadingMessages.classList.add('d-none');
-        messagesList.classList.remove('d-none');
-        messageInput.style.display = 'block';
-    }
-
-    updateUnreadCounts();
-    
-    // Update counts every 30 seconds
-    setInterval(() => {
-        updateUnreadCounts();
-    }, 30000);
-
-    async function loadMessages() {
-        if (!currentCompanyId) return;
-        
-        isLoading = true;
-        chatStatus.textContent = 'Loading messages...';
-
-        try {
-            let url, params;
-            
-            if (currentCompanyId.startsWith('self-assessment-')) {
-                // Handle self-assessment messages
-                const selfAssessmentId = currentCompanyId.replace('self-assessment-', '');
-                url = "{{ route('client.self-assessment.chat.messages') }}";
-                params = { self_assessment_id: selfAssessmentId };
-            } else {
-                // Handle company messages
-                url = "{{ route('client.chat.messages') }}";
-                params = { company_id: currentCompanyId };
-            }
-            
-            const response = await fetch(url + '?' + new URLSearchParams(params), {
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                messages = result.data;
-                displayMessages(result.data);
-                chatStatus.textContent = `${result.data.length} messages loaded`;
-                
-                // Notify header that messages have been read
-                notifyMessagesRead();
-                
-                // Update unread counts after a short delay to ensure server has updated
-                setTimeout(() => {
-                    updateUnreadCounts();
-                }, 500);
-            } else {
-                displayMessages([]);
-                chatStatus.textContent = 'No messages found';
-            }
-        } catch (error) {
-            console.error('Error loading messages:', error);
-            showAlert('Error loading messages. Please try again.', 'danger');
-            chatStatus.textContent = 'Error loading messages';
-        } finally {
-            isLoading = false;
-            showMessages();
-        }
-    }
-
-    function displayMessages(messages) {
-        messagesList.innerHTML = '';
-
-        if (messages.length === 0) {
-            messagesList.innerHTML = `
-                <div class="text-center py-4">
-                    <i class="ph-duotone ph-chat-circle f-40 text-muted"></i>
-                    <p class="text-muted mt-2">No messages yet. Start the conversation!</p>
+        showAlert: function(message, type, duration = 5000) {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="ph-duotone ph-${type === 'success' ? 'check-circle' : type === 'danger' ? 'x-circle' : 'warning-circle'} me-2" aria-hidden="true"></i>
+                    ${Utils.sanitizeHtml(message)}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             `;
-            return;
+
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = alertHtml;
+
+            setTimeout(() => {
+                const alert = alertContainer.querySelector('.alert');
+                if (alert) {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, duration);
+        },
+
+        handleApiError: async function(response) {
+            let errorMessage = 'Unknown error occurred';
+            
+            try {
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } else {
+                    errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+                }
+            } catch (parseError) {
+                console.error('Error parsing response:', parseError);
+                errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+            }
+            
+            throw new Error(errorMessage);
         }
+    };
 
-        messages.forEach(message => {
-            const messageElement = createMessageElement(message);
-            messagesList.appendChild(messageElement);
-        });
-
-        scrollToBottom();
+    // Badge update integration functions
+    function notifyMessagesRead() {
+        window.dispatchEvent(new Event('messages-read'));
     }
 
-    function createMessageElement(message) {
-        const isFromClient = message.sender_type === 'client';
-        const isSystemMessage = message.sender_type === 'system';
-        const messageDiv = document.createElement('div');
+    function notifyNewMessageSent() {
+        window.dispatchEvent(new Event('new-message-sent'));
+    }
+
+    // Form validation
+    const FormValidator = {
+        validateSignatureForm: function(form) {
+            const inputs = form.querySelectorAll('input[required]');
+            let isValid = true;
+
+            inputs.forEach(input => {
+                const value = input.value.trim();
+                let inputValid = true;
+
+                // Reset previous validation states
+                input.classList.remove('is-valid', 'is-invalid');
+
+                if (!value) {
+                    inputValid = false;
+                } else if (input.type === 'email' && !Utils.validateEmail(value)) {
+                    inputValid = false;
+                } else if (input.type === 'text' && value.length < 2) {
+                    inputValid = false;
+                }
+
+                if (inputValid) {
+                    input.classList.add('is-valid');
+                } else {
+                    input.classList.add('is-invalid');
+                    isValid = false;
+                }
+            });
+
+            // Check checkbox
+            const checkbox = form.querySelector('#confirmDocSignature');
+            if (!checkbox.checked) {
+                checkbox.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                checkbox.classList.remove('is-invalid');
+            }
+
+            return isValid;
+        }
+    };
+
+    // PDF Handler
+    const PDFHandler = {
+        pdfDoc: null,
+        currentPage: 1,
+        currentScale: 1,
+        fitMode: 'page',
+        currentPdfUrl: '',
+        canvas: null,
+        ctx: null,
+        pdfContainer: null,
+        pdfLoading: null,
+        pdfError: null,
         
-        if (isSystemMessage) {
-            messageDiv.className = 'message-bubble system';
-        } else {
-            messageDiv.className = `message-bubble ${isFromClient ? 'sent' : 'received'}`;
-        }
+        init: function() {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            
+            this.canvas = document.getElementById('pdfCanvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.pdfContainer = document.getElementById('pdfContainer');
+            this.pdfLoading = document.getElementById('pdfLoading');
+            this.pdfError = document.getElementById('pdfError');
+            
+            this.bindEvents();
+        },
 
-        let senderBadge = '';
-        if (isSystemMessage) {
-            senderBadge = '<span class="sender-badge bg-info text-white">System</span>';
-        } else {
-            senderBadge = isFromClient ?
-                '<span class="sender-badge bg-light text-dark">You</span>' :
-                '<span class="sender-badge bg-secondary text-white">Admin</span>';
-        }
+        bindEvents: function() {
+            const elements = {
+                zoomIn: document.getElementById('zoomIn'),
+                zoomOut: document.getElementById('zoomOut'),
+                fitWidth: document.getElementById('fitWidth'),
+                fitPage: document.getElementById('fitPage'),
+                firstPage: document.getElementById('firstPage'),
+                prevPage: document.getElementById('prevPage'),
+                nextPage: document.getElementById('nextPage'),
+                lastPage: document.getElementById('lastPage'),
+                pageInput: document.getElementById('pageInput'),
+                downloadBtn: document.getElementById('downloadPdf'),
+                pdfModal: document.getElementById('pdfModal')
+            };
 
-        let fileAttachment = '';
-        if (message.file_name) {
+            elements.zoomIn.addEventListener('click', () => this.zoomIn());
+            elements.zoomOut.addEventListener('click', () => this.zoomOut());
+            elements.fitWidth.addEventListener('click', () => this.fitToWidth());
+            elements.fitPage.addEventListener('click', () => this.fitToPage());
+            elements.firstPage.addEventListener('click', () => this.goToPage(1));
+            elements.prevPage.addEventListener('click', () => this.goToPage(this.currentPage - 1));
+            elements.nextPage.addEventListener('click', () => this.goToPage(this.currentPage + 1));
+            elements.lastPage.addEventListener('click', () => this.goToPage(this.pdfDoc?.numPages));
+            elements.pageInput.addEventListener('change', (e) => this.goToPage(parseInt(e.target.value)));
+            elements.downloadBtn.addEventListener('click', () => this.downloadPdf());
+
+            elements.pdfModal.addEventListener('hidden.bs.modal', () => this.resetPdf());
+            elements.pdfModal.addEventListener('shown.bs.modal', () => this.handleModalShown());
+
+            window.addEventListener('resize', Utils.debounce(() => this.handleResize(), 250));
+        },
+
+        async loadPDF(url) {
+            this.currentPdfUrl = url;
+            this.showLoading();
+
+            try {
+                const pdf = await pdfjsLib.getDocument(url).promise;
+                this.pdfDoc = pdf;
+                this.currentPage = 1;
+
+                document.getElementById('totalPages').textContent = pdf.numPages;
+                const pageInput = document.getElementById('pageInput');
+                pageInput.max = pdf.numPages;
+                pageInput.value = this.currentPage;
+
+                await this.calculateScale();
+                await this.renderPage(this.currentPage);
+                this.showPDF();
+                this.updateNavigationButtons();
+
+            } catch (error) {
+                console.error('Error loading PDF:', error);
+                this.showError();
+                Utils.showAlert('Failed to load PDF document', 'danger');
+            }
+        },
+
+        async calculateScale() {
+            if (!this.pdfDoc) return;
+
+            const page = await this.pdfDoc.getPage(1);
+            const viewport = page.getViewport({ scale: 1 });
+
+            const containerWidth = this.pdfContainer.clientWidth - 40;
+            const containerHeight = this.pdfContainer.clientHeight - 40;
+
+            if (this.fitMode === 'width') {
+                this.currentScale = containerWidth / viewport.width;
+            } else if (this.fitMode === 'page') {
+                const scaleX = containerWidth / viewport.width;
+                const scaleY = containerHeight / viewport.height;
+                this.currentScale = Math.min(scaleX, scaleY);
+            }
+
+            this.updateZoomLevel();
+        },
+
+        async renderPage(pageNum) {
+            if (!this.pdfDoc || pageNum < 1 || pageNum > this.pdfDoc.numPages) return;
+
+            this.currentPage = pageNum;
+            document.getElementById('pageInput').value = pageNum;
+
+            try {
+                const page = await this.pdfDoc.getPage(pageNum);
+                const viewport = page.getViewport({ scale: this.currentScale });
+
+                this.canvas.height = viewport.height;
+                this.canvas.width = viewport.width;
+
+                const renderContext = {
+                    canvasContext: this.ctx,
+                    viewport: viewport
+                };
+
+                await page.render(renderContext).promise;
+                this.updateNavigationButtons();
+            } catch (error) {
+                console.error('Error rendering page:', error);
+                Utils.showAlert('Failed to render PDF page', 'danger');
+            }
+        },
+
+        goToPage(pageNum) {
+            if (!this.pdfDoc || pageNum < 1 || pageNum > this.pdfDoc.numPages) return;
+            this.renderPage(pageNum);
+        },
+
+        async zoomIn() {
+            if (!this.pdfDoc) return;
+            this.fitMode = 'manual';
+            this.currentScale = Math.min(this.currentScale * 1.25, 5);
+            this.updateZoomLevel();
+            await this.renderPage(this.currentPage);
+        },
+
+        async zoomOut() {
+            if (!this.pdfDoc) return;
+            this.fitMode = 'manual';
+            this.currentScale = Math.max(this.currentScale / 1.25, 0.1);
+            this.updateZoomLevel();
+            await this.renderPage(this.currentPage);
+        },
+
+        async fitToWidth() {
+            if (!this.pdfDoc) return;
+            this.fitMode = 'width';
+            await this.calculateScale();
+            await this.renderPage(this.currentPage);
+        },
+
+        async fitToPage() {
+            if (!this.pdfDoc) return;
+            this.fitMode = 'page';
+            await this.calculateScale();
+            await this.renderPage(this.currentPage);
+        },
+
+        updateNavigationButtons() {
+            const buttons = {
+                first: document.getElementById('firstPage'),
+                prev: document.getElementById('prevPage'),
+                next: document.getElementById('nextPage'),
+                last: document.getElementById('lastPage')
+            };
+
+            buttons.first.disabled = this.currentPage <= 1;
+            buttons.prev.disabled = this.currentPage <= 1;
+            buttons.next.disabled = this.currentPage >= (this.pdfDoc?.numPages || 0);
+            buttons.last.disabled = this.currentPage >= (this.pdfDoc?.numPages || 0);
+        },
+
+        updateZoomLevel() {
+            document.getElementById('zoomLevel').textContent = Math.round(this.currentScale * 100) + '%';
+        },
+
+        showLoading() {
+            this.pdfLoading.classList.remove('d-none');
+            this.pdfContainer.classList.add('d-none');
+            this.pdfError.classList.add('d-none');
+        },
+
+        showPDF() {
+            this.pdfLoading.classList.add('d-none');
+            this.pdfContainer.classList.remove('d-none');
+            this.pdfError.classList.add('d-none');
+        },
+
+        showError() {
+            this.pdfLoading.classList.add('d-none');
+            this.pdfContainer.classList.add('d-none');
+            this.pdfError.classList.remove('d-none');
+        },
+
+        downloadPdf() {
+            if (this.currentPdfUrl) {
+                const link = document.createElement('a');
+                link.href = this.currentPdfUrl;
+                link.download = '';
+                link.click();
+            }
+        },
+
+        resetPdf() {
+            this.pdfDoc = null;
+            this.currentPage = 1;
+            this.currentScale = 1;
+            this.fitMode = 'page';
+            this.currentPdfUrl = '';
+
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            document.getElementById('totalPages').textContent = '-';
+            document.getElementById('pageInput').value = '';
+            this.updateZoomLevel();
+            this.showLoading();
+        },
+
+        async handleModalShown() {
+            if (this.pdfDoc && this.fitMode !== 'manual') {
+                await this.calculateScale();
+                await this.renderPage(this.currentPage);
+            }
+        },
+
+        async handleResize() {
+            if (this.pdfDoc && this.fitMode !== 'manual') {
+                await this.calculateScale();
+                await this.renderPage(this.currentPage);
+            }
+        }
+    };
+
+    // Chat Manager
+    const ChatManager = {
+        currentCompanyId: null,
+        isLoading: false,
+        messages: [],
+        intervals: [],
+
+        init: function() {
+            this.bindEvents();
+            this.updateUnreadCounts();
+            this.startPeriodicUpdates();
+            this.autoSelectFirstCompany();
+        },
+
+        bindEvents: function() {
+            const elements = {
+                companyLinks: document.querySelectorAll('.company-chat-link'),
+                sendMessageForm: document.getElementById('sendMessageForm'),
+                messageText: document.getElementById('messageText'),
+                messageFile: document.getElementById('messageFile'),
+                attachFileBtn: document.getElementById('attachFileBtn'),
+                removeFileBtn: document.getElementById('removeFile'),
+                filePreview: document.getElementById('filePreview'),
+                signatureModal: document.getElementById('documentSignatureModal'),
+                signatureForm: document.getElementById('documentSignatureForm')
+            };
+
+            elements.companyLinks.forEach(link => {
+                link.addEventListener('click', (e) => this.handleCompanySelect(e));
+            });
+
+            elements.sendMessageForm.addEventListener('submit', (e) => this.handleSendMessage(e));
+            elements.attachFileBtn.addEventListener('click', () => elements.messageFile.click());
+            elements.messageFile.addEventListener('change', (e) => this.handleFileSelect(e));
+            elements.removeFileBtn.addEventListener('click', () => this.removeFile());
+            elements.signatureModal.addEventListener('hidden.bs.modal', () => this.handleSignatureModalClose());
+            elements.signatureForm.addEventListener('submit', (e) => this.handleSignatureSubmit(e));
+
+            // Auto-fill print name when full name is entered
+            document.getElementById('signer_full_name').addEventListener('input', function() {
+                const printNameField = document.getElementById('signer_print_name');
+                if (!printNameField.value) {
+                    printNameField.value = this.value;
+                }
+            });
+
+            // Add keyboard support
+            elements.messageText.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    elements.sendMessageForm.dispatchEvent(new Event('submit'));
+                }
+            });
+        },
+
+        handleCompanySelect(e) {
+            e.preventDefault();
+            const link = e.currentTarget;
+            const companyId = link.getAttribute('data-company-id');
+            const companyName = link.getAttribute('data-company-name');
+            this.selectCompany(companyId, companyName, link);
+        },
+
+        selectCompany(companyId, companyName, linkElement) {
+            if (this.isLoading || this.currentCompanyId === companyId) return;
+
+            // Update UI
+            document.querySelectorAll('.company-chat-link').forEach(link => link.classList.remove('active'));
+            linkElement.classList.add('active');
+
+            this.currentCompanyId = companyId;
+            window.currentCompanyId = companyId;
+            document.getElementById('selectedCompanyId').value = companyId;
+            document.getElementById('currentCompanyName').textContent = companyName;
+
+            this.showLoading();
+            this.loadMessages();
+        },
+
+        showLoading() {
+            document.getElementById('welcomeMessage').classList.add('d-none');
+            document.getElementById('messagesList').classList.add('d-none');
+            document.getElementById('loadingMessages').classList.remove('d-none');
+            document.getElementById('messageInput').style.display = 'none';
+        },
+
+        showMessages() {
+            document.getElementById('welcomeMessage').classList.add('d-none');
+            document.getElementById('loadingMessages').classList.add('d-none');
+            document.getElementById('messagesList').classList.remove('d-none');
+            document.getElementById('messageInput').style.display = 'block';
+        },
+
+        async loadMessages() {
+            if (!this.currentCompanyId) return;
+            
+            this.isLoading = true;
+            document.getElementById('chatStatus').textContent = 'Loading messages...';
+
+            try {
+                let url, params;
+                
+                if (this.currentCompanyId.startsWith('self-assessment-')) {
+                    const selfAssessmentId = this.currentCompanyId.replace('self-assessment-', '');
+                    url = "{{ route('client.self-assessment.chat.messages') }}";
+                    params = { self_assessment_id: selfAssessmentId };
+                } else {
+                    url = "{{ route('client.chat.messages') }}";
+                    params = { company_id: this.currentCompanyId };
+                }
+                
+                const response = await fetch(url + '?' + new URLSearchParams(params), {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                if (!response.ok) {
+                    await Utils.handleApiError(response);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    this.messages = result.data;
+                    this.displayMessages(result.data);
+                    document.getElementById('chatStatus').textContent = `${result.data.length} messages loaded`;
+                    
+                    notifyMessagesRead();
+                    
+                    setTimeout(() => {
+                        this.updateUnreadCounts();
+                    }, 500);
+                } else {
+                    this.displayMessages([]);
+                    document.getElementById('chatStatus').textContent = 'No messages found';
+                }
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                Utils.showAlert('Error loading messages. Please try again.', 'danger');
+                document.getElementById('chatStatus').textContent = 'Error loading messages';
+            } finally {
+                this.isLoading = false;
+                this.showMessages();
+            }
+        },
+
+        displayMessages(messages) {
+            const messagesList = document.getElementById('messagesList');
+            messagesList.innerHTML = '';
+
+            if (messages.length === 0) {
+                messagesList.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="ph-duotone ph-chat-circle f-40 text-muted" aria-hidden="true"></i>
+                        <p class="text-muted mt-2">No messages yet. Start the conversation!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            messages.forEach(message => {
+                const messageElement = this.createMessageElement(message);
+                messagesList.appendChild(messageElement);
+            });
+
+            this.scrollToBottom();
+        },
+
+        createMessageElement(message) {
+            const isFromClient = message.sender_type === 'client';
+            const isSystemMessage = message.sender_type === 'system';
+            const messageDiv = document.createElement('div');
+            
+            if (isSystemMessage) {
+                messageDiv.className = 'message-bubble system';
+            } else {
+                messageDiv.className = `message-bubble ${isFromClient ? 'sent' : 'received'}`;
+            }
+
+            let senderBadge = '';
+            if (isSystemMessage) {
+                senderBadge = '<span class="sender-badge bg-info text-white">System</span>';
+            } else {
+                senderBadge = isFromClient ?
+                    '<span class="sender-badge bg-light text-dark">You</span>' :
+                    '<span class="sender-badge bg-secondary text-white">Admin</span>';
+            }
+
+            let fileAttachment = '';
+            if (message.file_name) {
+                fileAttachment = this.createFileAttachment(message);
+            }
+
+            const sanitizedMessage = message.message ? Utils.sanitizeHtml(message.message) : '';
+
+            messageDiv.innerHTML = `
+                <div class="message-content">
+                    ${senderBadge}
+                    ${sanitizedMessage ? `<div class="message-text">${sanitizedMessage}</div>` : ''}
+                    ${fileAttachment}
+                    <div class="message-time">${Utils.formatTime(message.sent_at)}</div>
+                </div>
+            `;
+
+            return messageDiv;
+        },
+
+        createFileAttachment(message) {
             if (message.requires_signature && !message.is_signed && message.sender_type === 'admin') {
-                fileAttachment = `
+                return `
                     <div class="file-attachment signature-required">
                         <div class="d-flex align-items-center justify-content-between">
                             <div class="flex-grow-1">
                                 <div class="d-flex align-items-center">
-                                    <i class="ph-duotone ph-file-text me-2 text-warning"></i>
+                                    <i class="ph-duotone ph-file-text me-2 text-warning" aria-hidden="true"></i>
                                     <div>
-                                        <strong>${message.file_name}</strong>
+                                        <strong>${Utils.sanitizeHtml(message.file_name)}</strong>
                                         <div class="text-warning small">
-                                            <i class="ph-duotone ph-warning-circle me-1"></i>
+                                            <i class="ph-duotone ph-warning-circle me-1" aria-hidden="true"></i>
                                             Signature Required
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="d-flex gap-2">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="viewPdfInApp('${message.file_url}')" title="View Document">
-                                    <i class="ti ti-eye"></i> View
+                                <button class="btn btn-outline-secondary btn-sm" onclick="ChatManager.viewPdf('${message.file_url}')" title="View Document" aria-label="View Document">
+                                    <i class="ti ti-eye" aria-hidden="true"></i> View
                                 </button>
-                                <button class="btn btn-warning btn-sm" onclick="openSignatureModal(${message.id})">
-                                    <i class="ti ti-writing-sign me-1"></i> Sign
+                                <button class="btn btn-warning btn-sm" onclick="ChatManager.openSignatureModal(${message.id})" aria-label="Sign Document">
+                                    <i class="ti ti-writing-sign me-1" aria-hidden="true"></i> Sign
                                 </button>
                             </div>
                         </div>
@@ -1286,284 +1295,405 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             } else if (message.is_signed) {
                 const signedDate = message.signed_at ? new Date(message.signed_at).toLocaleDateString() : '';
-                fileAttachment = `
+                const signerName = Utils.sanitizeHtml(message.signer_full_name || '');
+                return `
                     <div class="file-attachment signed">
                         <div class="d-flex align-items-center justify-content-between">
                             <div class="flex-grow-1">
                                 <div class="d-flex align-items-center">
-                                    <i class="ph-duotone ph-file-check me-2 text-success"></i>
+                                    <i class="ph-duotone ph-file-check me-2 text-success" aria-hidden="true"></i>
                                     <div>
-                                        <strong>${message.file_name}</strong>
+                                        <strong>${Utils.sanitizeHtml(message.file_name)}</strong>
                                         <div class="text-success small">
-                                            <i class="ph-duotone ph-check-circle me-1"></i>
-                                            Signed by ${message.signer_full_name}${signedDate ? ' on ' + signedDate : ''}
+                                            <i class="ph-duotone ph-check-circle me-1" aria-hidden="true"></i>
+                                            Signed by ${signerName}${signedDate ? ' on ' + signedDate : ''}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="d-flex gap-2">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="viewPdfInApp('${message.file_url}')" title="View Original">
-                                    <i class="ti ti-eye"></i> Original
+                                <button class="btn btn-outline-secondary btn-sm" onclick="ChatManager.viewPdf('${message.file_url}')" title="View Original" aria-label="View Original Document">
+                                    <i class="ti ti-eye" aria-hidden="true"></i> Original
                                 </button>
-                                <button class="btn btn-success btn-sm" onclick="viewPdfInApp('${message.signed_file_url}')" title="View Signed Document">
-                                    <i class="ti ti-file-check"></i> Signed
+                                <button class="btn btn-success btn-sm" onclick="ChatManager.viewPdf('${message.signed_file_url}')" title="View Signed Document" aria-label="View Signed Document">
+                                    <i class="ti ti-file-check" aria-hidden="true"></i> Signed
                                 </button>
-                                <a href="${message.signed_file_url}" download class="btn btn-outline-success btn-sm" title="Download Signed">
-                                    <i class="ti ti-download"></i>
+                                <a href="${message.signed_file_url}" download class="btn btn-outline-success btn-sm" title="Download Signed" aria-label="Download Signed Document">
+                                    <i class="ti ti-download" aria-hidden="true"></i>
                                 </a>
                             </div>
                         </div>
                     </div>
                 `;
             } else {
-    // For regular files, check if it's a PDF
-    const isPdf = message.file_type && message.file_type.includes('pdf');
-    fileAttachment = `
-        <div class="file-attachment">
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="flex-grow-1">
-                    <div class="d-flex align-items-center">
-                        <i class="ph-duotone ph-file me-2"></i>
-                        <span class="text-decoration-none ${isFromClient ? '' : 'text-primary'}">
-                            ${message.file_name}
-                        </span>
-                    </div>
-                </div>
-                <div class="d-flex gap-2">
-                    ${isPdf ? `
-                        <button class="btn btn-outline-secondary btn-sm" onclick="viewPdfInApp('${message.file_url}')" title="View Document">
-                            <i class="ti ti-eye"></i> View
-                        </button>
-                    ` : ''}
-                    ${(() => {
-                        // Determine the download URL based on chat type
-                        let downloadUrl;
-                        if (currentCompanyId.startsWith('self-assessment-')) {
-                            downloadUrl = `/client/self-assessment/chat/download/${message.id}`;
-                        } else {
-                            downloadUrl = `/client/chat/download/${message.id}`;
-                        }
-                        return `<a href="${downloadUrl}" class="btn btn-outline-primary btn-sm" title="Download">
-                            <i class="ti ti-download"></i> Download
-                        </a>`;
-                    })()}
-                </div>
-            </div>
-        </div>
-    `;
-}
-        }
-
-        messageDiv.innerHTML = `
-            <div class="message-content">
-                ${senderBadge}
-                ${message.message ? `<div class="message-text">${message.message}</div>` : ''}
-                ${fileAttachment}
-                <div class="message-time">${formatTime(message.sent_at)}</div>
-            </div>
-        `;
-
-        return messageDiv;
-    }
-
-    async function sendMessage() {
-        const message = messageText.value.trim();
-        const file = messageFile.files[0];
-
-        if (!message && !file) {
-            showAlert('Please enter a message or select a file to send.', 'warning');
-            return;
-        }
-
-        if (!currentCompanyId) {
-            showAlert('Please select a company or self assessment first.', 'warning');
-            return;
-        }
-
-        const sendBtn = document.getElementById('sendBtn');
-        sendBtn.disabled = true;
-        sendBtn.innerHTML = '<i class="ph-duotone ph-spinner-gap"></i> Sending...';
-
-        try {
-            const formData = new FormData();
-            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-
-            if (currentCompanyId.startsWith('self-assessment-')) {
-                const selfAssessmentId = currentCompanyId.replace('self-assessment-', '');
-                formData.append('self_assessment_id', selfAssessmentId);
-            } else {
-                formData.append('company_id', currentCompanyId);
-            }
-
-            if (message) {
-                formData.append('message', message);
-            }
-
-            if (file) {
-                formData.append('file', file);
-            }
-
-            let url = currentCompanyId.startsWith('self-assessment-') 
-                ? "{{ route('client.self-assessment.chat.send') }}"
-                : "{{ route('client.chat.send') }}";
-
-            const response = await fetch(url, {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                messageText.value = '';
-                messageFile.value = '';
-                filePreview.classList.add('d-none');
+                const isPdf = message.file_type && message.file_type.includes('pdf');
+                let downloadUrl;
+                if (this.currentCompanyId.startsWith('self-assessment-')) {
+                    downloadUrl = `/client/self-assessment/chat/download/${message.id}`;
+                } else {
+                    downloadUrl = `/client/chat/download/${message.id}`;
+                }
                 
-                // Add the new message to the messages array
-                const newMessage = {
-                    id: result.data.message_id,
-                    sender_type: 'client',
-                    message: message,
-                    file_name: file ? file.name : null,
-                    sent_at: result.data.sent_at,
-                    is_read: false
+                return `
+                    <div class="file-attachment">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center">
+                                    <i class="ph-duotone ph-file me-2" aria-hidden="true"></i>
+                                    <span class="text-decoration-none">${Utils.sanitizeHtml(message.file_name)}</span>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                ${isPdf ? `
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="ChatManager.viewPdf('${message.file_url}')" title="View Document" aria-label="View Document">
+                                        <i class="ti ti-eye" aria-hidden="true"></i> View
+                                    </button>
+                                ` : ''}
+                                <a href="${downloadUrl}" class="btn btn-outline-primary btn-sm" title="Download" aria-label="Download File">
+                                    <i class="ti ti-download" aria-hidden="true"></i> Download
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        },
+
+        viewPdf(url) {
+            PDFHandler.loadPDF(url);
+            const modal = new bootstrap.Modal(document.getElementById('pdfModal'));
+            modal.show();
+        },
+
+        openSignatureModal(messageId) {
+            document.getElementById('chat_message_id').value = messageId;
+            document.getElementById('message_id').value = messageId;
+            
+            // Reset form validation
+            const form = document.getElementById('documentSignatureForm');
+            form.querySelectorAll('.form-control').forEach(input => {
+                input.classList.remove('is-valid', 'is-invalid');
+            });
+            
+            const modal = new bootstrap.Modal(document.getElementById('documentSignatureModal'));
+            modal.show();
+        },
+
+        handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file size (10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    Utils.showAlert('File size must be less than 10MB', 'warning');
+                    e.target.value = '';
+                    return;
+                }
+
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('filePreview').classList.remove('d-none');
+            }
+        },
+
+        removeFile() {
+            document.getElementById('messageFile').value = '';
+            document.getElementById('filePreview').classList.add('d-none');
+        },
+
+        async handleSendMessage(e) {
+            e.preventDefault();
+            
+            const messageText = document.getElementById('messageText');
+            const messageFile = document.getElementById('messageFile');
+            const message = messageText.value.trim();
+            const file = messageFile.files[0];
+
+            if (!message && !file) {
+                Utils.showAlert('Please enter a message or select a file to send.', 'warning');
+                return;
+            }
+
+            if (!this.currentCompanyId) {
+                Utils.showAlert('Please select a company or self assessment first.', 'warning');
+                return;
+            }
+
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="ph-duotone ph-spinner-gap" aria-hidden="true"></i> Sending...';
+
+            try {
+                const formData = new FormData();
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+                if (this.currentCompanyId.startsWith('self-assessment-')) {
+                    const selfAssessmentId = this.currentCompanyId.replace('self-assessment-', '');
+                    formData.append('self_assessment_id', selfAssessmentId);
+                } else {
+                    formData.append('company_id', this.currentCompanyId);
+                }
+
+                if (message) {
+                    formData.append('message', message);
+                }
+
+                if (file) {
+                    formData.append('file', file);
+                }
+
+                let url = this.currentCompanyId.startsWith('self-assessment-') 
+                    ? "{{ route('client.self-assessment.chat.send') }}"
+                    : "{{ route('client.chat.send') }}";
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    await Utils.handleApiError(response);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    messageText.value = '';
+                    messageFile.value = '';
+                    document.getElementById('filePreview').classList.add('d-none');
+                    
+                    const newMessage = {
+                        id: result.data.message_id,
+                        sender_type: 'client',
+                        message: message,
+                        file_name: file ? file.name : null,
+                        sent_at: result.data.sent_at,
+                        is_read: false
+                    };
+                    
+                    this.messages.push(newMessage);
+                    this.displayMessages(this.messages);
+                    Utils.showAlert('Message sent successfully!', 'success');
+                    
+                    notifyNewMessageSent();
+                } else {
+                    Utils.showAlert(result.message || 'Failed to send message.', 'danger');
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                Utils.showAlert(error.message || 'Network error. Please try again.', 'danger');
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = '<i class="ph-duotone ph-paper-plane-tilt me-1" aria-hidden="true"></i> Send';
+            }
+        },
+
+        async handleSignatureSubmit(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            
+            // Validate form
+            if (!FormValidator.validateSignatureForm(form)) {
+                Utils.showAlert('Please fill in all required fields correctly.', 'warning');
+                return;
+            }
+            
+            const submitButton = document.getElementById('submitDocSignature');
+            const signingSpinner = document.getElementById('docSigningSpinner');
+            
+            submitButton.disabled = true;
+            signingSpinner.classList.remove('d-none');
+            
+            try {
+                const browserData = {
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    language: navigator.language,
+                    vendor: navigator.vendor,
+                    screen: `${screen.width}x${screen.height}`,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    timestamp: new Date().toISOString()
                 };
                 
-                messages.push(newMessage);
-                displayMessages(messages);
-                showAlert('Message sent successfully!', 'success');
+                const formData = new FormData(form);
+                formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                formData.append('browser_data', JSON.stringify(browserData));
                 
-                // Notify header that a new message was sent
-                notifyNewMessageSent();
-            } else {
-                showAlert(result.message || 'Failed to send message.', 'danger');
-            }
-        } catch (error) {
-            console.error('Error sending message:', error);
-            showAlert('Network error. Please try again.', 'danger');
-        } finally {
-            sendBtn.disabled = false;
-            sendBtn.innerHTML = '<i class="ph-duotone ph-paper-plane-tilt me-1"></i> Send';
-        }
-    }
-
-    async function updateUnreadCounts() {
-        try {
-            // Update company unread counts
-            const companyResponse = await fetch("{{ route('client.chat.unread') }}", {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                let url;
+                if (this.currentCompanyId && this.currentCompanyId.toString().startsWith('self-assessment-')) {
+                    url = '{{ route("client.self-assessment.chat.sign-document") }}';
+                } else {
+                    url = '{{ route("client.chat.sign-document") }}';
                 }
-            });
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    await Utils.handleApiError(response);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Close modal
+                    const modalElement = document.getElementById('documentSignatureModal');
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    modal.hide();
+                    
+                    // Reset form
+                    form.reset();
+                    form.querySelectorAll('.form-control').forEach(input => {
+                        input.classList.remove('is-valid', 'is-invalid');
+                    });
+                    
+                    Utils.showAlert('Document has been signed successfully.', 'success');
+                    
+                    // Reload messages after a short delay
+                    setTimeout(() => {
+                        this.loadMessages();
+                    }, 500);
+                } else {
+                    throw new Error(result.message || 'Failed to sign document');
+                }
+            } catch (error) {
+                console.error('Error signing document:', error);
+                Utils.showAlert(error.message || 'An error occurred while signing the document. Please try again.', 'danger');
+            } finally {
+                submitButton.disabled = false;
+                signingSpinner.classList.add('d-none');
+            }
+        },
 
-            if (companyResponse.ok) {
-                const contentType = companyResponse.headers.get("content-type");
-                if (contentType && contentType.includes("application/json")) {
-                    const companyResult = await companyResponse.json();
-                    if (companyResult.success && companyResult.data) {
-                        // Update all badges to 0 first (hide them)
-                        document.querySelectorAll('[id^="unreadCount-"]').forEach(badge => {
-                            badge.textContent = '0';
-                            badge.classList.add('d-none');
-                        });
-                        
-                        // Update badges with actual counts
-                        Object.entries(companyResult.data).forEach(([key, count]) => {
-                            let badgeId = '';
+        handleSignatureModalClose() {
+            if (this.currentCompanyId) {
+                this.loadMessages();
+            }
+        },
+
+        async updateUnreadCounts() {
+            try {
+                const response = await fetch("{{ route('client.chat.unread') }}", {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                if (response.ok) {
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.includes("application/json")) {
+                        const result = await response.json();
+                        if (result.success && result.data) {
+                            // Update all badges to 0 first (hide them)
+                            document.querySelectorAll('[id^="unreadCount-"]').forEach(badge => {
+                                badge.textContent = '0';
+                                badge.classList.add('d-none');
+                            });
                             
-                            if (key.startsWith('company_')) {
-                                // Extract company ID from key like 'company_1'
-                                const companyId = key.replace('company_', '');
-                                badgeId = `unreadCount-${companyId}`;
-                            } else if (key === 'self_assessment') {
-                                // For self assessment
-                                @if($selfAssessment)
-                                badgeId = 'unreadCount-self-assessment-{{ $selfAssessment->id }}';
-                                @endif
-                            }
-                            
-                            if (badgeId) {
-                                const badge = document.getElementById(badgeId);
-                                if (badge) {
-                                    badge.textContent = count;
-                                    badge.classList.toggle('d-none', count === 0);
+                            // Update badges with actual counts
+                            Object.entries(result.data).forEach(([key, count]) => {
+                                let badgeId = '';
+                                
+                                if (key.startsWith('company_')) {
+                                    const companyId = key.replace('company_', '');
+                                    badgeId = `unreadCount-${companyId}`;
+                                } else if (key === 'self_assessment') {
+                                    @if($selfAssessment)
+                                    badgeId = 'unreadCount-self-assessment-{{ $selfAssessment->id }}';
+                                    @endif
                                 }
-                            }
-                        });
+                                
+                                if (badgeId) {
+                                    const badge = document.getElementById(badgeId);
+                                    if (badge) {
+                                        badge.textContent = count;
+                                        badge.classList.toggle('d-none', count === 0);
+                                    }
+                                }
+                            });
+                        }
                     }
                 }
+            } catch (error) {
+                console.error('Error updating unread counts:', error);
             }
+        },
+
+        scrollToBottom() {
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        },
+
+        autoSelectFirstCompany() {
+            const companyLinks = document.querySelectorAll('.company-chat-link');
+            if (companyLinks.length > 0) {
+                const firstCompany = companyLinks[0];
+                const companyId = firstCompany.getAttribute('data-company-id');
+                const companyName = firstCompany.getAttribute('data-company-name');
+                this.selectCompany(companyId, companyName, firstCompany);
+            }
+        },
+
+        startPeriodicUpdates() {
+            // Refresh messages every 30 seconds
+            this.intervals.push(setInterval(() => {
+                if (this.currentCompanyId && !this.isLoading) {
+                    this.loadMessages();
+                }
+            }, 30000));
+
+            // Update unread counts every 30 seconds
+            this.intervals.push(setInterval(() => {
+                this.updateUnreadCounts();
+            }, 30000));
+        },
+
+        cleanup() {
+            this.intervals.forEach(interval => clearInterval(interval));
+            this.intervals = [];
+        }
+    };
+
+    // Global functions for onclick handlers
+    window.ChatManager = ChatManager;
+    window.openSignatureModal = function(messageId) {
+        ChatManager.openSignatureModal(messageId);
+    };
+    window.viewPdfInApp = function(url) {
+        ChatManager.viewPdf(url);
+    };
+
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            PDFHandler.init();
+            ChatManager.init();
         } catch (error) {
-            console.error('Error updating unread counts:', error);
+            console.error('Initialization error:', error);
+            Utils.showAlert('Failed to initialize chat application. Please refresh the page.', 'danger');
         }
-    }
+    });
 
-    function formatTime(dateString) {
-        if (!dateString) return '';
-        
-        const date = new Date(dateString);
-        
-        if (isNaN(date.getTime())) {
-            return 'Invalid date';
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', function() {
+        ChatManager.cleanup();
+    });
+
+    // Handle visibility change to update counts when user returns to tab
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden && ChatManager.currentCompanyId) {
+            ChatManager.updateUnreadCounts();
         }
-        
-        const now = new Date();
-        const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+    });
 
-        if (diffInMinutes < 1) {
-            return 'Just now';
-        } else if (diffInMinutes < 60) {
-            return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
-        } else if (diffInMinutes < 1440) {
-            const hours = Math.floor(diffInMinutes / 60);
-            return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-        } else {
-            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-    }
-
-    function scrollToBottom() {
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-
-    function showAlert(message, type) {
-        const alertHtml = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                <i class="ph-duotone ph-${type === 'success' ? 'check-circle' : type === 'danger' ? 'x-circle' : 'warning-circle'} me-2"></i>
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-
-        const alertContainer = document.getElementById('alertContainer');
-        alertContainer.innerHTML = alertHtml;
-
-        setTimeout(() => {
-            const alert = alertContainer.querySelector('.alert');
-            if (alert) {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            }
-        }, 5000);
-    }
-
-    // Refresh messages every 30 seconds
-    setInterval(() => {
-        if (currentCompanyId && !isLoading) {
-            loadMessages();
-        }
-    }, 30000);
-
-    // Update unread counts every 60 seconds
-    setInterval(() => {
-        updateUnreadCounts();
-    }, 60000);
-});
+})();
 </script>
 @endpush
