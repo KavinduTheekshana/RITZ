@@ -10,7 +10,6 @@ use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Actions\Action;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 
 class ContactResource extends Resource
@@ -65,8 +64,8 @@ class ContactResource extends Resource
                             return null;
                         }
 
-                        // Return the full text as a tooltip
-                        return $state;
+                        // Ensure UTF-8 encoding before returning
+                        return mb_convert_encoding($state, 'UTF-8', 'UTF-8');
                     }),
 
                 IconColumn::make('is_read')
