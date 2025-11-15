@@ -31,14 +31,16 @@
                             <div class="help-block with-errors"></div>
                         </div>
                     </div>
+
+                    <div class="col-12">
+                        <button type="submit" class="btn-twentyOne rounded-2 tran3s w-100 d-block">Send
+                            Message</button>
+                    </div>
+
                     <div class="col-12">
                         <div class="form-group mb-35">
                             <x-turnstile::turnstile-widget data-theme="light" />
                         </div>
-                    </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn-twentyOne rounded-2 tran3s w-100 d-block">Send
-                            Message</button>
                     </div>
                 </div>
             </form>
@@ -113,4 +115,3 @@
         });
     </script>
 @endpush
-
