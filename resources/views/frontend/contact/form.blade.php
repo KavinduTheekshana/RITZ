@@ -32,6 +32,11 @@
                         </div>
                     </div>
                     <div class="col-12">
+                        <div class="form-group mb-35">
+                            <x-turnstile::turnstile-widget data-theme="light" />
+                        </div>
+                    </div>
+                    <div class="col-12">
                         <button type="submit" class="btn-twentyOne rounded-2 tran3s w-100 d-block">Send
                             Message</button>
                     </div>
@@ -75,7 +80,12 @@
                         $('#form-message-error').hide();
                         form[0].reset();
 
-                        // Hide success message after 30 seconds
+                        // Reset Turnstile widget
+                        if (typeof turnstile !== 'undefined') {
+                            turnstile.reset();
+                        }
+
+                        // Hide success message after 10 seconds
                         setTimeout(function() {
                             $('#form-message-success').fadeOut();
                         }, 10000);
@@ -88,7 +98,12 @@
                         }
                         $('#form-message-error').show().text(errorMsg);
 
-                        // Hide error message after 30 seconds
+                        // Reset Turnstile widget on error
+                        if (typeof turnstile !== 'undefined') {
+                            turnstile.reset();
+                        }
+
+                        // Hide error message after 10 seconds
                         setTimeout(function() {
                             $('#form-message-error').fadeOut();
                         }, 10000);

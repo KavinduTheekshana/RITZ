@@ -14,6 +14,7 @@ class ContactController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email',
             'message' => 'required|string|max:2000',
+            'cf-turnstile-response' => 'required|turnstile',
         ]);
 
         if ($validator->fails()) {
