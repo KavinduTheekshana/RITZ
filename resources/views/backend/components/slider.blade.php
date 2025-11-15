@@ -6,7 +6,7 @@
         <div class="m-header">
             <a href="{{ route('client.dashboard') }}" class="b-brand text-primary">
                 <!-- ========   Change your logo from here   ============ -->
-                <img src="{{ asset('frontend/images/logo/ritz_dark.svg') }}" alt="logo image" class="logo-lg"
+                <img src="{{ asset('frontend/images/logo/Credipath_Dark.svg') }}" alt="logo image" class="logo-lg"
                     width="200" />
             </a>
         </div>

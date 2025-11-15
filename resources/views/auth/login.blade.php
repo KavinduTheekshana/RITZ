@@ -120,7 +120,7 @@
                 <div class="form-wrapper">
                     <div class="logo">
                         <a href="{{ route('/') }}" class="d-flex align-items-center justify-content-center">
-                            <img src="{{ asset('frontend/images/logo/ritz_dark.svg') }}" class="main-logo" alt="Logo">
+                            <img src="{{ asset('frontend/images/logo/Credipath_Dark.svg') }}" class="main-logo" alt="Logo">
                         </a>
                     </div>
                     <div class="tab-content mt-4">
