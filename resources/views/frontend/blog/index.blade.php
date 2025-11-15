@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', "Blog | Ritz Accounting & Advisory")
+@section('title', "Blog | Credipath Accountancy & Advisory Ltd")
 @section('meta_description', 'Streamlined accounting and advisory solutions for UK companies. Get professional help with taxes, payroll, VAT, and more.')
 
 @section('content')

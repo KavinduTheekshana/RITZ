@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', "About Us | Ritz Accounting & Advisory")
+@section('title', "About Us | Credipath Accountancy & Advisory Ltd")
 @section('meta_description', 'Expert tax return filing, VAT returns, bookkeeping, and payroll services. Supporting UK businesses with reliable, low-cost accounting.')
 
 @section('content')

@@ -9,7 +9,7 @@
 					<div class="d-flex align-items-center justify-content-between">
 						<div class="logo order-lg-0">
 							<a href="{{ route('/') }}" class="d-flex align-items-center">
-								<img src="{{ asset('frontend/images/logo/ritz.svg')}}" class="main-logo" alt="">
+								<img src="{{ asset('frontend/images/logo/Credipath_Light.svg')}}" class="main-logo" alt="">
 							</a>
 						</div>
 						<!-- logo -->
@@ -25,7 +25,7 @@
 							</button>
 							<div class="collapse navbar-collapse" id="navbarNav">
 								<ul class="navbar-nav align-items-lg-center">
-									<li class="d-block d-lg-none"><div class="logo"><a href="index.html" class="d-block mobile-logo ml-0"><img src="{{ asset('frontend/images/logo/ritz.svg')}}" alt=""></a></div></li>
+									<li class="d-block d-lg-none"><div class="logo"><a href="index.html" class="d-block mobile-logo ml-0"><img src="{{ asset('frontend/images/logo/Credipath_Light.svg')}}" alt=""></a></div></li>
 
 									<li class="nav-item">
 										<a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ route('/') }}" role="button">Home</a>

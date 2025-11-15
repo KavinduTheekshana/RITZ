@@ -9,8 +9,8 @@
                 <div class="row">
 					<div class="col-xl-6 col-lg-8 d-flex">
 						<div class="bg-wrapper w-100 md-mb-50">
-							<h2 class="text-white fw-700">How RITZ Works.</h2>
-							<p class="text-white text-lg pt-30 pb-20">At Ritz Accounting & Advisory, we make accounting hassle-free so you can focus on growing your business. Our process ensures compliance, saves you time, and provides expert financial support.</p>
+							<h2 class="text-white fw-700">How Credipath Works.</h2>
+							<p class="text-white text-lg pt-30 pb-20">At Credipath Accountancy & Advisory Ltd, we make accounting hassle-free so you can focus on growing your business. Our process ensures compliance, saves you time, and provides expert financial support.</p>
 
 							<ul class="style-none">
 								<li>Record & Organize Finances</li>

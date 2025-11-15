@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', "$blog->title | Ritz Accounting & Advisory")
+@section('title', "$blog->title | Credipath Accountancy & Advisory Ltd")
 @section('meta_description', $blog->meta_description)
 @section('meta_keywords', $blog->meta_keywords)
 @section('ogimage', asset(url('storage/' . $blog->image)))

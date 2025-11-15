@@ -7,7 +7,7 @@
                     <h2>Expert Accounting & Advisory Services</h2>
                 </div>
                 <!-- /.title-one -->
-                <p class="text-lg mt-45 lg-mt-30 mb-35 lg-mb-30">Ritz Accounting & Advisory provides expert accounting,
+                <p class="text-lg mt-45 lg-mt-30 mb-35 lg-mb-30">Credipath Accountancy & Advisory Ltd provides expert accounting,
                     tax, VAT, bookkeeping, and payroll services. We ensure HMRC compliance, helping businesses manage
                     finances efficiently and grow with confidence.</p>
                 <div><a href="{{ route('about') }}" class="btn-four mt-15">More About us</a></div>

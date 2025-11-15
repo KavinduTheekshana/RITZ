@@ -7,7 +7,7 @@
           <div class="form-wrapper m-auto">
             <div class="logo order-lg-0">
               <a href="{{ route('/') }}" class="d-flex align-items-center justify-center">
-                <img src="{{ asset('frontend/images/logo/ritz_dark.svg')}}" class="main-logo" alt="">
+                <img src="{{ asset('frontend/images/logo/Credipath_Dark.svg')}}" class="main-logo" alt="">
               </a>
             </div>
             <div class="tab-content mt-30">

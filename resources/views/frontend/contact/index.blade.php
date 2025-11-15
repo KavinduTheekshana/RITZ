@@ -1,6 +1,6 @@
 @extends('layouts.frontend')
 
-@section('title', "Contact Us | Ritz Accounting & Advisory")
+@section('title', "Contact Us | Credipath Accountancy & Advisory Ltd")
 @section('meta_description', 'Affordable accounting services in the UK for small businesses, startups, and self-employed individuals. HMRC-compliant solutions you can trust.')
 
 @section('content')
@@ -48,10 +48,10 @@
                                         class="lazy-img">
                                 </div>
                                 <h5 class="title">Email Address</h5>
-                                <p><a href="mailto:info@ritzaccounting.co.uk"
-                                        class="webaddress-contact">info@ritzaccounting.co.uk</a>
-                                    <a href="mailto:sales@ritzaccounting.co.uk"
-                                        class="webaddress-contact">sales@ritzaccounting.co.uk</a>
+                                <p><a href="mailto:advisory@credipath.co.uk"
+                                        class="webaddress-contact">advisory@credipath.co.uk</a>
+                                    <a href="mailto:accountancy@credipath.co.uk"
+                                        class="webaddress-contact">accountancy@credipath.co.uk</a>
                                 </p>
                             </div> <!-- /.address-block-one -->
                         </div>

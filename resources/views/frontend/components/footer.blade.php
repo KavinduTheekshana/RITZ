@@ -11,7 +11,7 @@
                       <div class="col-xl-3 col-lg-4 footer-intro mb-30">
                           <div class="logo mb-35 md-mb-20">
                               <a href="{{ route('/') }}">
-                                  <img src="{{ asset('frontend/images/logo/ritz_dark.svg') }}" class="main-logo"
+                                  <img src="{{ asset('frontend/images/logo/Credipath_Dark.svg') }}" class="main-logo"
                                       alt="">
                               </a>
                           </div>
@@ -71,10 +71,10 @@
                       </div>
                   </div>
                   <hr>
-                  <div class="copyright text-center position-initial mt-20">Copyright {{ date('Y') }} RITZ
-                      Accountants |
+                  <div class="copyright text-center position-initial mt-20">Copyright {{ date('Y') }} Credipath
+                       |
                       Developed by <a href="https://creatxsoftware.com" target="_blank" class="creatx">Creatx Software
-                          Ltd</a>
+                          Limited</a>
                   </div>
               </div>
           </div>
