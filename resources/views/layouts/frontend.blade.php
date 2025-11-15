@@ -3,25 +3,25 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>@yield('title', 'Ritz Accounting & Advisory | Your partner in Business Sustainability.')</title>
-    <meta name="description" content="@yield('meta_description', 'RITZ Accounting offers simple, stress-free accounting services tailored to your business needs. Trusted by businesses across the UK.')">
+    <title>@yield('title', 'Credipath Accountancy & Advisory Ltd | Your partner in Business Sustainability.')</title>
+    <meta name="description" content="@yield('meta_description', 'Credipath Accountancy & Advisory Ltd offers simple, stress-free accounting services tailored to your business needs. Trusted by businesses across the UK.')">
     <meta name="keywords" content="@yield('meta_keywords', 'accounting services UK, affordable accountants, HMRC compliance, bookkeeping services, VAT return filing, payroll management, tax return help UK, online accountants, small business accounting, self-assessment tax return, company formation services, business advisory UK')">
 
-    <meta name="title" content="@yield('title', 'Ritz Accounting & Advisory | Your partner in Business Sustainability.')">
-    <link rel="canonical" href="https://ritzaccounting.co.uk" />
-    <meta name="author" content="www.ritzaccounting.co.uk">
+    <meta name="title" content="@yield('title', 'Credipath Accountancy & Advisory Ltd | Your partner in Business Sustainability.')">
+    <link rel="canonical" href="https://credipath.co.uk" />
+    <meta name="author" content="www.credipath.co.uk">
 
-    <meta property="og:title" content="@yield('title', 'Ritz Accounting & Advisory | Your partner in Business Sustainability.')" />
-    <meta property="og:description" content="@yield('meta_description', 'RITZ Accounting offers simple, stress-free accounting services tailored to your business needs. Trusted by businesses across the UK.')">
+    <meta property="og:title" content="@yield('title', 'Credipath Accountancy & Advisory Ltd | Your partner in Business Sustainability.')" />
+    <meta property="og:description" content="@yield('meta_description', 'Credipath Accountancy & Advisory Ltd offers simple, stress-free accounting services tailored to your business needs. Trusted by businesses across the UK.')">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://ritzaccounting.co.uk">
+    <meta property="og:url" content="https://credipath.co.uk">
     <meta property="og:image" content="@yield('ogimage', asset('frontend/assets/images/logo/og.jpg'))">
-    <meta property="og:site_name" content="Ritz Accounting & Advisory">
+    <meta property="og:site_name" content="Credipath Accountancy & Advisory Ltd">
 
     <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@yield('title', 'Ritz Accounting & Advisory | Your partner in Business Sustainability.')">
-    <meta name="twitter:description" content="@yield('meta_description', 'RITZ Accounting offers simple, stress-free accounting services tailored to your business needs. Trusted by businesses across the UK.')">
+    <meta name="twitter:title" content="@yield('title', 'Credipath Accountancy & Advisory Ltd | Your partner in Business Sustainability.')">
+    <meta name="twitter:description" content="@yield('meta_description', 'Credipath Accountancy & Advisory Ltd offers simple, stress-free accounting services tailored to your business needs. Trusted by businesses across the UK.')">
     <meta name="twitter:image" content="@yield('ogimage', asset('frontend/images/logo/og.webp'))">
     <!-- For IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -35,7 +35,7 @@
     <!-- iOS Safari -->
     <meta name="apple-mobile-web-app-status-bar-style" content="#1A4137">
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="56x56" href="{{ asset('frontend/images/logo/icon.svg') }}">
+    <link rel="icon" type="image/png" sizes="56x56" href="{{ asset('frontend/images/logo/Credipath_icon.svg') }}">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" type="text/css" href="{{ asset('frontend/css/bootstrap.min.css') }}" media="all">
     <!-- Main style sheet -->
