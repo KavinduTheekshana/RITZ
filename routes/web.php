@@ -26,6 +26,13 @@ Route::get('/blog/category/{category}', [BlogController::class, 'category'])->na
 Route::get('/blog/tag/{tag}', [BlogController::class, 'tag'])->name('blog.tag');
 Route::get('/blog/search', [BlogController::class, 'search'])->name('blog.search');
 
+// Sitemap route
+Route::get('/sitemap.xml', function () {
+    return response()->file(public_path('sitemap.xml'), [
+        'Content-Type' => 'application/xml'
+    ]);
+})->name('sitemap');
+
 // ------------------------------------------------------------------------------------------------------------
 // Guest routes (only accessible if NOT logged in)
 Route::middleware(['guest.client'])->group(function () {
