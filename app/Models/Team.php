@@ -13,6 +13,7 @@ class Team extends Model
         'name',
         'image',
         'designation',
+        'description',
         'status',
     ];
 }

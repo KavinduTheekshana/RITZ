@@ -48,7 +48,6 @@ class EngagementController extends Controller
             'engagement_id' => 'required|integer',
             'engagement_type' => 'required|in:company,self_assessment',
             'signer_full_name' => 'required|string|max:255',
-            'signer_print_name' => 'required|string|max:255',
             'signer_email' => 'required|email|max:255',
             'signed_date' => 'required|date',
             'browser_data' => 'nullable|string',
@@ -93,7 +92,6 @@ class EngagementController extends Controller
             // Update the engagement record
             $updateData = [
                 'signer_full_name' => $request->signer_full_name,
-                'signer_print_name' => $request->signer_print_name,
                 'signer_email' => $request->signer_email,
                 'signed_date' => $request->signed_date,
                 'signed_at' => Carbon::now(),
@@ -207,7 +205,6 @@ class EngagementController extends Controller
             // Signer information rows
             $signerRows = [
                 ['Full Name:', $signatureData['signer_full_name']],
-                ['Print Name:', $signatureData['signer_print_name']],
                 ['Email Address:', $signatureData['signer_email']],
                 ['Date Signed:', Carbon::parse($signatureData['signed_date'])->format('F d, Y')],
                 ['IP Address:', request()->ip()],

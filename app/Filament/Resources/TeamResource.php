@@ -7,6 +7,7 @@ use App\Filament\Resources\TeamResource\RelationManagers;
 use App\Models\Team;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
@@ -32,6 +33,11 @@ class TeamResource extends Resource
             ->schema([
                 TextInput::make('name')->required(),
                 TextInput::make('designation')->required(),
+                Textarea::make('description')
+                    ->label('Description')
+                    ->rows(3)
+                    ->maxLength(500)
+                    ->helperText('A short description about the team member (max 500 characters)'),
                 FileUpload::make('image')->image()->required(),
                 Toggle::make('status')->default(true),
             ]);
@@ -44,6 +50,15 @@ class TeamResource extends Resource
                 ImageColumn::make('image')->square(),
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('designation'),
+                TextColumn::make('description')
+                    ->limit(50)
+                    ->tooltip(function (TextColumn $column): ?string {
+                        $state = $column->getState();
+                        if (strlen($state) <= 50) {
+                            return null;
+                        }
+                        return $state;
+                    }),
                 ToggleColumn::make('status'),
             ])
             ->defaultSort('created_at', 'desc')

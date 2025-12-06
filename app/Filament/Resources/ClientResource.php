@@ -42,12 +42,14 @@ class ClientResource extends Resource
                             ])
                             ->columnSpan(['default' => 1, 'md' => 1]),
                         Forms\Components\TextInput::make('first_name')
+                            ->required()
                             ->maxLength(255)
                             ->columnSpan(['default' => 1, 'md' => 1]),
                         Forms\Components\TextInput::make('middle_name')
                             ->maxLength(255)
                             ->columnSpan(['default' => 1, 'md' => 1]),
                         Forms\Components\TextInput::make('last_name')
+                            ->required()
                             ->maxLength(255)
                             ->columnSpan(['default' => 1, 'md' => 1]),
                         Forms\Components\TextInput::make('preferred_name')
@@ -89,6 +91,7 @@ class ClientResource extends Resource
                             ->maxLength(255)
                             ->columnSpan(['default' => 1, 'md' => 1]),
                         Forms\Components\TextInput::make('mobile_number')
+                            ->required()
                             ->tel()
                             ->maxLength(255)
                             ->columnSpan(['default' => 1, 'md' => 1]),

@@ -1,5 +1,9 @@
 @extends('layouts.backend')
 
+@section('meta_title', 'Engagement Letters - Sign & Manage Documents | RITZ Accounting')
+@section('meta_description', 'View, sign, and download your engagement letters for company accounts and self-assessment services. Secure digital document signing with RITZ.')
+@section('meta_keywords', 'engagement letters, digital signature, company engagement, self-assessment agreement, sign documents online, accounting contracts, client agreements')
+
 @section('content')
     <div class="pc-container">
         <div class="pc-content">
@@ -301,15 +305,6 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="signer_print_name" class="form-label">
-                                <i class="ti ti-signature me-1"></i>Print Name *
-                            </label>
-                            <input type="text" class="form-control" id="signer_print_name"
-                                name="signer_print_name" required placeholder="Enter your printed name">
-                            <small class="form-text text-muted">How your name should appear in print</small>
-                        </div>
-
-                        <div class="form-group">
                             <label for="signer_email" class="form-label">
                                 <i class="ti ti-mail me-1"></i>Email Address *
                             </label>
@@ -384,14 +379,14 @@
             align-items: flex-start;
             padding: 20px;
             min-height: 0;
+            width: 100%;
         }
 
         #pdfCanvas {
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             border-radius: 4px;
             background-color: white;
-            max-width: 100%;
-            height: auto;
+            display: block;
         }
 
         /* Loading and error states */
@@ -518,7 +513,7 @@
         let pdfDoc = null;
         let currentPage = 1;
         let currentScale = 1;
-        let fitMode = 'page'; // 'width', 'page', or 'manual'
+        let fitMode = 'width'; // 'width', 'page', or 'manual'
         let currentPdfUrl = '';
 
         // DOM elements
@@ -590,13 +585,15 @@
 
             if (fitMode === 'width') {
                 currentScale = containerWidth / viewport.width;
+                // Ensure minimum scale of 1.2 for better readability
+                currentScale = Math.max(currentScale, 1.2);
             } else if (fitMode === 'page') {
                 const scaleX = containerWidth / viewport.width;
                 const scaleY = containerHeight / viewport.height;
                 currentScale = Math.min(scaleX, scaleY);
             }
 
-            currentScale = Math.max(0.1, Math.min(currentScale, 5)); // Limit scale between 0.1 and 5
+            currentScale = Math.max(0.5, Math.min(currentScale, 5)); // Limit scale between 0.5 and 5
             updateZoomLevel();
         }
 
@@ -921,12 +918,5 @@
             });
     });
 
-    // Auto-fill print name when full name is entered
-    document.getElementById('signer_full_name').addEventListener('input', function() {
-        const printNameField = document.getElementById('signer_print_name');
-        if (!printNameField.value) {
-            printNameField.value = this.value;
-        }
-    });
 </script>
 @endpush

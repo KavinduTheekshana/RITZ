@@ -1,5 +1,9 @@
 @extends('layouts.backend')
 
+@section('meta_title', 'My Profile - Client Account Settings | RITZ Accounting')
+@section('meta_description', 'Manage your personal profile, contact information, identity verification, and account security. Update your password and personal details securely.')
+@section('meta_keywords', 'client profile, account settings, password change, personal information, identity verification, account security, RITZ client account')
+
 @section('content')
     <div class="pc-container">
         <div class="pc-content">

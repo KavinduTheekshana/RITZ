@@ -1,5 +1,9 @@
 @extends('layouts.backend')
 
+@section('meta_title', 'Dashboard - Your Companies & Self Assessment | RITZ Accounting')
+@section('meta_description', 'View and manage your companies and self-assessment tax returns. Access your financial overview and accounting services with RITZ.')
+@section('meta_keywords', 'client dashboard, company accounts, self-assessment tax, tax returns UK, business accounting, personal tax, RITZ client portal')
+
 @section('content')
     <div class="pc-container">
         <div class="pc-content">

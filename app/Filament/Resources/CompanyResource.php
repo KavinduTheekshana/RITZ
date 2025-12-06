@@ -47,10 +47,12 @@ class CompanyResource extends Resource
                                 Forms\Components\Section::make('Company Information')
                                     ->schema([
                                         Forms\Components\TextInput::make('company_name')
+                                            ->required()
                                             ->label('Company Name'),
                                         Forms\Components\TextInput::make('company_number')
                                             ->label('Company Number'),
                                         Forms\Components\Select::make('company_status')
+                                            ->required()
                                             ->label('Company Status')
                                             ->options([
                                                 'Active' => 'Active',
@@ -104,6 +106,7 @@ class CompanyResource extends Resource
                                             ])
                                             ->default('Registered Address'),
                                         Forms\Components\TextInput::make('company_email')
+                                            ->required()
                                             ->label('Company Email')
                                             ->email(),
                                         Forms\Components\TextInput::make('company_email_domain')

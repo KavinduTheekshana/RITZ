@@ -3,19 +3,32 @@
 <!-- [Head] start -->
 
 <head>
-    <title>Layout Horizontal | Light Able Admin & Dashboard Template</title>
+    <title>@yield('meta_title', 'Client Dashboard | RITZ Accounting')</title>
     <!-- [Meta] -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="description"
-        content="Light Able admin and dashboard template offer a variety of UI elements and pages, ensuring your admin panel is both fast and effective." />
-    <meta name="author" content="phoenixcoded" />
+    <meta name="description" content="@yield('meta_description', 'Manage your accounting, taxes, and financial services with RITZ. Access your companies, self-assessment, engagement letters, and secure messaging with your accountant.')" />
+    <meta name="keywords" content="@yield('meta_keywords', 'RITZ accounting, client dashboard, tax services, self-assessment, company accounts, engagement letters, accountant messaging, financial services UK')" />
+    <meta name="author" content="RITZ Accounting" />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="@yield('og_title', 'Client Dashboard | RITZ Accounting')" />
+    <meta property="og:description" content="@yield('og_description', 'Manage your accounting and financial services with RITZ')" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="RITZ Accounting" />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="@yield('twitter_title', 'Client Dashboard | RITZ Accounting')" />
+    <meta name="twitter:description" content="@yield('twitter_description', 'Manage your accounting and financial services with RITZ')" />
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- [Favicon] icon -->
-    <link rel="icon" href="{{ asset('backend/images/favicon.svg') }}" type="image/x-icon" />
+    {{-- <link rel="icon" href="{{ asset('backend/images/favicon.svg') }}" type="image/x-icon" /> --}}
+        <link rel="icon" type="image/png" sizes="56x56" href="{{ asset('frontend/images/logo/Credipath_icon.svg') }}">
     <!-- [Google Font : Public Sans] icon -->
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">

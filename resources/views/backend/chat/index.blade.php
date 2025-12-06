@@ -1,5 +1,9 @@
 @extends('layouts.backend')
 
+@section('meta_title', 'Messages - Secure Communication with Your Accountant | RITZ Accounting')
+@section('meta_description', 'Communicate securely with your RITZ accountant. Send messages, share documents, sign agreements, and get real-time support for your company and self-assessment matters.')
+@section('meta_keywords', 'accountant messaging, secure client communication, share documents, sign documents, company messages, self-assessment queries, client support, RITZ chat')
+
 @section('content')
     <div class="pc-container">
         <div class="pc-content">
@@ -208,17 +212,7 @@
                             <div class="invalid-feedback">Please enter your full legal name.</div>
                             <small class="form-text text-muted">Enter your name as it appears on legal documents</small>
                         </div>
-                        
-                        <div class="form-group">
-                            <label for="signer_print_name" class="form-label">
-                                <i class="ph-duotone ph-signature me-1" aria-hidden="true"></i>Print Name *
-                            </label>
-                            <input type="text" class="form-control" id="signer_print_name" name="signer_print_name"
-                                   required placeholder="Enter your printed name" autocomplete="name">
-                            <div class="invalid-feedback">Please enter your printed name.</div>
-                            <small class="form-text text-muted">How your name should appear in print</small>
-                        </div>
-                        
+
                         <div class="form-group">
                             <label for="signer_email" class="form-label">
                                 <i class="ph-duotone ph-envelope me-1" aria-hidden="true"></i>Email Address *
@@ -1093,14 +1087,6 @@
             elements.removeFileBtn.addEventListener('click', () => this.removeFile());
             elements.signatureModal.addEventListener('hidden.bs.modal', () => this.handleSignatureModalClose());
             elements.signatureForm.addEventListener('submit', (e) => this.handleSignatureSubmit(e));
-
-            // Auto-fill print name when full name is entered
-            document.getElementById('signer_full_name').addEventListener('input', function() {
-                const printNameField = document.getElementById('signer_print_name');
-                if (!printNameField.value) {
-                    printNameField.value = this.value;
-                }
-            });
 
             // Add keyboard support
             elements.messageText.addEventListener('keypress', (e) => {

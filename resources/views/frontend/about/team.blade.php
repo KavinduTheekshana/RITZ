@@ -23,6 +23,9 @@
 								</div>
 								<h4 class="fw-500 pt-20 m0">{{$member->name}}</h4>
 								<div class="fs-6">{{$member->designation}}</div>
+								@if($member->description)
+								<p class="text-muted mt-2 fs-6">{{ $member->description }}</p>
+								@endif
 							</div>
 							<!-- /.card-style-fifteen -->
 						</div>
