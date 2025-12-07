@@ -1,7 +1,7 @@
 <div class="row mt-80 lg-mt-40">
     <div class="col-xl-5 col-md-6">
         <div class="title-one mb-40">
-            <h2 class="color-deep">Get Your Free Consultation Now!</h2>
+            <h2 class="color-deep">Get Your Free Consultation!</h2>
         </div>
         <!-- /.title-one -->
         <div class="form-style-two">
@@ -25,10 +25,16 @@
                         </div>
                     </div>
                     <div class="col-12">
-                        <div class="input-group-meta form-group mb-35">
+                        <div class="input-group-meta form-group mb-15">
                             <textarea placeholder="We're here to help you" name="message" required="required"
                                 data-error="Please, leave us a message."></textarea>
                             <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+
+                     <div class="col-12">
+                        <div class="form-group mb-15">
+                            <x-turnstile::turnstile-widget data-theme="light" />
                         </div>
                     </div>
 
@@ -37,11 +43,7 @@
                             Message</button>
                     </div>
 
-                    <div class="col-12">
-                        <div class="form-group mb-35">
-                            <x-turnstile::turnstile-widget data-theme="light" />
-                        </div>
-                    </div>
+                   
                 </div>
             </form>
             <br>
