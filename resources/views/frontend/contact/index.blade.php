@@ -64,6 +64,6 @@
             {{-- </div> --}}
         </div>
     </div>
-    @include('frontend.contact.map')
+    {{-- @include('frontend.contact.map') --}}
 </div>
 @endsection
