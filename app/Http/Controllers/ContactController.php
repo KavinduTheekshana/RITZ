@@ -10,19 +10,12 @@ class ContactController extends Controller
 {
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
             'message' => 'required|string|max:2000',
-            'cf-turnstile-response' => 'required|turnstile',
+            'cf-turnstile-response' => 'required',
         ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $validator->errors()
-            ], 422);
-        }
 
         // Save to DB or send email here
         Contact::create($request->only('name', 'email', 'message'));
