@@ -28,7 +28,7 @@
     <!-- For Resposive Device -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- For Window Tab Color -->
-    <!-- Chrome, Firefox OS and Opera -->
+    <!-- Chrome, Firefox OS and Opera... -->
     <meta name="theme-color" content="#1A4137">
     <!-- Windows Phone -->
     <meta name="msapplication-navbutton-color" content="#1A4137">

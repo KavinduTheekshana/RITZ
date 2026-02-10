@@ -29,7 +29,7 @@
     <!-- [Favicon] icon -->
     {{-- <link rel="icon" href="{{ asset('backend/images/favicon.svg') }}" type="image/x-icon" /> --}}
         <link rel="icon" type="image/png" sizes="56x56" href="{{ asset('frontend/images/logo/Credipath_icon.svg') }}">
-    <!-- [Google Font : Public Sans] icon -->
+    <!-- [Google Font :asda Public Sans] icon -->
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap"
         rel="stylesheet">
 
